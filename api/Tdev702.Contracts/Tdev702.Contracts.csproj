@@ -9,9 +9,10 @@
     <ItemGroup>
       <Folder Include="API\Auth\" />
       <Folder Include="API\Backoffice\" />
-      <Folder Include="API\Shop\" />
-      <Folder Include="SQL\Auth\" />
-      <Folder Include="SQL\Backoffice\" />
+      <Folder Include="SQL\Request\Auth\" />
+      <Folder Include="SQL\Request\Backoffice\" />
+      <Folder Include="SQL\Response\Auth\" />
+      <Folder Include="SQL\Response\Backoffice\" />
     </ItemGroup>
 
 </Project>
