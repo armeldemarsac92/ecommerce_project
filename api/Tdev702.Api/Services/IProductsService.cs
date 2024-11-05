@@ -27,7 +27,10 @@ public class ProductsService : IProductsService
 
     public async Task<Product> GetByIdAsync(long id, CancellationToken cancellationToken = default)
     {
-        throw new NotImplementedException();
+        var response = await _productRepository.GetByIdAsync(id, cancellationToken);
+        if(response is null) throw new NotFoundException($"Product {id} not found");
+        
+        return response.MapToProduct();
     }
 
     public async Task<List<Product>> GetAllAsync(CancellationToken cancellationToken = default)
