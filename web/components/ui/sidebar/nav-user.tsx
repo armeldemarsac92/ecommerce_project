@@ -1,13 +1,11 @@
 "use client"
 
 import {
-  BadgeCheck,
-  Bell,
+  BadgeCheck, Bell,
   ChevronsUpDown,
-  CreditCard,
   LogOut,
-  Sparkles,
-} from "lucide-react"
+  Sparkles
+} from "lucide-react";
 
 import {
   Avatar,
@@ -29,6 +27,8 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@/components/shadcn-ui/sidebar"
+import * as React from "react";
+import { Badge } from "@/components/shadcn-ui/badge";
 
 export function NavUser({
   user,
@@ -50,10 +50,12 @@ export function NavUser({
               size="lg"
               className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
             >
-              <Avatar className="h-8 w-8 rounded-lg">
-                <AvatarImage src={user.avatar} alt={user.name} />
-                <AvatarFallback className="rounded-lg">CN</AvatarFallback>
-              </Avatar>
+              <div className={"relative inline-block"}>
+                <Avatar className="h-8 w-8 rounded-lg" asChild>
+                  <AvatarImage src={user.avatar} alt={user.name} />
+                  {/*<AvatarFallback className="rounded-full">CN</AvatarFallback>*/}
+                </Avatar>
+              </div>
               <div className="grid flex-1 text-left text-sm leading-tight">
                 <span className="truncate font-semibold">{user.name}</span>
                 <span className="truncate text-xs">{user.email}</span>
@@ -91,10 +93,6 @@ export function NavUser({
               <DropdownMenuItem>
                 <BadgeCheck />
                 Account
-              </DropdownMenuItem>
-              <DropdownMenuItem>
-                <CreditCard />
-                Billing
               </DropdownMenuItem>
               <DropdownMenuItem>
                 <Bell />
