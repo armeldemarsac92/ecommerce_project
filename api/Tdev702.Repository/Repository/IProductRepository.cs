@@ -3,7 +3,7 @@ using Tdev702.Contracts.SQL.Request.Shop.Product;
 using Tdev702.Contracts.SQL.Response.Shop;
 using Tdev702.Repository.SQL;
 
-namespace Tdev702.Repository.Products;
+namespace Tdev702.Repository.Repository;
 
 public interface IProductRepository
 {
