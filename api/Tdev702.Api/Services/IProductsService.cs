@@ -2,8 +2,7 @@ using Tdev702.Contracts.API.Shop;
 using Tdev702.Contracts.Exceptions;
 using Tdev702.Contracts.SQL.Mapping;
 using Tdev702.Contracts.SQL.Request.Shop;
-using Tdev702.Contracts.SQL.Response.Shop;
-using Tdev702.Repository.Products;
+using Tdev702.Repository.Repository;
 
 namespace Tdev702.Api.Services;
 

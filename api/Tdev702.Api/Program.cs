@@ -1,5 +1,4 @@
 using Tdev702.Api.DI;
-using Tdev702.Api.Endpoints.Shop;
 
 var builder = WebApplication.CreateBuilder(args);
 
