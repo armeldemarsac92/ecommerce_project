@@ -11,7 +11,7 @@ import {
   Avatar,
   AvatarFallback,
   AvatarImage,
-} from "@/components/shadcn-ui/avatar"
+} from "@/components/shadcn/avatar"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -20,15 +20,15 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/shadcn-ui/dropdown-menu"
+} from "@/components/shadcn/dropdown-menu"
 import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
   useSidebar,
-} from "@/components/shadcn-ui/sidebar"
+} from "@/components/shadcn/sidebar"
 import * as React from "react";
-import { Badge } from "@/components/shadcn-ui/badge";
+import { useRouter } from "next/navigation";
 
 export function NavUser({
   user,
@@ -39,7 +39,9 @@ export function NavUser({
     avatar: string
   }
 }) {
-  const { isMobile } = useSidebar()
+  const { isMobile } = useSidebar();
+
+  const router = useRouter();
 
   return (
     <SidebarMenu>
@@ -48,19 +50,18 @@ export function NavUser({
           <DropdownMenuTrigger asChild>
             <SidebarMenuButton
               size="lg"
-              className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
             >
               <div className={"relative inline-block"}>
-                <Avatar className="h-8 w-8 rounded-lg" asChild>
-                  <AvatarImage src={user.avatar} alt={user.name} />
-                  {/*<AvatarFallback className="rounded-full">CN</AvatarFallback>*/}
-                </Avatar>
+                  <Avatar className="w-8 h-8 rounded-lg object-contain" asChild>
+                    <AvatarImage src={user.avatar} alt={user.name} />
+                    {/*<AvatarFallback className="rounded-full">CN</AvatarFallback>*/}
+                  </Avatar>
               </div>
-              <div className="grid flex-1 text-left text-sm leading-tight">
+              <div className="grid flex-1 text-left text-sm leading-tight group-data-[collapsible=icon]:hidden">
                 <span className="truncate font-semibold">{user.name}</span>
                 <span className="truncate text-xs">{user.email}</span>
               </div>
-              <ChevronsUpDown className="ml-auto size-4" />
+              <ChevronsUpDown className="group-data-[collapsible=icon]:hidden ml-auto mt-0.5" />
             </SidebarMenuButton>
           </DropdownMenuTrigger>
           <DropdownMenuContent
@@ -83,24 +84,24 @@ export function NavUser({
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
-              <DropdownMenuItem>
+              <DropdownMenuItem className={"hover:cursor-pointer"}>
                 <Sparkles />
                 Upgrade to Pro
               </DropdownMenuItem>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
-              <DropdownMenuItem>
+              <DropdownMenuItem className={"hover:cursor-pointer"} onClick={() => {router.push("/dashboard/my-account")}}>
                 <BadgeCheck />
                 Account
               </DropdownMenuItem>
-              <DropdownMenuItem>
+              <DropdownMenuItem className={"hover:cursor-pointer"}>
                 <Bell />
                 Notifications
               </DropdownMenuItem>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
-            <DropdownMenuItem>
+            <DropdownMenuItem className={"hover:cursor-pointer"}>
               <LogOut />
               Log out
             </DropdownMenuItem>
