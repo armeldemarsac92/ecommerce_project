@@ -2,12 +2,23 @@
 
 import { motion, AnimatePresence } from "framer-motion";
 import { ArrowRight, X } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { ScrollShadow } from "@nextui-org/react";
 import { Button } from "@/components/shadcn/button";
 
 export default function LastOrders() {
   const [activeTransaction, setActiveTransaction] = useState<null | TransactionType>(null);
+  const [newTransactionsList, setNewTransactionsList] = useState<TransactionType[]>([]);
+  const [test, setTest] = useState(0);
+
+  useEffect(() => {
+    if(test < transactions.length) {
+      setTimeout(() => {
+        newTransactionsList.push(transactions[test]);
+        setTest(test + 1);
+      }, 1000);
+    }
+  }, [test]);
 
   return (
     <div className="relative w-3/6 h-full flex items-start justify-center px-4 py-2 bg-white rounded-xl">
@@ -15,7 +26,7 @@ export default function LastOrders() {
         className="bg-white w-full h-full flex flex-col items-start overflow-hidden p-0 relative"
         style={{
           borderRadius: 20,
-          //height: activeTransaction ? 300 : 408,
+          /*height: activeTransaction ? 300 : 408,*/
         }}
         layoutId="container"
       >
@@ -25,12 +36,14 @@ export default function LastOrders() {
           </p>
         </div>
         <ScrollShadow className="w-full h-[410px]">
-          <div className="w-full max-h-[26rem] flex flex-col gap-y-2 items-center justify-center pt-14">
-            {transactions.map((transaction, index) => (
+          <div className="w-full max-h-[26rem] flex flex-col flex-col-reverse gap-y-2 items-center justify-center pt-4">
+            {newTransactionsList.map((transaction, index) => (
               <motion.div
                 key={index}
                 className="flex items-center justify-between w-full gap-2 py-1.5 px-4 cursor-pointer"
                 onClick={() => setActiveTransaction(transaction)}
+                initial={{ opacity: 0, translateY: 20 }}
+                animate={{ opacity: 1, translateY: 0 }}
               >
                 {/*<motion.img
                   src={`https://api.dicebear.com/9.x/lorelei/svg?seed=${transaction.name}`}
