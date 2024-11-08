@@ -11,8 +11,11 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  SidebarMenuSub,
+  SidebarMenuSubButton,
+  SidebarMenuSubItem,
 } from "@/components/shadcn-ui/sidebar"
-import {Link} from "@nextui-org/link";
+import { Link } from "@nextui-org/link";
 
 export function NavMain({
   titleNav,
@@ -44,7 +47,7 @@ export function NavMain({
             <SidebarMenuItem>
               <SidebarMenuButton tooltip={item.title}>
                 {item.icon && <item.icon />}
-                <Link href={item.url}>{item.title}</Link>
+                <Link className={"text-[13px]"} href={item.url}>{item.title}</Link>
               </SidebarMenuButton>
             </SidebarMenuItem>
           </Collapsible>

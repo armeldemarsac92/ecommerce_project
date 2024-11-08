@@ -1,0 +1,28 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tdev702.Contracts", "Tdev702.Contracts\Tdev702.Contracts.csproj", "{DD8718E0-9A1A-41C2-9E66-4DD8A1393C31}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tdev702.Api", "Tdev702.Api\Tdev702.Api.csproj", "{07C941A7-EB02-46F4-90B0-F88426D7968A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tdev702.Repository", "Tdev702.Repository\Tdev702.Repository.csproj", "{0E5FDDCE-6E6B-444E-8917-610C2ABB4495}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{DD8718E0-9A1A-41C2-9E66-4DD8A1393C31}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DD8718E0-9A1A-41C2-9E66-4DD8A1393C31}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DD8718E0-9A1A-41C2-9E66-4DD8A1393C31}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DD8718E0-9A1A-41C2-9E66-4DD8A1393C31}.Release|Any CPU.Build.0 = Release|Any CPU
+		{07C941A7-EB02-46F4-90B0-F88426D7968A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{07C941A7-EB02-46F4-90B0-F88426D7968A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{07C941A7-EB02-46F4-90B0-F88426D7968A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{07C941A7-EB02-46F4-90B0-F88426D7968A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0E5FDDCE-6E6B-444E-8917-610C2ABB4495}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0E5FDDCE-6E6B-444E-8917-610C2ABB4495}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0E5FDDCE-6E6B-444E-8917-610C2ABB4495}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0E5FDDCE-6E6B-444E-8917-610C2ABB4495}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal

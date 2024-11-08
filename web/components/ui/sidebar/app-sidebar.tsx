@@ -5,6 +5,7 @@ import { ChartNoAxesCombined, CreditCard, Grid3x3, Newspaper, PackageSearch, Pan
 import { NavMain } from "@/components/ui/sidebar/nav-main";
 import { NavUser } from "@/components/ui/sidebar/nav-user";
 import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarRail } from "@/components/shadcn-ui/sidebar";
+import { ThemeSwitch } from "@/components/theme-switch";
 
 // This is sample data.
 const data = {
