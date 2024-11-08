@@ -1,11 +1,18 @@
 "use client"
 
-import * as React from "react";
 import { ChartNoAxesCombined, CreditCard, Grid3x3, Newspaper, PackageSearch, PanelsTopLeft, UsersRound } from "lucide-react";
 import { NavMain } from "@/components/ui/sidebar/nav-main";
 import { NavUser } from "@/components/ui/sidebar/nav-user";
-import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarRail } from "@/components/shadcn-ui/sidebar";
-import { ThemeSwitch } from "@/components/theme-switch";
+import {
+  Sidebar,
+  SidebarContent,
+  SidebarFooter,
+  SidebarHeader,
+  SidebarMenuButton,
+  SidebarRail
+} from "@/components/shadcn/sidebar";
+import { Logo } from "@/components/icons";
+import { Link } from "@nextui-org/link";
 
 // This is sample data.
 const data = {
@@ -18,9 +25,8 @@ const data = {
   dashboard_nav: [
     {
       title: "Overview",
-      url: "/dashboard/overview",
+      url: "/dashboard",
       icon: PanelsTopLeft,
-      isActive: true,
     },
     {
       title: "Statistics",
@@ -34,7 +40,6 @@ const data = {
       title: "Products",
       url: "/dashboard/catalog/products",
       icon: Grid3x3,
-      isActive: true,
     },
     {
       title: "Inventory",
@@ -56,7 +61,6 @@ const data = {
       title: "Orders",
       url: "/dashboard/sales/orders",
       icon: CreditCard,
-      isActive: true,
     },
     {
       title: "Invoices",
@@ -69,7 +73,15 @@ const data = {
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   return (
     <Sidebar collapsible="icon" {...props}>
-      <SidebarHeader/>
+      <SidebarHeader className={"flex-row items-center gap-x-3"}>
+        <Link href={"/dashboard"}>
+          <Logo size={30}/>
+        </Link>
+        <div className={"group-data-[collapsible=icon]:hidden"}>
+          <h1 className={"font-semibold"}>MiamMiam</h1>
+          <p className={"text-xs text-gray-500 font-light"}>Admin Dashboard</p>
+        </div>
+      </SidebarHeader>
 
       <SidebarContent>
         <NavMain titleNav={"Dashboard"} items={data.dashboard_nav} />
