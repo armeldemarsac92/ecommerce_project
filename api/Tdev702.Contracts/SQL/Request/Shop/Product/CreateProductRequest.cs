@@ -1,4 +1,4 @@
-namespace Tdev702.Contracts.SQL.Request.Shop;
+namespace Tdev702.Contracts.SQL.Request.Shop.Product;
 
 public class CreateProductRequest
 {
