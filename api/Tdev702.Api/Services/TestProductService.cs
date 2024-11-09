@@ -1,5 +1,5 @@
 using Tdev702.Contracts.API.Shop;
-using Tdev702.Contracts.SQL.Request.Shop;
+using Tdev702.Contracts.SQL.Request.Shop.Product;
 
 namespace Tdev702.Api.Services;
 
