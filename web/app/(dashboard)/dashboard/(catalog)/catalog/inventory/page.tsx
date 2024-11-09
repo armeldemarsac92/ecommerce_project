@@ -75,7 +75,7 @@ export default function InventoryProductPage() {
                     />
                 </div>
                 <div className="relative">
-                    <Link href="/dashboard/catalog/products/new">
+                    <Link href="/dashboard/catalog/inventory/products/new">
                         <Button variant={"expandIcon"} iconPlacement={"left"} Icon={Plus} size={"sm"}>
                             Add product
                         </Button>
