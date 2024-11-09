@@ -49,7 +49,7 @@ module.exports = {
   				DEFAULT: 'var(--destructive)',
   				foreground: 'var(--destructive-foreground)'
   			},
-				success: 'var(--success)',
+				/*success: 'var(--success)',*/
   			border: 'var(--border)',
   			input: 'var(--input)',
 				icon: 'var(--icon)',

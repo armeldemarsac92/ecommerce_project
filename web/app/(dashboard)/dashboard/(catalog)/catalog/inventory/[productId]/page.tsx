@@ -2,40 +2,53 @@
 import { z } from "zod";
 import {motion} from "framer-motion";
 import AutoForm, {AutoFormSubmit} from "@/components/ui/auto-form";
+import { useParams } from "next/navigation";
 
 enum Category {
     Drink = 'Drink',
     Meat = 'Meat',
-    PizzasPiesAndQuiches = 'Pizzas pies and quiches',
+    Vegetables = 'Vegetables',
     Snacks = 'Snacks'
 }
 
 enum Brand {
     CocaCola = "Coca cola",
-    Bacon = "Bacon",
-    Water1L = "Water 1L",
-    PizzaExpressMargherita = "Pizza express margherita",
-    DarkChocolate65Cocoa = "Dark chocolate 65% cocoa"
+    Volvic = "Volvic",
+    Freedent = "Freedent",
+    Danone = "Danone",
+    Sigis = "Sigis"
 }
 
-export default function ProductIdPage() {
+export default function InventoryProductIdPage() {
+    const params = useParams();
+
     const formSchema = z.object({
-        title: z.string({
-            required_error: 'Title is required'
-        }),
+        title: z
+          .string({ required_error: 'Title is required' })
+          .describe('Title')
+          .min(2, {
+            message: "Title must be at least 2 characters",
+          }),
         description: z.string({
             required_error: 'Description is required'
-        }),
+        })
+          .describe('Description')
+      ,
         price: z.number({})
-            .min(0, {
-                message: 'Price must be greater than 0'
-        }),
+            .min(0, { message: 'Price must be greater than 0'
+        })
+          .describe('Price')
+      ,
         category_id: z.nativeEnum(Category, {
             required_error: 'Category is required'
-        }),
+        })
+          .describe('Category')
+      ,
         brand_id: z.nativeEnum(Brand, {
             required_error: 'Brand is required'
-        }),
+        })
+          .describe('Brand')
+      ,
     });
 
     const onSubmit = (data: z.infer<typeof formSchema>) => {
@@ -63,11 +76,6 @@ export default function ProductIdPage() {
                         onSubmit={onSubmit}
                         formSchema={formSchema}
                         fieldConfig={{
-                            title: {
-                                inputProps: {
-                                    placeholder: 'Enter the title'
-                                }
-                            },
                             description: {
                                 fieldType: 'textarea',
                                 inputProps: {
@@ -95,9 +103,10 @@ export default function ProductIdPage() {
                         }}
                     >
                         <div className="flex justify-center">
-                            <AutoFormSubmit className="w-1/2">
+                            {/*<AutoFormSubmit className="w-1/2">
                                 Add product
-                            </AutoFormSubmit>
+                            </AutoFormSubmit>*/}
+                          <AutoFormSubmit/>
                         </div>
                     </AutoForm>
                 </div>
