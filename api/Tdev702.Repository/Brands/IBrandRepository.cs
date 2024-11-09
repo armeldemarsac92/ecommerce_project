@@ -46,6 +46,6 @@ public class BrandRepository : IBrandRepository
 
     public async Task DeleteAsync(long brandId, CancellationToken cancellationToken = default)
     {
-         await _dbCommand.ExecuteAsync(BrandQueries.DeleteBrand, brandId, cancellationToken);
+         await _dbCommand.ExecuteAsync(BrandQueries.DeleteBrand, new { BrandId = brandId}, cancellationToken);
     }
 }
