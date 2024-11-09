@@ -1,6 +1,7 @@
 using System.Security.Cryptography.X509Certificates;
 using Microsoft.Extensions.DependencyInjection;
 using Npgsql;
+using Tdev702.Repository.Brands;
 using Tdev702.Repository.Config;
 using Tdev702.Repository.Products;
 using Tdev702.Repository.SQL;
@@ -31,6 +32,7 @@ public static class DbExtensions
         });
         services.AddTransient<IDBSQLCommand, DbsqlCommand>();
         services.AddScoped<IProductRepository, ProductRepository>();
+        services.AddScoped<IBrandRepository, BrandRepository>();
 
         return services;
     }
