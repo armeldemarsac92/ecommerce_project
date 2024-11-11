@@ -53,7 +53,7 @@ export default function ProductsPage() {
                       key={index}
                       isPressable
                       onPress={() => {
-                            router.push(`/dashboard/catalog/inventory/${product.id}`)
+                            router.push(`/dashboard/catalog/inventory/products/${product.id}`)
                       }}
                   >
                       <CardBody className="overflow-visible p-0">
