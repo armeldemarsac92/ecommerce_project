@@ -6,7 +6,7 @@ import {
     TableHeader,
     TableRow,
 } from "@/components/shadcn/table";
-import { Input} from "@/components/shadcn/input";
+import { Input } from "@/components/shadcn/input";
 import { Search, Plus, Trash, Edit, Ellipsis } from "lucide-react";
 import { Button } from "@/components/shadcn/button";
 import {
@@ -17,7 +17,7 @@ import {
 } from "@/components/shadcn/dropdown-menu";
 import { DropdownMenuContent } from "@/components/shadcn/dropdown-menu";
 import { Chip } from "@nextui-org/chip";
-import {Link} from "@nextui-org/link";
+import { Link } from "@nextui-org/link";
 
 const products = [
     {
@@ -25,7 +25,7 @@ const products = [
         name: "Coca cola",
         sku: "15423145",
         price: "2€",
-        stock: true,
+        stock: 0,
         category: "Drink"
     },
     {
@@ -33,7 +33,7 @@ const products = [
         name: "Bacon",
         sku: "49846233145",
         price: "4€",
-        stock: false,
+        stock: 1,
         category: "Meat"
     },
     {
@@ -41,7 +41,7 @@ const products = [
         name: "Water 1L",
         sku: "154231454215",
         price: "1€",
-        stock: true,
+        stock: 10,
         category: "Drink"
     },
     {
@@ -49,7 +49,7 @@ const products = [
         name: "Pizza express margherita",
         sku: "1545223145",
         price: "5€",
-        stock: true,
+        stock: 9,
         category: "Pizzas pies and quiches"
     },
     {
@@ -57,7 +57,7 @@ const products = [
         name: "Dark chocolate 65% cocoa",
         sku: "15423145",
         price: "2€",
-        stock: true,
+        stock: 0,
         category: "Snacks"
     }
 ];
@@ -75,7 +75,7 @@ export default function InventoryProductPage() {
                     />
                 </div>
                 <div className="relative">
-                    <Link href="/dashboard/catalog/products/new">
+                    <Link href="/dashboard/catalog/inventory/new">
                         <Button variant={"expandIcon"} iconPlacement={"left"} Icon={Plus} size={"sm"}>
                             Add product
                         </Button>
@@ -103,8 +103,8 @@ export default function InventoryProductPage() {
                                 <TableCell>{product.sku}</TableCell>
                                 <TableCell>{product.price}</TableCell>
                                 <TableCell>
-                                    <Chip size="sm" color={`${product.stock ? 'success' : 'danger'}`} variant="flat">
-                                        {product.stock ? 'In stock' : 'Out stock'}
+                                    <Chip size="sm" color={`${product.stock > 0 ? 'success' : 'danger'}`} variant="flat">
+                                        {product.stock > 0 ? 'In stock' : 'Out stock'}
                                     </Chip>
                                 </TableCell>
                                 <TableCell className={"font-medium"}>{product.category}</TableCell>
