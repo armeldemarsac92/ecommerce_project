@@ -8,7 +8,6 @@ import {
   SidebarContent,
   SidebarFooter,
   SidebarHeader,
-  SidebarMenuButton,
   SidebarRail
 } from "@/components/shadcn/sidebar";
 import { Logo } from "@/components/icons";
@@ -43,7 +42,7 @@ const data = {
     },
     {
       title: "Inventory",
-      url: "/dashboard/catalog/Inventory",
+      url: "/dashboard/catalog/inventory",
       icon: PackageSearch,
     }
   ],

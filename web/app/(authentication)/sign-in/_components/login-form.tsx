@@ -14,13 +14,17 @@ import { ArrowRight } from "lucide-react";
 import { useState } from "react";
 import { Spinner } from "@nextui-org/spinner";
 import { useRouter } from "next/navigation";
+import {useToast} from "@/hooks/use-toast";
 
 export const LoginForm = () => {
   const router = useRouter();
   const [buttonIsLoading, setButtonIsLoading] = useState(false);
+  const { toast } = useToast()
+
 
   const handleSubmit = () => {
     setButtonIsLoading(true);
+    toast({ variant: "success", title: "Connected successfully", description: "Friday, February 10, 2023 at 5:57 PM" })
     router.push("/dashboard");
   }
 

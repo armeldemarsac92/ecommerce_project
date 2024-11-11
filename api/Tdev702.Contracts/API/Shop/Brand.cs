@@ -8,7 +8,7 @@ public class Brand
     public long Id { get; init; }
     
     [JsonPropertyName("title")]
-    public string? Title { get; init; }
+    public required string Title { get; init; }
     
     [JsonPropertyName("description")]
     public string? Description { get; init; }
