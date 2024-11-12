@@ -23,7 +23,7 @@ public static class ShopRoutes
 
     public static class Brands
     {
-        public const string GetById = $"{Base}/brand/{{brandId}}";
+        public const string GetById = $"{Base}/brands/{{brandId}}";
         public const string GetAll = $"{Base}/brands";
         public const string Create = $"{Base}/brands";
         public const string Update = $"{Base}/brands/{{brandId}}";

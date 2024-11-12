@@ -13,9 +13,8 @@ public interface IProductTagsService
     public Task<List<ProductTag>> GetAllAsync(CancellationToken cancellationToken = default);
     public Task<ProductTag> CreateAsync(CreateProductTagRequest createProductTagRequest, CancellationToken cancellationToken = default);
     public Task<ProductTag> UpdateAsync(long id, UpdateProductTagRequest updateProductTagRequest, CancellationToken cancellationToken = default);
-    public Task DeleteAsync(long id ,CancellationToken cancellationToken = default);
+    public Task DeleteAsync(long id, CancellationToken cancellationToken = default);
 }
-
 public class ProductTagsService : IProductTagsService
 {
     private readonly IProductTagRepository _productTagRepository;
@@ -60,6 +59,7 @@ public class ProductTagsService : IProductTagsService
 
     public async Task DeleteAsync(long productTagId, CancellationToken cancellationToken = default)
     {
-        await _productTagRepository.DeleteAsync(productTagId, cancellationToken);
+        var affectedRows = await _productTagRepository.DeleteAsync(productTagId, cancellationToken);
+        if (affectedRows == 0) throw new NotFoundException($"Product Tag {productTagId} not found");
     }
 }
