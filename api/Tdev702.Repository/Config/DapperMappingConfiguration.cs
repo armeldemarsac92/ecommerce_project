@@ -10,6 +10,7 @@ public class DapperMappingConfiguration
     {
         SetupDapperMapping<ProductResponse>();
         SetupDapperMapping<BrandResponse>();
+        SetupDapperMapping<ProductTagResponse>();
     }
 
     private static void SetupDapperMapping<TModel>()
