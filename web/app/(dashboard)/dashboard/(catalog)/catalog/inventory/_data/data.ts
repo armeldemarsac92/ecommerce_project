@@ -19,7 +19,7 @@ const products = [
         name: "Coca cola",
         sku: "15423145",
         price: "2€",
-        stock: true,
+        stock: 0,
         category: "Drink"
     },
     {
@@ -28,7 +28,7 @@ const products = [
         name: "Bacon",
         sku: "49846233145",
         price: "4€",
-        stock: false,
+        stock: 10,
         category: "Meat"
     },
     {
@@ -37,7 +37,7 @@ const products = [
         name: "Water 1L",
         sku: "154231454215",
         price: "1€",
-        stock: true,
+        stock: 10,
         category: "Drink"
     },
     {
@@ -46,7 +46,7 @@ const products = [
         name: "Pizza express margherita",
         sku: "1545223145",
         price: "5€",
-        stock: true,
+        stock: 0,
         category: "Pizzas pies and quiches"
     },
     {
@@ -55,7 +55,7 @@ const products = [
         name: "Dark chocolate 65% cocoa",
         sku: "15423145",
         price: "2€",
-        stock: true,
+        stock: 1,
         category: "Snacks"
     }
 ];

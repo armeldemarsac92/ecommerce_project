@@ -78,8 +78,8 @@ export const InventoryTable = () => {
                 );*/
             case "stock":
                 return (
-                    <Chip size="sm" className={"rounded-sm"} color={`${product.stock ? 'success' : 'danger'}`} variant="flat">
-                        {product.stock ? 'In stock' : 'Out stock'}
+                    <Chip size="sm" className={"rounded-sm"} color={`${product.stock > 0 ? 'success' : 'danger'}`} variant="flat">
+                        {product.stock > 0 ? 'In stock' : 'Out stock'}
                     </Chip>
                 );
             case "actions":
