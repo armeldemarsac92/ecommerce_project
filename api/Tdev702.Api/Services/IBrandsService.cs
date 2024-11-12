@@ -46,7 +46,7 @@ public class BrandsService : IBrandsService
 
     public async Task<Brand> UpdateAsync(long brandId, UpdateBrandRequest updateBrandRequest, CancellationToken cancellationToken = default)
     {
-        updateBrandRequest.Id = brandId;
+        updateBrandRequest.BrandId = brandId;
         var affectedRows = await _brandRepository.UpdateAsync(updateBrandRequest, cancellationToken);
 
         if (affectedRows == 0) throw new NotFoundException($"Product {brandId} not found");

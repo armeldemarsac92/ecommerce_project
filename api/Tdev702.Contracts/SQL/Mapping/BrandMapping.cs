@@ -9,7 +9,7 @@ public static class BrandMapping
     {
         return new Brand
         {
-            Id = brandResponse.Id,
+            BrandId = brandResponse.BrandId,
             Title = brandResponse.Title,
             Description = brandResponse.Description,
         };
