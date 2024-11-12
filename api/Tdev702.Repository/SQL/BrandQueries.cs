@@ -18,7 +18,7 @@ public static class BrandQueries
     public static string UpdateBrand = @"
     UPDATE shop.brands
     SET title = @title,
-    description = @description,
+    description = @description
     WHERE id = @brandId;";
 
     public static string DeleteBrand = @"

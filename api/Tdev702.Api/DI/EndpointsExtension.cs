@@ -9,6 +9,7 @@ public static class EndpointExtensions
     {
         app.MapProductEndpoints();
         app.MapBrandEndpoints();
+        app.MapCategoryEndpoints();
 
         return app;
     }
@@ -17,6 +18,7 @@ public static class EndpointExtensions
     {
         services.AddScoped<IProductsService, ProductsService>();
         services.AddScoped<IBrandsService, BrandsService>();
+        services.AddScoped<ICategoriesService, CategoriesService>();
         return services;
     }
 }

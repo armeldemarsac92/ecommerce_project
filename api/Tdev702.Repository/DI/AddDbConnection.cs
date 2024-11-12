@@ -34,6 +34,7 @@ public static class DbExtensions
         services.AddTransient<IDBSQLCommand, DbsqlCommand>();
         services.AddScoped<IProductRepository, ProductRepository>();
         services.AddScoped<IBrandRepository, BrandRepository>();
+        services.AddScoped<ICategoryRepository, CategoryRepository>();
         services.AddScoped<IIdentityRepository<ApplicationUser>, IdentityRepository<ApplicationUser>>();
 
         return services;
