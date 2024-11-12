@@ -6,10 +6,11 @@ public static class ShopRoutes
 
     public static class Products
     {
-        public const string GetById = $"{Base}/products/{{productId}}";
+        public const string GetById = $"{Base}/products/{{Id}}";
         public const string GetAll = $"{Base}/products";
         public const string Create = $"{Base}/products";
-        public const string Update = $"{Base}/products/{{productId}}";
+        public const string Update = $"{Base}/products/{{Id}}";
+        public const string Delete = $"{Base}/products/{{Id}}";
     }
 
     public static class Brands
