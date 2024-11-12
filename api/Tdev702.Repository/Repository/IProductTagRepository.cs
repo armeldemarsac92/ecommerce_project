@@ -10,7 +10,7 @@ public interface IProductTagRepository
     public Task<List<ProductTagResponse>> GetAllAsync(CancellationToken cancellationToken = default);
     public Task<ProductTagResponse> CreateAsync(CreateProductTagRequest createProductTagRequest, CancellationToken cancellationToken = default);
     public Task<int> UpdateAsync(UpdateProductTagRequest updateProductTagRequest, CancellationToken cancellationToken = default);
-    public Task DeleteAsync(long id, CancellationToken cancellationToken = default);
+    public Task<int> DeleteAsync(long id, CancellationToken cancellationToken = default);
 }
 
 public class ProductTagRepository : IProductTagRepository
@@ -43,8 +43,8 @@ public class ProductTagRepository : IProductTagRepository
         return await _dbCommand.ExecuteAsync(ProductTagQueries.UpdateProductTag, updateProductTagRequest, cancellationToken);
     }
 
-    public async Task DeleteAsync(long brandId, CancellationToken cancellationToken = default)
+    public async Task<int> DeleteAsync(long productTagId, CancellationToken cancellationToken = default)
     {
-        await _dbCommand.ExecuteAsync(BrandQueries.DeleteBrand, new { BrandId = brandId}, cancellationToken);
+        return await _dbCommand.ExecuteAsync(ProductTagQueries.DeleteProductTag, new { ProductTagId = productTagId}, cancellationToken);
     }
 }
