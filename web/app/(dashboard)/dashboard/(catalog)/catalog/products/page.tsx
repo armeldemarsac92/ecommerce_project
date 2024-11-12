@@ -4,16 +4,23 @@ import {Card, CardBody, CardFooter, Image, Pagination} from "@nextui-org/react"
 import { Chip } from "@nextui-org/chip";
 import {useRouter} from "next/navigation";
 import {SearchBar} from "@/components/ui/search-bar";
-import React from "react";
+import React, {useEffect} from "react";
 import {Button} from "@/components/shadcn/button";
 import {ChevronLeft, ChevronRight} from "lucide-react";
+import {Spinner} from "@nextui-org/react";
+import {Link} from "@nextui-org/link";
 
 export default function ProductsPage() {
-  const [filterValue, setFilterValue] = React.useState("");
-  const [page, setPage] = React.useState(1);
+    const [filterValue, setFilterValue] = React.useState("");
+    const [loading, isLoading] = React.useState(true);
+    const [page, setPage] = React.useState(1);
     const [rowsPerPage] = React.useState(10);
     const router = useRouter();
-  const products = [
+
+    useEffect(() => {
+        isLoading(false);
+    }, []);
+    const products = [
     {
         id: 1,
         title: 'Coca Cola',
@@ -49,7 +56,7 @@ export default function ProductsPage() {
         stock: 10,
         image: '/images/pain.jpeg'
     }
-  ];
+    ];
 
     const hasSearchFilter = Boolean(filterValue);
 
@@ -99,43 +106,49 @@ export default function ProductsPage() {
               <div className="m-4">
                   <SearchBar onClear={onClear} onValueChange={onSearchChange} value={filterValue}/>
               </div>
-              <div className="gap-5 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 p-4">
-                  {filteredItems.map((product, index) => (
-                      <Card
-                          shadow="sm"
-                          key={index}
-                          isPressable
-                          onPress={() => {
-                              router.push(`/dashboard/catalog/inventory/products/${product.id}`)
-                          }}
-                      >
-                          <CardBody className="overflow-visible p-0">
-                              <Image
-                                  shadow="sm"
-                                  radius="lg"
-                                  width="100%"
-                                  fallbackSrc="/images/product-placeholder.jpeg"
-                                  alt={product.title}
-                                  className="h-[250px] object-contain"
-                                  src={product.image}
-                              />
-                          </CardBody>
-                          <CardFooter className="text-small justify-between">
-                              <b className="flex-1 text-left">{product.title}</b>
-                              <Chip
-                                  size="sm"
-                                  color={`${product.stock > 0 ? 'success' : 'danger'}`}
-                                  variant="flat"
-                              >
-                                  {product.stock > 0 ? 'In stock' : 'Out stock'}
-                              </Chip>
-                          </CardFooter>
-                          <p className="text-default-500 p-3">
-                              {product.price}
-                          </p>
-                      </Card>
-                  ))}
-              </div>
+              {loading ? (
+                  <div className="h-[40rem] w-full flex justify-center">
+                    <Spinner label="Loading..." color="success" labelColor="success" size="lg" />
+                  </div>
+              ) : (
+                  <div className="gap-5 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 p-4">
+                      {filteredItems.map((product, index) => (
+                          <Card
+                              shadow="sm"
+                              key={index}
+                              as={Link}
+                              href={`/dashboard/catalog/inventory/products/${product.id}`}
+                              onPress={() => {
+                                  // TODO handle loading state
+                              }}
+                          >
+                              <CardBody className="overflow-visible p-0">
+                                  <Image
+                                      shadow="sm"
+                                      radius="lg"
+                                      width="100%"
+                                      alt={product.title}
+                                      className="h-[250px] object-contain"
+                                      src={product.image}
+                                  />
+                              </CardBody>
+                              <CardFooter className="text-small justify-between">
+                                  <b className="flex-1 text-left">{product.title}</b>
+                                  <Chip
+                                      size="sm"
+                                      color={`${product.stock > 0 ? 'success' : 'danger'}`}
+                                      variant="flat"
+                                  >
+                                      {product.stock > 0 ? 'In stock' : 'Out stock'}
+                                  </Chip>
+                              </CardFooter>
+                              <p className="text-default-500 p-3">
+                                  {product.price}
+                              </p>
+                          </Card>
+                      ))}
+                  </div>
+              )}
           </div>
           <div className="py-2 px-2 flex justify-between items-center m-2">
               <Pagination
