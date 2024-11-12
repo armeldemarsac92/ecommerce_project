@@ -5,7 +5,7 @@ public static class ProductQueries
     public static string GetProductById = @"
     SELECT *
     FROM shop.products
-    WHERE id = @productId;";
+    WHERE id = @Id;";
     
     public static string GetAllProducts = @"
     SELECT *
@@ -24,6 +24,10 @@ public static class ProductQueries
         category_id = @categoryId,
         open_food_fact_id = @openFoodFactId,
         updated_at = CURRENT_TIMESTAMP
-    WHERE id = @productId;";
-    
+    WHERE id = @Id;";
+
+    public static string DeleteProduct = @"
+    DELETE FROM shop.products
+    Where id = @Id;";
+
 }

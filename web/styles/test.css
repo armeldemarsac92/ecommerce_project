@@ -1,0 +1,128 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+    :root {
+        /* Couleurs principales */
+        --background: #FFFFFF;
+        --foreground: #1A1A1A;
+
+        /* Composants de base */
+        --card: #FFFFFF;
+        --card-foreground: #1A1A1A;
+        --popover: #FFFFFF;
+        --popover-foreground: #1A1A1A;
+
+        /* Couleur principale - Vert frais pour l'aspect alimentaire */
+        --primary: #2D9777;
+        --primary-foreground: #FFFFFF;
+
+        /* Couleur secondaire - Gris chaud */
+        --secondary: #F5F7FA;
+        --secondary-foreground: #1A1A1A;
+
+        /* Couleurs d'accentuation */
+        --muted: #F0F2F5;
+        --muted-foreground: #687385;
+        --accent: #E8F5F0;
+        --accent-foreground: #2D9777;
+
+        /* Couleurs de statut */
+        --success: #10B981;
+        --success-foreground: #FFFFFF;
+        --warning: #F59E0B;
+        --warning-foreground: #FFFFFF;
+        --destructive: #EF4444;
+        --destructive-foreground: #FFFFFF;
+
+        /* Éléments d'interface */
+        --border: #E5E7EB;
+        --input: #F3F4F6;
+        --ring: #2D9777;
+
+        /* Couleurs pour les graphiques */
+        --chart-1: #2D9777; /* Vert principal */
+        --chart-2: #3B82F6; /* Bleu */
+        --chart-3: #F59E0B; /* Orange */
+        --chart-4: #10B981; /* Vert secondaire */
+        --chart-5: #6366F1; /* Indigo */
+
+        /* Sidebar */
+        --sidebar-background: #1A1F2C;
+        --sidebar-foreground: #FFFFFF;
+        --sidebar-primary: #2D9777;
+        --sidebar-primary-foreground: #FFFFFF;
+        --sidebar-accent: #2A3341;
+        --sidebar-accent-foreground: #E5E7EB;
+        --sidebar-border: #2A3341;
+        --sidebar-ring: #2D9777;
+
+        --radius: 0.5rem;
+    }
+
+    .dark {
+        /* Couleurs principales */
+        --background: #0F172A;
+        --foreground: #F8FAFC;
+
+        /* Composants de base */
+        --card: #1E293B;
+        --card-foreground: #F8FAFC;
+        --popover: #1E293B;
+        --popover-foreground: #F8FAFC;
+
+        /* Couleur principale */
+        --primary: #34D399;
+        --primary-foreground: #052E16;
+
+        /* Couleur secondaire */
+        --secondary: #1E293B;
+        --secondary-foreground: #F8FAFC;
+
+        /* Couleurs d'accentuation */
+        --muted: #334155;
+        --muted-foreground: #94A3B8;
+        --accent: #1E293B;
+        --accent-foreground: #34D399;
+
+        /* Couleurs de statut */
+        --success: #059669;
+        --success-foreground: #FFFFFF;
+        --warning: #D97706;
+        --warning-foreground: #FFFFFF;
+        --destructive: #DC2626;
+        --destructive-foreground: #FFFFFF;
+
+        /* Éléments d'interface */
+        --border: #334155;
+        --input: #1E293B;
+        --ring: #34D399;
+
+        /* Couleurs pour les graphiques */
+        --chart-1: #34D399;
+        --chart-2: #60A5FA;
+        --chart-3: #FBBF24;
+        --chart-4: #34D399;
+        --chart-5: #818CF8;
+
+        /* Sidebar */
+        --sidebar-background: #0F172A;
+        --sidebar-foreground: #F8FAFC;
+        --sidebar-primary: #34D399;
+        --sidebar-primary-foreground: #052E16;
+        --sidebar-accent: #1E293B;
+        --sidebar-accent-foreground: #F8FAFC;
+        --sidebar-border: #1E293B;
+        --sidebar-ring: #34D399;
+    }
+}
+
+@layer base {
+    * {
+        @apply border-border;
+    }
+    body {
+        @apply bg-background text-foreground;
+    }
+}
