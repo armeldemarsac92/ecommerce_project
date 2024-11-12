@@ -4,6 +4,7 @@ using Npgsql;
 using Tdev702.Repository.Brands;
 using Tdev702.Repository.Config;
 using Tdev702.Repository.Products;
+using Tdev702.Repository.Repository;
 using Tdev702.Repository.SQL;
 using Tdev702.Repository.Utils;
 
@@ -33,6 +34,7 @@ public static class DbExtensions
         services.AddTransient<IDBSQLCommand, DbsqlCommand>();
         services.AddScoped<IProductRepository, ProductRepository>();
         services.AddScoped<IBrandRepository, BrandRepository>();
+        services.AddScoped<IProductTagRepository, ProductTagRepository>();
 
         return services;
     }
