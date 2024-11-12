@@ -2,7 +2,7 @@ import {InventoryTable} from "@/app/(dashboard)/dashboard/(catalog)/catalog/inve
 
 export default function InventoryPage() {
     return (
-        <div className="w-full p-5 space-y-4">
+        <div className="w-full p-4 space-y-4">
             <div>
                 <InventoryTable/>
             </div>
