@@ -18,18 +18,18 @@ public static class DbExtensions
                                throw new InvalidOperationException(
                                    "DB_CONNECTION_STRING not found in environment variables");
         
-        var certificatePath = Environment.GetEnvironmentVariable("SUPABASE_SSL_CERT_PATH") ??
-                               throw new InvalidOperationException(
-                                   "SUPABASE_SSL_CERT_PATH not found in environment variables");
-        
-        var cert = new X509Certificate2(certificatePath);
+        // var certificatePath = Environment.GetEnvironmentVariable("SUPABASE_SSL_CERT_PATH") ??
+        //                        throw new InvalidOperationException(
+        //                            "SUPABASE_SSL_CERT_PATH not found in environment variables");
+        //
+        // var cert = new X509Certificate2(certificatePath);
 
         DapperMappingConfiguration.ConfigureMappings();
         services.AddSingleton<INpgsqlExceptionHandler, NpgsqlExceptionHandler>();
         services.AddNpgsqlDataSource(connectionString, dataSourceBuilder =>
         {
             dataSourceBuilder.UseVector();
-            dataSourceBuilder.UseClientCertificate(cert);
+            // dataSourceBuilder.UseClientCertificate(cert);
         });
         services.AddTransient<IDBSQLCommand, DbsqlCommand>();
         services.AddScoped<IProductRepository, ProductRepository>();
