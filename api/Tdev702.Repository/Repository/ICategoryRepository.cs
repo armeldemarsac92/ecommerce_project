@@ -24,7 +24,7 @@ public class CategoryRepository : ICategoryRepository
     
     public async Task<CategoryResponse?> GetByIdAsync(long id, CancellationToken cancellationToken = default)
     {
-        return await _dbCommand.QueryFirstOrDefaultAsync<CategoryResponse>(CategoryQueries.GetCategoryById, new { CategoryId = id }, cancellationToken);
+        return await _dbCommand.QueryFirstOrDefaultAsync<CategoryResponse>(CategoryQueries.GetCategoryById, new { Id = id }, cancellationToken);
     }
 
     public async Task<List<CategoryResponse>> GetAllAsync(CancellationToken cancellationToken = default)
@@ -43,8 +43,8 @@ public class CategoryRepository : ICategoryRepository
         return await _dbCommand.ExecuteAsync(CategoryQueries.UpdateCategory, updateCategoryRequest, cancellationToken);
     }
 
-    public async Task DeleteAsync(long categoryId, CancellationToken cancellationToken = default)
+    public async Task DeleteAsync(long id, CancellationToken cancellationToken = default)
     {
-        await _dbCommand.ExecuteAsync(CategoryQueries.DeleteCategory, categoryId, cancellationToken);
+        await _dbCommand.ExecuteAsync(CategoryQueries.DeleteCategory, new { Id = id }, cancellationToken);
     }
 }
