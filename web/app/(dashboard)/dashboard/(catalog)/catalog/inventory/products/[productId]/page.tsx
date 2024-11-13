@@ -130,6 +130,7 @@ export default function InventoryProductIdPage() {
                                 <CarouselItem key={index}>
                                     <div className="p-1">
                                         <Card>
+                                            {/* TODO when we set the loading state on catalog page set a spinner in the middle of the image */}
                                             <CardContent className="flex aspect-square items-center justify-center p-6">
                                                 <Image
                                                     src={image}
