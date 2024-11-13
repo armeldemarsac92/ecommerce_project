@@ -24,10 +24,10 @@ public static class ShopRoutes
 
     public static class Categories
     {
-        public const string GetById = $"{Base}/categories/{{categoryId}}";
+        public const string GetById = $"{Base}/categories/{{id}}";
         public const string GetAll = $"{Base}/categories";
         public const string Create = $"{Base}/categories";
-        public const string Update = $"{Base}/categories/{{categoryId}}";
-        public const string Delete = $"{Base}/categories/{{categoryId}}";
+        public const string Update = $"{Base}/categories/{{id}}";
+        public const string Delete = $"{Base}/categories/{{id}}";
     }
 }

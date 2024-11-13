@@ -24,10 +24,10 @@ public class CategoriesService : ICategoriesService
         _categoryRepository = categoryRepository;
     }
     
-    public async Task<Category> GetByIdAsync(long categoryId, CancellationToken cancellationToken = default)
+    public async Task<Category> GetByIdAsync(long id, CancellationToken cancellationToken = default)
     {
-        var response = await _categoryRepository.GetByIdAsync(categoryId, cancellationToken);
-        if(response is null) throw new NotFoundException($"Category {categoryId} not found");
+        var response = await _categoryRepository.GetByIdAsync(id, cancellationToken);
+        if(response is null) throw new NotFoundException($"Category {id} not found");
         
         return response.MapToCategory();
     }
@@ -44,20 +44,20 @@ public class CategoriesService : ICategoriesService
         return response.MapToCategory();
     }
 
-    public async Task<Category> UpdateAsync(long categoryId, UpdateCategoryRequest updateCategoryRequest, CancellationToken cancellationToken = default)
+    public async Task<Category> UpdateAsync(long id, UpdateCategoryRequest updateCategoryRequest, CancellationToken cancellationToken = default)
     {
-        updateCategoryRequest.Id = categoryId;
+        updateCategoryRequest.Id = id;
         var affectedRows = await _categoryRepository.UpdateAsync(updateCategoryRequest, cancellationToken);
 
-        if (affectedRows == 0) throw new NotFoundException($"Category {categoryId} not found");
+        if (affectedRows == 0) throw new NotFoundException($"Category {id} not found");
         
-        var updatedCategory = await _categoryRepository.GetByIdAsync(categoryId, cancellationToken);
+        var updatedCategory = await _categoryRepository.GetByIdAsync(id, cancellationToken);
         return updatedCategory.MapToCategory();
         
     }
 
-    public async Task DeleteAsync(long categoryId, CancellationToken cancellationToken = default)
+    public async Task DeleteAsync(long id, CancellationToken cancellationToken = default)
     {
-        await _categoryRepository.DeleteAsync(categoryId, cancellationToken);
+        await _categoryRepository.DeleteAsync(id, cancellationToken);
     }
 }

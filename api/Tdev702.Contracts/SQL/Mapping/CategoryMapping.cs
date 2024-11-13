@@ -5,18 +5,18 @@ namespace Tdev702.Contracts.SQL.Mapping;
 
 public static class CategoryMapping
 {
-    public static Category MapToCategory(this CategoryResponse CategoryResponse)
+    public static Category MapToCategory(this CategoryResponse categoryResponse)
     {
         return new Category
         {
-            Id = CategoryResponse.Id,
-            Title = CategoryResponse.Title,
-            Description = CategoryResponse.Description
+            Id = categoryResponse.Id,
+            Title = categoryResponse.Title,
+            Description = categoryResponse.Description
         };
     }
 
-    public static List<Category> MapToCategories (this List<CategoryResponse> CategoryResponses)
+    public static List<Category> MapToCategories (this List<CategoryResponse> categoryResponses)
     {
-        return CategoryResponses.Select(MapToCategory).ToList();
+        return categoryResponses.Select(MapToCategory).ToList();
     }
 }

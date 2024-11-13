@@ -9,6 +9,7 @@ public class CategoryResponse
     
     [Column("title")]
     public required string Title { get; init; }
+    
     [Column("description")]
     public string? Description { get; init; }
 }

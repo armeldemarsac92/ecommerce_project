@@ -48,10 +48,10 @@ public static class CategoryEndpoints
     private static async Task<IResult> GetCategory(
         HttpContext context,
         ICategoriesService categoriesService,
-        long categoryId,
+        long id,
         CancellationToken cancellationToken)
     {   
-        var category = await categoriesService.GetByIdAsync(categoryId ,cancellationToken);
+        var category = await categoriesService.GetByIdAsync(id ,cancellationToken);
         return Results.Ok(category);
     }
     private static async Task<IResult> GetAllCategories(
@@ -75,20 +75,20 @@ public static class CategoryEndpoints
     private static async Task<IResult> UpdateCategory(
         HttpContext context,
         ICategoriesService categoriesService,
-        long categoryId,
+        long id,
         UpdateCategoryRequest categoryRequest,
         CancellationToken cancellationToken)
     {
-        var category = await categoriesService.UpdateAsync(categoryId, categoryRequest, cancellationToken);
+        var category = await categoriesService.UpdateAsync(id, categoryRequest, cancellationToken);
         return Results.Ok(category);
     }
     private static async Task<IResult> DeleteCategory(
         HttpContext context,
         ICategoriesService categoriesService,
-        long categoryId,
+        long id,
         CancellationToken cancellationToken)
     {
-        await categoriesService.DeleteAsync(categoryId, cancellationToken);
+        await categoriesService.DeleteAsync(id, cancellationToken);
         return Results.NoContent();
     }
 
