@@ -8,6 +8,7 @@ public static class EndpointExtensions
     public static IEndpointRouteBuilder MapApiEndpoints(this IEndpointRouteBuilder app)
     {
         app.MapProductEndpoints();
+        app.MapProductTagEndpoints();
         app.MapBrandEndpoints();
         app.MapCategoryEndpoints();
 
@@ -19,6 +20,7 @@ public static class EndpointExtensions
         services.AddScoped<IProductsService, ProductsService>();
         services.AddScoped<IBrandsService, BrandsService>();
         services.AddScoped<ICategoriesService, CategoriesService>();
+        services.AddScoped<IProductTagsService, ProductTagsService>();
         return services;
     }
 }

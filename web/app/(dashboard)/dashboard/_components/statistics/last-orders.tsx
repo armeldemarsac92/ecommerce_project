@@ -5,6 +5,7 @@ import { ArrowRight, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { ScrollShadow } from "@nextui-org/react";
 import { Button } from "@/components/shadcn/button";
+import {useIsSSR} from "@react-aria/ssr";
 
 export default function LastOrders() {
   const [activeTransaction, setActiveTransaction] = useState<null | TransactionType>(null);
@@ -12,12 +13,20 @@ export default function LastOrders() {
   const [test, setTest] = useState(0);
 
   useEffect(() => {
+    let timeoutId: NodeJS.Timeout;
+
     if(test < transactions.length) {
-      setTimeout(() => {
-        newTransactionsList.push(transactions[test]);
+      timeoutId = setTimeout(() => {
+        setNewTransactionsList(prev => [...prev, transactions[test]]);
         setTest(test + 1);
       }, 1000);
     }
+
+    return () => {
+      if (timeoutId) {
+        clearTimeout(timeoutId);
+      }
+    };
   }, [test]);
 
   return (
@@ -35,14 +44,14 @@ export default function LastOrders() {
             Last Orders
           </p>
         </div>
-        <ScrollShadow className="w-full h-[410px]">
-          <div className="w-full max-h-[26rem] flex flex-col flex-col-reverse gap-y-2 items-center justify-center pt-4">
+        <ScrollShadow className="w-full h-[440px]" orientation={"vertical"}>
+          <div className="flex flex-col-reverse w-full gap-y-2 items-center justify-center py-2">
             {newTransactionsList.map((transaction, index) => (
               <motion.div
                 key={index}
                 className="flex items-center justify-between w-full gap-2 py-1.5 px-4 cursor-pointer"
                 onClick={() => setActiveTransaction(transaction)}
-                initial={{ opacity: 0, translateY: 20 }}
+                initial={{ opacity: 0, translateY: -20 }}
                 animate={{ opacity: 1, translateY: 0 }}
               >
                 {/*<motion.img

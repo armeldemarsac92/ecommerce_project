@@ -8,6 +8,8 @@ import { siteConfig } from "@/config/site";
 import { supreme } from "@/config/fonts";
 import * as React from "react";
 import {Toaster} from "@/components/shadcn/toaster";
+import {Suspense} from "react";
+import Loading from "@/app/loading";
 
 export const metadata: Metadata = {
   title: {
@@ -42,7 +44,9 @@ export default function RootLayout({
         )}
       >
         <Providers themeProps={{ attribute: "class", defaultTheme: "dark" }}>
-          {children}
+          <Suspense fallback={<Loading/>}>
+            {children}
+          </Suspense>
           <Toaster />
         </Providers>
       </body>

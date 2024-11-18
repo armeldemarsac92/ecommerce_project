@@ -1,7 +1,6 @@
 using Tdev702.Api.Routes;
 using Tdev702.Api.Services;
 using Tdev702.Contracts.API.Shop;
-using Tdev702.Contracts.SQL.Request.Shop;
 using Tdev702.Contracts.SQL.Request.Shop.Brand;
 
 namespace Tdev702.Api.Endpoints.Shop;
