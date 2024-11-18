@@ -1,4 +1,3 @@
-using Microsoft.AspNetCore.Mvc;
 using Tdev702.Api.Routes;
 using Tdev702.Api.Services;
 using Tdev702.Contracts.API.Shop;
