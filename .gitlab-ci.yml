@@ -2,7 +2,7 @@ image: docker:24.0.7
 
 variables:
   # Tell docker CLI how to talk to Docker daemon
-  DOCKER_HOST: tcp://docker:2375
+  DOCKER_HOST: tcp://localhost:2375
   # Disable TLS since we're running inside DIND
   DOCKER_TLS_CERTDIR: ""
   DOCKER_DRIVER: overlay2
@@ -14,7 +14,7 @@ build:
   stage: build
   script:
     # Wait for Docker to be ready
-    - unset DOCKER_HOST
+    - sleep 5
     # Build the Docker image for your repository
     - docker build -t t-dev-702-api:latest .
     # List Docker images to verify the build
