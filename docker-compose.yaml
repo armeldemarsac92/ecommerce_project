@@ -1,0 +1,14 @@
+version: '3.8'
+
+services:
+  gitlab-runner:
+    image: gitlab/gitlab-runner:latest
+    container_name: gitlab-runner
+    privileged: true
+    restart: always
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./config:/etc/gitlab-runner
+      - ./certs:/etc/gitlab-runner/certs
+    environment:
+      - DOCKER_HOST=unix:///var/run/docker.sock
