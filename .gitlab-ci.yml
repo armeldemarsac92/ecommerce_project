@@ -1,14 +1,19 @@
 build-job:
   stage: build
-  image: registry.gitlab.com/gitlab-org/cloud-deploy/aws-base:latest
+  image: docker
   script:
-    - echo 'Connecting to aws services..'
-    - aws configure set aws_secret_access_key ${AWS_SECRET_ACCESS_KEY}
-    - aws ecr get-login-password --region  ${AWS_REGION} | docker login --username AWS --password-stdin ${AWS_ACCESS_KEY_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com
+    - docker -h
 
-    - echo "Building the container api.."
-    - docker build -t tdev700/prod/api .
-    - echo 'Terminate'
+
+    # - echo 'Connecting to aws services..'
+    # - aws ecr get-login-password --region eu-north-1 | docker login --username AWS --password-stdin 502863813996.dkr.ecr.eu-north-1.amazonaws.com
+    # - echo 'building the docker image api..'
+    # - docker build -t tdev700/prod/api .
+    # - echo 'Tagging the image..'
+    # - docker tag tdev700/prod/api:latest 502863813996.dkr.ecr.eu-north-1.amazonaws.com/tdev700/prod/api:latest
+    # - echo 'Pushing the image'
+    # - docker push 502863813996.dkr.ecr.eu-north-1.amazonaws.com/tdev700/prod/api:latest
+    # - echo 'Terminate'
 
 # test-job1:
 #   stage: test
