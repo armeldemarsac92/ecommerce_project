@@ -6,14 +6,13 @@ image: docker:24.0.7
 #   AWS_REGION: "your-aws-region"
 #   ECR_REPOSITORY: "your-ecr-repository"
 
-services:
-  - docker:24.0.7-dind
-
-before_script:
-  - aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com
-
 build:
   stage: build
+  image: docker:24.0.7
+  services:
+  - docker:24.0.7-dind
+  # before_script:
+  # - aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com
   script:
     # - docker build -t ${ECR_REPOSITORY}:${CI_COMMIT_SHA} .
     # - docker tag ${ECR_REPOSITORY}:${CI_COMMIT_SHA} ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${ECR_REPOSITORY}:${CI_COMMIT_SHA}
