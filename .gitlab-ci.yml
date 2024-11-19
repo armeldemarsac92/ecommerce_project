@@ -13,5 +13,5 @@ services:
 
 before_script:
   # Wait for Docker to be ready
-  - for i in $(seq 1 30); do docker info && break || sleep 1; done
+  - sleep 20
   - docker -v
