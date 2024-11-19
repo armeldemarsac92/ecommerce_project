@@ -2,17 +2,16 @@ image: docker:24.0.7
 
 variables:
   # Tell docker CLI how to talk to Docker daemon
-  DOCKER_HOST: tcp://localhost:2375
+  DOCKER_HOST: tcp://docker:2375
   # Disable TLS since we're running inside DIND
   DOCKER_TLS_CERTDIR: ""
   DOCKER_DRIVER: overlay2
-  FF_NETWORK_PER_BUILD: "true"
 
 services:
   - name: docker:24.0.7-dind
-    command: ["--tls=false"]
+    command: ["--host=tcp://0.0.0.0:2375", "--host=unix:///var/run/docker.sock", "--iptables=false"]
 
 before_script:
-  - sleep 5
-  - docker info
+  # Wait for Docker to be ready
+  - for i in $(seq 1 30); do docker info && break || sleep 1; done
   - docker -v
