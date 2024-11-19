@@ -1,22 +1,16 @@
-stages:
-  - build
+image: docker:24.0.7
 
-build:
-  stage: build
-  image: docker:24.0.7
-  services:
-    - name: docker:24.0.7-dind
-      alias: docker
-      command: ["--tls=false"]
-  variables:
-    DOCKER_HOST: tcp://docker:2376
-    DOCKER_TLS_CERTDIR: ""
-    DOCKER_DRIVER: overlay2
-  before_script:
-    - sleep 5  # Give docker service time to start
-    - docker info
-    - docker -v
-  script:
-    - docker build -t your-image-name .
-  # tags:
-  #   - TDEV700-RUNNER
+variables:
+  DOCKER_TLS_CERTDIR: ""
+  DOCKER_DRIVER: overlay2
+  DOCKER_HOST: unix:///var/run/docker.sock
+  FF_NETWORK_PER_BUILD: "true"
+
+services:
+  - name: docker:24.0.7-dind
+    command: ["--tls=false"]
+
+before_script:
+  - sleep 5
+  - docker info
+  - docker -v
