@@ -7,10 +7,15 @@ variables:
   DOCKER_TLS_CERTDIR: ""
   DOCKER_DRIVER: overlay2
 
-services:
-  - name: docker:24.0.7-dind
-    command: ["--host=tcp://0.0.0.0:2375", "--host=unix:///var/run/docker.sock", "--iptables=false"]
+stages:
+  - build
 
-before_script:
-  # Wait for Docker to be ready
-  - docker -v
+build:
+  stage: build
+  script:
+    # Wait for Docker to be ready
+    - for i in $(seq 1 30); do docker info && break || sleep 1; done
+    # Build the Docker image for your repository
+    - docker build -t t-dev-702-api:latest .
+    # List Docker images to verify the build
+    - docker images
