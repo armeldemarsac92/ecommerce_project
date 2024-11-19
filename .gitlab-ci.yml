@@ -3,6 +3,7 @@ build-job:
   image: registry.gitlab.com/gitlab-org/cloud-deploy/aws-base:latest
   script:
     - echo 'Connecting to aws services..'
+    - apt install awscli
     - aws configure set aws_secret_access_key ${AWS_SECRET_ACCESS_KEY}
     - aws ecr get-login-password --region  ${AWS_REGION} | docker login --username AWS --password-stdin ${AWS_ACCESS_KEY_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com
 
