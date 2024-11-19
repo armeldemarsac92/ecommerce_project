@@ -29,5 +29,5 @@ docker-build:
     # - docker push "$CI_REGISTRY_IMAGE"
 
   # Only build off of master branch:
-  # only:
-  #   - master
+  only:
+    - master
