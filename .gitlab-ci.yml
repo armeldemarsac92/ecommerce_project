@@ -14,7 +14,7 @@ build:
   stage: build
   script:
     # Wait for Docker to be ready
-    - for i in $(seq 1 30); do docker info && break || sleep 1; done
+    - unset DOCKER_HOST
     # Build the Docker image for your repository
     - docker build -t t-dev-702-api:latest .
     # List Docker images to verify the build
