@@ -20,7 +20,7 @@ shutdown_timeout = 0
     [runners.cache.gcs]
     [runners.cache.azure]
   [runners.docker]
-    host = "unix:///var/run/docker.sock"
+    host = "tcp://localhost:2375"
     tls_verify = false
     image = "docker:latest"
     privileged = true
@@ -28,6 +28,5 @@ shutdown_timeout = 0
     oom_kill_disable = false
     disable_cache = false
     volumes = ["/cache"]
-    network_mode = "bridge"
     shm_size = 0
     network_mtu = 0
