@@ -1,9 +1,11 @@
 image: docker:24.0.7
 
 variables:
+  # Tell docker CLI how to talk to Docker daemon
+  DOCKER_HOST: tcp://localhost:2375
+  # Disable TLS since we're running inside DIND
   DOCKER_TLS_CERTDIR: ""
   DOCKER_DRIVER: overlay2
-  DOCKER_HOST: unix:///var/run/docker.sock
   FF_NETWORK_PER_BUILD: "true"
 
 services:
