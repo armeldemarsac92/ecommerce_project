@@ -7,3 +7,4 @@ build:
     - docker:dind
   before_script:
     - docker info
+    - docker -h
