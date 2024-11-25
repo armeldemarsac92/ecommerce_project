@@ -1,6 +1,7 @@
 default:
   image: docker:24.0.5
   before_script:
+    - apk add --no-cache git
     - docker info
 
 variables:
@@ -16,9 +17,7 @@ build:
     #- docker login $CI_REGISTRY -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD
     # Wait for Docker to be ready
     - sleep 2
-    - docker info
     # Build the Docker image
-    - docker -v
-    - docker build -t t-dev-702-api:latest .
+    - docker build -t t-dev-702-api:latest -f api/Dockerfile api/
     # List Docker images to verify the build
     - docker images
