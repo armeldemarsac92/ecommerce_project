@@ -1,7 +1,7 @@
 image: docker:24.0.7
 
 services:
-  - name: docker:24.0.7-dind
+  - name: "docker:24.0.7-dind"
   - alias: docker
 
 variables:
