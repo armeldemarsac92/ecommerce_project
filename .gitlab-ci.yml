@@ -9,7 +9,8 @@ variables:
   DOCKER_TLS_CERTDIR: ""
   DOCKER_DRIVER: overlay2
   FF_NETWORK_PER_BUILD: 1
-  BULKIT_PROGRESS: "plain"
+  DOCKER_BUILDKIT: "1"
+  BUILDKIT_PROGRESS: "plain"
 
 stages:
   - build
