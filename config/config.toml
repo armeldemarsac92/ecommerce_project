@@ -13,19 +13,16 @@ shutdown_timeout = 0
   token_obtained_at = 2024-11-25T12:57:32Z
   token_expires_at = 0001-01-01T00:00:00Z
   executor = "docker"
-  run_merge_request_pipelines = true
-  run_untagged = true
-  protected = false
   [runners.custom_build_dir]
   [runners.cache]
-    MaxUploadedArchiveSize = 0
+    [runners.cache.s3]
+    [runners.cache.gcs]
   [runners.docker]
     tls_verify = false
-    image = "docker:latest"
+    image = "docker:24.0.5"
     privileged = true
     disable_entrypoint_overwrite = false
     oom_kill_disable = false
     disable_cache = false
     volumes = ["/var/run/docker.sock:/var/run/docker.sock", "/cache"]
     shm_size = 0
-    network_mtu = 0
