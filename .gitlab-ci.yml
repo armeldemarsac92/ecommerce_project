@@ -16,7 +16,7 @@ stages:
 build:
   stage: build
   script:
-    # Wait for Docker to be ready.
+    # Wait for Docker to be ready..
     - for i in $(seq 1 30); do docker info && break || sleep 1; done
     # Build the Docker image for your repository
     - docker -v
