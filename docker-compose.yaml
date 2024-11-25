@@ -1,8 +1,5 @@
 version: '3.8'
 
-#test
-#test
-#test
 services:
   gitlab-runner:
     image: gitlab/gitlab-runner:latest

@@ -2,13 +2,14 @@ image: docker:24.0.7
 
 services:
   - name: docker:24.0.7-dind
+    alias: docker
 
 variables:
-  # Docker configuration.
-  DOCKER_HOST: tcp://dind:2375
-  DOCKER_TLS_CERTDIR: ""
+  # Docker configuration without TLS
+  DOCKER_HOST: tcp://docker:2375
+  DOCKER_TLS_CERTDIR: ""  # Disable TLS
   DOCKER_DRIVER: overlay2
-  FF_NETWORK_PER_BUILD: 1
+  FF_NETWORK_PER_BUILD: "true"
   DOCKER_BUILDKIT: "1"
   BUILDKIT_PROGRESS: "plain"
 
@@ -18,9 +19,9 @@ stages:
 build:
   stage: build
   script:
-    # Wait for Docker to be ready...
-    - for i in $(seq 1 30); do docker info && break || sleep 1; done
-    # Build the Docker image for your repository
+    # Wait for Docker to be ready
+    - until docker info; do sleep 1; done
+    # Build the Docker image
     - docker -v
     - docker build -t t-dev-702-api:latest .
     # List Docker images to verify the build

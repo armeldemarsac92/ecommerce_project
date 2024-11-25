@@ -5,6 +5,7 @@ shutdown_timeout = 0
 [session_server]
   session_timeout = 1800
 
+
 [[runners]]
   name = "TDEV700-RUNNER"
   url = "https://t-dev.epitest.eu"
@@ -16,14 +17,9 @@ shutdown_timeout = 0
   [runners.custom_build_dir]
   [runners.cache]
     MaxUploadedArchiveSize = 0
-    [runners.cache.s3]
-    [runners.cache.gcs]
-    [runners.cache.azure]
   [runners.docker]
-    alias = "dind"
     tls_verify = false
     image = "docker:24.0.7"
-    dns = ["8.8.8.8", "8.8.8.4"]
     privileged = true
     disable_entrypoint_overwrite = false
     oom_kill_disable = false
@@ -31,3 +27,4 @@ shutdown_timeout = 0
     volumes = ["/cache"]
     shm_size = 0
     network_mtu = 0
+    dns = ["1.1.1.1", "1.0.0.1"]
