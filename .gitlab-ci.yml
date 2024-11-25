@@ -3,14 +3,14 @@ docker-build:
 
   image:
     # An alpine-based image with the `docker` CLI installed.
-    name: docker:stable
+    name: docker:24.0.5
 
   services:
-   - name: docker:dind
-     alias: thedockerhost
+   - name: registry.hub.docker.com/library/docker:24.0.5-dind
+     alias: docker
 
   variables:
-    DOCKER_HOST: tcp://thedockerhost:2375/
+    DOCKER_HOST: tcp://docker:2375/
     DOCKER_DRIVER: overlay2
     DOCKER_TLS_CERTDIR: ""
     FF_NETWORK_PER_BUILD: "true"
