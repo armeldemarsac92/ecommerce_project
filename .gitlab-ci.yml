@@ -21,7 +21,8 @@ build:
     # Build the Docker image
     - ls -R
     - cd $CI_PROJECT_DIR
-    - docker build -t t-dev-702-api:latest -f ./api/Tdev702.Api/Dockerfile . --no-cache --progress=plain
+    - docker build -t t-dev-702-api:latest -f ./api/Tdev702.Api/Dockerfile .
+
 
     # List Docker images to verify the build
     - docker images
