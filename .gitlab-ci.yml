@@ -1,23 +1,19 @@
-image: docker:24.0.7
-
-services:
-  - name: docker:24.0.7-dind
-    alias: docker
-
-variables:
-  # Docker configuration without TLS
-  DOCKER_HOST: tcp://docker:2375
-  DOCKER_TLS_CERTDIR: ""  # Disable TLS
-  # DOCKER_DRIVER: overlay2
-  FF_NETWORK_PER_BUILD: "true"
-  # DOCKER_BUILDKIT: "1"
-  # BUILDKIT_PROGRESS: "plain"
-
-stages:
-  - build
-
-build:
+docker-build:
   stage: build
+
+  image:
+    # An alpine-based image with the `docker` CLI installed.
+    name: docker:stable
+
+  services:
+   - name: docker:dind
+     alias: thedockerhost
+
+  variables:
+    DOCKER_HOST: tcp://thedockerhost:2375/
+    DOCKER_DRIVER: overlay2
+    DOCKER_TLS_CERTDIR: ""
+
   script:
     # Wait for Docker to be ready
     - sleep 5
