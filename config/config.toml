@@ -20,7 +20,7 @@ shutdown_timeout = 0
     [runners.cache.gcs]
     [runners.cache.azure]
   [runners.docker]
-    alias = "docker"
+    alias = "dind"
     tls_verify = false
     image = "docker:24.0.7"
     dns = ["8.8.8.8", "8.8.8.4"]
