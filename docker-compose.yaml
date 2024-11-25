@@ -7,24 +7,34 @@ services:
     restart: always
     volumes:
       - ./config:/etc/gitlab-runner
-      - /var/run/docker.sock:/var/run/docker.sock # For Docker access
+      - /var/run/docker.sock:/var/run/docker.sock
     environment:
       - DOCKER_HOST=tcp://docker:2375
-      - DOCKER_TLS_CERTDIR=/certs
+      - DOCKER_TLS_CERTDIR=""
     depends_on:
       - docker
+    networks:
+      - gitlab_network
+    extra_hosts:
+    - "docker:10.89.0.3"
 
   docker:
     image: docker:24.0.0-dind
     container_name: docker
-    privileged: true # Required for DinD
+    privileged: true
     restart: always
     environment:
-      - DOCKER_TLS_CERTDIR=/certs
+      - DOCKER_TLS_CERTDIR=""
     volumes:
       - docker-certs:/certs
       - docker-certs-client:/certs/client
       - /var/lib/docker:/var/lib/docker
+    networks:
+      - gitlab_network
+
+networks:
+  gitlab_network:
+    driver: bridge
 
 volumes:
   docker-certs:

@@ -7,7 +7,7 @@ default:
 
 variables:
   DOCKER_TLS_CERTDIR: ""
-  FF_NETWORK_PER_BUILD: "true"
+  #FF_NETWORK_PER_BUILD: "true"
   DOCKER_HOST: tcp://docker:2375/
   DOCKER_DRIVER: overlay2
 
