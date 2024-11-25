@@ -5,21 +5,23 @@ shutdown_timeout = 0
 [session_server]
   session_timeout = 1800
 
-
 [[runners]]
   name = "TDEV700-RUNNER"
   url = "https://t-dev.epitest.eu"
   id = 693
   token = "glrt-t3_GW5Lr9qdxfE85azjs2ya"
-  token_obtained_at = 2024-11-25T10:10:20Z
+  token_obtained_at = 2024-11-25T12:57:32Z
   token_expires_at = 0001-01-01T00:00:00Z
   executor = "docker"
   [runners.custom_build_dir]
   [runners.cache]
     MaxUploadedArchiveSize = 0
+    [runners.cache.s3]
+    [runners.cache.gcs]
+    [runners.cache.azure]
   [runners.docker]
     tls_verify = false
-    image = "docker:24.0.7"
+    image = "docker:latest"
     privileged = true
     disable_entrypoint_overwrite = false
     oom_kill_disable = false
@@ -27,4 +29,3 @@ shutdown_timeout = 0
     volumes = ["/cache"]
     shm_size = 0
     network_mtu = 0
-    dns = ["8.8.8.8", "8.8.4.4"]

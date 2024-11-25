@@ -7,7 +7,8 @@ services:
     privileged: true
     restart: always
     volumes:
-    #  - /var/run/docker.sock:/var/run/docker.sock
+      - /var/run/docker.sock:/var/run/docker.sock
       - ./config:/etc/gitlab-runner
+    network_mode: 'host'
     # environment:
     #   - DOCKER_HOST=unix:///var/run/docker.sock
