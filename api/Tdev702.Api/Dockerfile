@@ -7,7 +7,9 @@ EXPOSE 8081
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
-COPY ["Tdev702.Api/Tdev702.Api.csproj", "Tdev702.Api/"]
+#COPY ["Tdev702.Api/Tdev702.Api.csproj", "Tdev702.Api/"]
+COPY ["Tdev702.Api.csproj", "./"]
+
 RUN dotnet restore "Tdev702.Api/Tdev702.Api.csproj"
 COPY . .
 WORKDIR "/src/Tdev702.Api"
