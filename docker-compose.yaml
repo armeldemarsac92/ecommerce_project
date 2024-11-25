@@ -4,11 +4,49 @@ services:
   gitlab-runner:
     image: gitlab/gitlab-runner:latest
     container_name: gitlab-runner
-    privileged: true
     restart: always
     volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
       - ./config:/etc/gitlab-runner
+      - /var/run/docker.sock:/var/run/docker.sock # For Docker access
+    environment:
+      - DOCKER_HOST=tcp://docker:2375
+      - DOCKER_TLS_CERTDIR=/certs
+    depends_on:
+      - docker
+
+  docker:
+    image: docker:24.0.0-dind
+    container_name: docker
+    privileged: true # Required for DinD
+    restart: always
+    environment:
+      - DOCKER_TLS_CERTDIR=/certs
+    volumes:
+      - docker-certs:/certs
+      - docker-certs-client:/certs/client
+      - /var/lib/docker:/var/lib/docker
+
+volumes:
+  docker-certs:
+  docker-certs-client:
+
+
+
+
+
+
+
+# version: '3.8'
+
+# services:
+#   gitlab-runner:
+#     image: gitlab/gitlab-runner:latest
+#     container_name: gitlab-runner
+#     privileged: true
+#     restart: always
+#     volumes:
+#       - /var/run/docker.sock:/var/run/docker.sock
+#       - ./config:/etc/gitlab-runner
     #network_mode: 'host'
     # environment:
     #   - DOCKER_HOST=unix:///var/run/docker.sock

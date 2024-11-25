@@ -21,12 +21,11 @@ shutdown_timeout = 0
     MaxUploadedArchiveSize = 0
   [runners.docker]
     tls_verify = false
-    image = "docker:24.0.7"
+    image = "docker:latest"
     privileged = true
     disable_entrypoint_overwrite = false
     oom_kill_disable = false
     disable_cache = false
-    volumes = ["/cache"]
-    dns = ["8.8.8.8", "8.8.4.4"]
+    volumes = ["/var/run/docker.sock:/var/run/docker.sock", "/cache"]
     shm_size = 0
     network_mtu = 0
