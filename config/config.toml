@@ -13,6 +13,7 @@ shutdown_timeout = 0
   token_obtained_at = 2024-11-25T12:57:32Z
   token_expires_at = 0001-01-01T00:00:00Z
   executor = "docker"
+  run_untagged = true
   [runners.custom_build_dir]
   [runners.cache]
     MaxUploadedArchiveSize = 0

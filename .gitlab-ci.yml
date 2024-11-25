@@ -6,19 +6,19 @@ docker-build:
     name: docker:24.0.5
 
   services:
-   - name: registry.hub.docker.com/library/docker:24.0.5-dind
+   - name: docker:24.0.5-dind
      alias: docker
 
   variables:
-    DOCKER_HOST: tcp://0.0.0.0:2375
+    DOCKER_HOST: tcp://docker:2375
     DOCKER_DRIVER: overlay2
     DOCKER_TLS_CERTDIR: ""
     FF_NETWORK_PER_BUILD: "true"
 
   script:
-    - docker login $CI_REGISTRY -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD
+    #- docker login $CI_REGISTRY -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD
     # Wait for Docker to be ready
-    - sleep 5
+    - sleep 2
     - docker info
     # Build the Docker image
     - docker -v
