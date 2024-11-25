@@ -8,6 +8,8 @@ FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
 #COPY ["Tdev702.Api/Tdev702.Api.csproj", "Tdev702.Api/"]
+COPY ["api/Tdev702.Contracts/Tdev702.Contracts.csproj", "Tdev702.Contracts/"]
+COPY ["api/Tdev702.Repository/Tdev702.Repository.csproj", "Tdev702.Repository/"]
 COPY ["api/Tdev702.Api/Tdev702.Api.csproj", "Tdev702.Api/"]
 
 RUN dotnet restore "Tdev702.Api/Tdev702.Api.csproj"
