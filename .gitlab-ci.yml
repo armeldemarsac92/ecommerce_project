@@ -13,6 +13,7 @@ docker-build:
     DOCKER_HOST: tcp://thedockerhost:2375/
     DOCKER_DRIVER: overlay2
     DOCKER_TLS_CERTDIR: ""
+    FF_NETWORK_PER_BUILD: "true"
 
   script:
     # Wait for Docker to be ready
