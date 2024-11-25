@@ -20,7 +20,8 @@ build:
   stage: build
   script:
     # Wait for Docker to be ready
-    - until docker info; do sleep 1; done
+    - sleep 5
+    - docker info
     # Build the Docker image
     - docker -v
     - docker build -t t-dev-702-api:latest .
