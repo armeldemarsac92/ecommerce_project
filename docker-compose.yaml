@@ -5,31 +5,10 @@ services:
     image: gitlab/gitlab-runner:latest
     container_name: gitlab-runner
     restart: always
-    privileged: true # Nécessaire pour Docker-in-Docker
+    privileged: true
     volumes:
       - ./config:/etc/gitlab-runner
       - /var/run/docker.sock:/var/run/docker.sock
       - /cache
     environment:
       - DOCKER_TLS_CERTDIR=""
-
-
-
-
-
-
-
-# version: '3.8'
-
-# services:
-#   gitlab-runner:
-#     image: gitlab/gitlab-runner:latest
-#     container_name: gitlab-runner
-#     privileged: true
-#     restart: always
-#     volumes:
-#       - /var/run/docker.sock:/var/run/docker.sock
-#       - ./config:/etc/gitlab-runner
-    #network_mode: 'host'
-    # environment:
-    #   - DOCKER_HOST=unix:///var/run/docker.sock

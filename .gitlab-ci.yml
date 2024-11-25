@@ -8,6 +8,7 @@ variables:
   DOCKER_TLS_CERTDIR: ""
   DOCKER_HOST: unix:///var/run/docker.sock
   DOCKER_DRIVER: overlay2
+  GIT_DEPTH: 0 
 
   #FF_NETWORK_PER_BUILD: "true
 
