@@ -1,20 +1,18 @@
-docker-build:
-  stage: build
-
-  image:
-    # An alpine-based image with the `docker` CLI installed.
-    name: docker:24.0.7
-
+default:
+  image: docker:24.0.5
   services:
-   - name: docker:24.0.7-dind
-     alias: docker
+    - docker:24.0.5-dind
+  before_script:
+    - docker info
 
   variables:
     DOCKER_TLS_CERTDIR: ""
     FF_NETWORK_PER_BUILD: "true"
-    DOCKER_HOST: tcp://localhost:2375/
+    DOCKER_HOST: tcp://docker:2375/
     DOCKER_DRIVER: overlay2
 
+build:
+  stage: build
   script:
     #- docker login $CI_REGISTRY -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD
     # Wait for Docker to be ready
