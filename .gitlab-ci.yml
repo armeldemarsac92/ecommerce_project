@@ -18,6 +18,6 @@ build:
     # Wait for Docker to be ready
     - sleep 2
     # Build the Docker image
-    - docker build -t t-dev-702-api:latest -f api/Dockerfile api/
+    - docker build --load -t t-dev-702-api:latest -f api/Dockerfile .
     # List Docker images to verify the build
     - docker images
