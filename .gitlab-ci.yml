@@ -16,7 +16,7 @@ docker-build:
     FF_NETWORK_PER_BUILD: "true"
 
   script:
-    - echo $CI_REGISTRY_PASSWORD | docker login -u $CI_REGISTRY_USERNAME --password-stdin t-dev.epitest.eu
+    - docker login -u $CI_REGISTRY_USERNAME -p $CI_REGISTRY_PASSWORD t-dev.epitest.eu
     # Wait for Docker to be ready
     - sleep 5
     - docker info
