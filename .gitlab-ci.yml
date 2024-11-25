@@ -2,13 +2,13 @@ image: docker:24.0.7
 
 services:
   - name: docker:24.0.7-dind
-  - alias: docker
+    alias: docker
 
 variables:
   # Docker configuration.
   DOCKER_HOST: tcp://docker:2375
   DOCKER_TLS_CERTDIR: ""
-  #DOCKER_DRIVER: overlay2
+  DOCKER_DRIVER: overlay2
 
 stages:
   - build
