@@ -20,9 +20,9 @@ shutdown_timeout = 0
     [runners.cache.gcs]
     [runners.cache.azure]
   [runners.docker]
-    host = "unix:///var/run/docker.sock"
     tls_verify = false
-    image = "docker:latest"
+    image = "docker:24.0.7"
+    dns = [8.8.8.8, 8.8.8.4]
     privileged = true
     disable_entrypoint_overwrite = false
     oom_kill_disable = false
