@@ -15,7 +15,7 @@ import {
 } from "@/components/shadcn/carousel";
 import { Image } from "@nextui-org/react";
 import * as React from "react";
-import { Product } from "@/types/Product";
+import {Product} from "@/types/Product";
 
 enum Category {
     Drink = 'Drink',
