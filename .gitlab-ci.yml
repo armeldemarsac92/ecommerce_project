@@ -8,14 +8,12 @@ variables:
   DOCKER_TLS_CERTDIR: ""
   DOCKER_HOST: unix:///var/run/docker.sock
   DOCKER_DRIVER: overlay2
-  GIT_DEPTH: 0 
+  GIT_DEPTH: 0
 
 build:
   stage: build
   script:
     # - docker login $CI_REGISTRY -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD
-    # Wait for Docker to be ready
-    - sleep 2
     # Build the Docker image
     - cd $CI_PROJECT_DIR # go to the root project
     - cd ./web
@@ -23,6 +21,5 @@ build:
     - docker images
     - cd $CI_PROJECT_DIR
     - docker build -t t-dev-702-api:latest -f ./api/Tdev702.Api/Dockerfile .
-
     # List Docker images to verify the build
     - docker images
