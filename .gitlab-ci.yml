@@ -27,7 +27,6 @@ build:
     - docker build --load -t t-dev-702-web:latest -f ./Dockerfile .
     - docker tag t-dev-702-web:latest $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/t-dev-702/prod:frontend
     
-
     # build back
     # - cd $CI_PROJECT_DIR
     # - cd ./api
