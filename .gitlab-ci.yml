@@ -22,10 +22,10 @@ build:
 
     # Build Docker images
     # build front
-    # - cd $CI_PROJECT_DIR
-    # - cd ./web
-    # - docker build --load -t t-dev-702-web:latest -f ./Dockerfile .
-    # - docker tag t-dev-702-web:latest $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/t-dev-702/prod/frontend:latest
+    - cd $CI_PROJECT_DIR
+    - cd ./web
+    - docker build --load -t t-dev-702-web:latest -f ./Dockerfile .
+    - docker tag t-dev-702-web:latest $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/t-dev-702/prod/frontend:latest
     
     # build back
     - cd $CI_PROJECT_DIR
@@ -34,7 +34,7 @@ build:
     - docker tag t-dev-702-web:latest $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/t-dev-702/prod/api:latest
 
     # Push images to AWS ECR
-    #- docker push $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/t-dev-702/prod/frontend:latest
+    - docker push $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/t-dev-702/prod/frontend:latest
     - docker push $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/t-dev-702/prod/api:latest
   only:
     - main
