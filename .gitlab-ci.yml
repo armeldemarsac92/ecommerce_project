@@ -13,7 +13,7 @@ before_script:
 
 build:
   stage: build
-
+  script:
     # AWS ECR Login
     - aws configure set aws_access_key_id $AWS_ACCESS_KEY_ID
     - aws configure set aws_secret_access_key $AWS_SECRET_ACCESS_KEY
@@ -36,5 +36,5 @@ build:
     # Push images to AWS ECR
     - docker push $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/t-dev-702/prod/frontend:latest
     # - docker push $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/t-dev-702/prod/api:latest
-  # only:
-  #   - main
+  only:
+    - main
