@@ -25,7 +25,7 @@ build:
     - cd $CI_PROJECT_DIR
     - cd ./web
     - docker build --load -t t-dev-702-web:latest -f ./Dockerfile .
-    - docker tag t-dev-702-web:latest $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/t-dev-702-web:latest
+    - docker tag t-dev-702-web:latest $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/t-dev-700:latest
     - docker push $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/t-dev-702-web:latest
 
     # build back
