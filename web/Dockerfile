@@ -11,4 +11,4 @@ RUN bun add @next/swc-linux-arm64-gnu @next/swc-linux-arm64-musl
 
 COPY . /app/
 
-#CMD ["bun", "run", "dev"]
+CMD ["bun", "run", "dev"]
