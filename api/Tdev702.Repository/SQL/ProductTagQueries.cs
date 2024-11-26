@@ -1,6 +1,6 @@
 namespace Tdev702.Repository.SQL;
 
-public class ProductTagQueries
+public static class ProductTagQueries
 {
     public static string GetProductTagById = @"
     SELECT *
