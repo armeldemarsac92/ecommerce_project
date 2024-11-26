@@ -1,7 +1,6 @@
 using Tdev702.Contracts.API.Shop;
 using Tdev702.Contracts.Exceptions;
 using Tdev702.Contracts.SQL.Mapping;
-using Tdev702.Contracts.SQL.Request.Shop.Brand;
 using Tdev702.Contracts.SQL.Request.Shop.ProductTag;
 using Tdev702.Repository.Repository;
 
