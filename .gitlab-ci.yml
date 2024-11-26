@@ -18,6 +18,7 @@ build:
     - sleep 2
     # Build the Docker image
     - cd $CI_PROJECT_DIR # go to the root project
+    - cd ./web
     - docker build -t t-dev-702-web:latest -f ./web/Dockerfile .
     - docker images
     - docker build -t t-dev-702-api:latest -f ./api/Tdev702.Api/Dockerfile .
