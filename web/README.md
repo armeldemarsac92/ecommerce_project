@@ -1,6 +1,6 @@
-# Next.js & NextUI Template
+# Next.js & NextUI __template
 
-This is a template for creating applications using Next.js 14 (app directory) and NextUI (v2).
+This is a __template for creating applications using Next.js 14 (app directory) and NextUI (v2).
 
 [Try it on CodeSandbox](https://githubbox.com/nextui-org/next-app-template)
 
@@ -16,12 +16,12 @@ This is a template for creating applications using Next.js 14 (app directory) an
 
 ## How to Use
 
-### Use the template with create-next-app
+### Use the __template with create-next-app
 
-To create a new project based on this template using `create-next-app`, run the following command:
+To create a new project based on this __template using `create-next-app`, run the following command:
 
 ```bash
-npx create-next-app -e https://github.com/nextui-org/next-app-template
+npx create-next-app -e https://github.com/nextui-org/next-app-__template
 ```
 
 ### Install dependencies

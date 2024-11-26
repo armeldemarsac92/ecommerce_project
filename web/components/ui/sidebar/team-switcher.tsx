@@ -11,13 +11,13 @@ import {
   DropdownMenuSeparator,
   DropdownMenuShortcut,
   DropdownMenuTrigger,
-} from "@/components/shadcn-ui/dropdown-menu"
+} from "@/components/shadcn/dropdown-menu"
 import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
   useSidebar,
-} from "@/components/shadcn-ui/sidebar"
+} from "@/components/shadcn/sidebar"
 
 export function TeamSwitcher({
   teams,

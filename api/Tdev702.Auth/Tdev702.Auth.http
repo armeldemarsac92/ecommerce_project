@@ -1,0 +1,6 @@
+@Tdev702.Auth_HostAddress = http://localhost:5084
+
+GET {{Tdev702.Auth_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
