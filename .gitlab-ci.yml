@@ -17,8 +17,9 @@ build:
     # Wait for Docker to be ready
     - sleep 2
     # Build the Docker image
-    - ls -R # list files debug purposes
     - cd $CI_PROJECT_DIR # go to the root project
+    - docker build -t t-dev-702-web:latest -f ./web/app/Dockerfile .
+    - docker images
     - docker build -t t-dev-702-api:latest -f ./api/Tdev702.Api/Dockerfile .
 
     # List Docker images to verify the build
