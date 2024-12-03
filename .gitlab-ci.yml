@@ -38,3 +38,32 @@ build:
     - docker push $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/t-dev-702/prod/api:latest
   only:
     - main
+
+  
+test_frontend:
+  stage: test
+  image: node:20-alpine
+  script:
+    # Install dependencies for frontend tests
+    - cd $CI_PROJECT_DIR/web
+    - npm install
+    # Run frontend tests
+    - npm run test
+  only:
+    - main
+
+test_backend:
+  stage: test
+  image: mcr.microsoft.com/dotnet/sdk:7.0
+  script:
+    # Restore and run backend tests
+    - cd $CI_PROJECT_DIR/api
+    - dotnet restore
+    - dotnet test --logger:trx
+  artifacts:
+    paths:
+      - api/TestResults/
+  only:
+    - main
+
+# Ajouter Tests et séparer dev et prod
