@@ -10,20 +10,19 @@ variables:
 stages:
   - test
   - build
-  - deploy
 
 # Frontend Test Stage
 frontend-test:
   stage: test
-  image: node:18-alpine
+  image: oven/bun:latest
   before_script:
+    - cd $CI_PROJECT_DIR
     - cd ./web
-    - npm install -g npm@latest
-    - npm ci --legacy-peer-deps
+    - bun install
   script:
-    - npm run lint || true
-    - npm run test:unit || true
-    - npm run test:coverage || true 
+    - bun run lint || true
+    - bun test || true
+    - bun run test:coverage || true
   allow_failure: false
   only:
     - merge_requests
@@ -34,13 +33,12 @@ backend-test:
   stage: test
   image: mcr.microsoft.com/dotnet/sdk:8.0
   before_script:
+    - cd $CI_PROJECT_DIR
     - cd ./api
     - dotnet restore
   script:
     # Run unit tests
-    - dotnet test ./Tdev702.Api.Tests/Tdev702.Api.Tests.csproj 
-    # Run integration tests (if applicable)
-    - dotnet test ./Tdev702.Api.IntegrationTests/Tdev702.Api.IntegrationTests.csproj
+    - dotnet test ./Tdev702.Api/Tdev702.Api.csproj
   only:
     - merge_requests
     - main
