@@ -3,7 +3,7 @@ FROM oven/bun
 WORKDIR /app/
 
 COPY bun.lockb .
-COPY package*.json .
+COPY package*.json /app/
 
 RUN bun install
 
@@ -22,6 +22,6 @@ RUN apt-get update && apt-get install -y \
     && ./aws/install \
     && rm -rf /var/lib/apt/lists/* aws awscliv2.zip
 
-COPY . /app/
+COPY . .
 
 CMD ["bun", "run", "dev"]
