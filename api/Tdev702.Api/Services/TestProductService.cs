@@ -74,7 +74,12 @@ public class TestProductService : IProductsService
         };
     }
 
-    public async Task<Product> UpdateAsync(long productId, UpdateProductRequest updateProductRequest,
+    public Task DeleteAsync(long id, CancellationToken cancellationToken = default)
+    {
+        throw new NotImplementedException();
+    }
+
+    public async Task<Product> UpdateAsync(long id, UpdateProductRequest updateProductRequest,
         CancellationToken cancellationToken = default)
     {
         return new Product()

@@ -17,11 +17,29 @@ public static class ProductEndpoints
             .WithDescription("Get all products")
             .Produces<List<Product>>(200)
             .Produces(404);
-
-        app.MapGet(ShopRoutes.Products.Create, CreateProduct)
+        
+        app.MapGet(ShopRoutes.Products.GetById, GetProduct)
             .WithTags(Tags)
-            .WithDescription("Create product")
-            .Produces(200)
+            .WithDescription("Get one product")
+            .Produces<Product>(200)
+            .Produces(404);
+        
+        app.MapPost(ShopRoutes.Products.Create, CreateProduct)
+            .WithTags(Tags)
+            .WithDescription("Create one product")
+            .Produces<Product>(200)
+            .Produces(404);
+        
+        app.MapPut(ShopRoutes.Products.Update, UpdateProduct)
+            .WithTags(Tags)
+            .WithDescription("Create one product")
+            .Produces<Product>(200)
+            .Produces(404);
+        
+        app.MapDelete(ShopRoutes.Products.Delete, DeleteProduct)
+            .WithTags(Tags)
+            .WithDescription("Delete one product by Id")
+            .Produces<Product>(200)
             .Produces(404);
         
         return app;
@@ -36,15 +54,43 @@ public static class ProductEndpoints
         var products = await productsService.GetAllAsync(cancellationToken);
         return Results.Ok(products);
     }
-
+    
+    private static async Task<IResult> GetProduct(
+        HttpContext context,
+        IProductsService productsService,
+        long id,
+        CancellationToken cancellationToken)
+    {   
+        var product = await productsService.GetByIdAsync(id ,cancellationToken);
+        return Results.Ok(product);
+    }
+    
     private static async Task<IResult> CreateProduct(
         HttpContext context,
         IProductsService productsService,
         CreateProductRequest productRequest,
         CancellationToken cancellationToken)
     {
-        var product = await productsService.CreateAsync(productRequest, cancellationToken);
+        var product = await productsService.CreateAsync(productRequest,cancellationToken);
         return Results.Ok(product);
     }
-    
+    private static async Task<IResult> UpdateProduct(
+        HttpContext context,
+        IProductsService productsService,
+        long id,
+        UpdateProductRequest productRequest,
+        CancellationToken cancellationToken)
+    {
+        var product = await productsService.UpdateAsync(id, productRequest, cancellationToken);
+        return Results.Ok(product);
+    }
+    private static async Task<IResult> DeleteProduct(
+        HttpContext context,
+        IProductsService productsService,
+        long id,
+        CancellationToken cancellationToken)
+    {
+        await productsService.DeleteAsync(id, cancellationToken);
+        return Results.NoContent();
+    }
 }
