@@ -1,4 +1,3 @@
-using Tdev702.Contracts.SQL.Request.Shop;
 using Tdev702.Contracts.SQL.Request.Shop.Brand;
 using Tdev702.Contracts.SQL.Response.Shop;
 using Tdev702.Repository.SQL;

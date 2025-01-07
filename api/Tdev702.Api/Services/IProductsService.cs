@@ -11,7 +11,8 @@ public interface IProductsService
     public Task<Product> GetByIdAsync(long id, CancellationToken cancellationToken = default);
     public Task<List<Product>> GetAllAsync(CancellationToken cancellationToken = default);
     public Task<Product> CreateAsync(CreateProductRequest createProductRequest, CancellationToken cancellationToken = default);
-    public Task<Product> UpdateAsync(long productId, UpdateProductRequest updateProductRequest, CancellationToken cancellationToken = default);
+    public Task<Product> UpdateAsync(long id, UpdateProductRequest updateProductRequest, CancellationToken cancellationToken = default);
+    public Task DeleteAsync(long id ,CancellationToken cancellationToken = default);
 }
 
 public class ProductsService : IProductsService
@@ -40,19 +41,23 @@ public class ProductsService : IProductsService
 
     public async Task<Product> CreateAsync(CreateProductRequest createProductRequest, CancellationToken cancellationToken = default)
     {
-        throw new NotImplementedException();
+        var response = await _productRepository.CreateAsync(createProductRequest, cancellationToken);
+        return response.MapToProduct();
     }
 
-    public async Task<Product> UpdateAsync(long productId, UpdateProductRequest updateProductRequest, CancellationToken cancellationToken = default)
+    public async Task<Product> UpdateAsync(long Id, UpdateProductRequest updateProductRequest, CancellationToken cancellationToken = default)
     {
-        updateProductRequest.Id = productId;
+        updateProductRequest.Id = Id;
         var affectedRows = await _productRepository.UpdateAsync(updateProductRequest, cancellationToken);
 
-        if (affectedRows == 0) throw new NotFoundException($"Product {productId} not found");
+        if (affectedRows == 0) throw new NotFoundException($"Product {Id} not found");
         
-        var updatedProduct = await _productRepository.GetByIdAsync(productId, cancellationToken);
+        var updatedProduct = await _productRepository.GetByIdAsync(Id, cancellationToken);
         return updatedProduct.MapToProduct();
-        
-        
+    }
+
+    public async Task DeleteAsync(long id, CancellationToken cancellationToken = default)
+    {
+        await _productRepository.DeleteAsync(id, cancellationToken);
     }
 }

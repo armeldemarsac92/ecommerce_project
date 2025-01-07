@@ -1,5 +1,4 @@
 using Tdev702.Api.DI;
-using Tdev702.Api.Endpoints.Shop;
 using Tdev702.Repository.DI;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -10,7 +9,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 var services = builder.Services;
 
-services.AddDbConnection();
+services.AddDbConnection(builder.Configuration);
 services.AddApiServices();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
