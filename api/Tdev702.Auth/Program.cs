@@ -39,6 +39,9 @@ builder.Services.AddIdentity<User, Role>(options =>
 
     options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(15);
     options.Lockout.MaxFailedAccessAttempts = 5;
+    
+    options.Tokens.AuthenticatorTokenProvider = TokenOptions.DefaultAuthenticatorProvider;
+    options.Tokens.AuthenticatorIssuer = "Epitech Project";
 })
 .AddEntityFrameworkStores<ApplicationDbContext>()
 .AddRoles<Role>()
