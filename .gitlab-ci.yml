@@ -14,15 +14,15 @@ stages:
 # Frontend Test Stage
 frontend-test:
   stage: test
-  image: oven/bun:latest
+  image: node:21-alpine3.19
   before_script:
     - cd $CI_PROJECT_DIR
     - cd ./web
-    - bun install
+    - yarn install
   script:
-    - bun run lint || true
-    - bun test || true
-    - bun run test:coverage || true
+    - yarn run lint || true
+    - yarn test || true
+    - yarn run test:coverage || true
   allow_failure: false
   only:
     - merge_requests
@@ -75,3 +75,4 @@ build:
   dependencies:
     - frontend-test
     - backend-test
+  
