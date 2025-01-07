@@ -18,12 +18,14 @@ frontend-test:
   before_script:
     - cd $CI_PROJECT_DIR
     - cd ./web
+    - apk add --no-cache xvfb gtk+3.0 chromium nss freetype freetype-dev harfbuzz ca-certificates ttf-freefont
+    - export CYPRESS_CHROMIUM_PATH=/usr/bin/chromium-browser
     - yarn install
   script:
     - yarn run lint || true
     - yarn test || true
     - yarn run test:coverage || true
-    - yarn cypress run --headless
+    - xvfb-run --server-args="-screen 0 1280x720x24" yarn cypress run --headless
   allow_failure: false
   only:
     - merge_requests
