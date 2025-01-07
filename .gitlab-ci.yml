@@ -23,6 +23,7 @@ frontend-test:
     - yarn run lint || true
     - yarn test || true
     - yarn run test:coverage || true
+    - yarn run cypress --headless
   allow_failure: false
   only:
     - merge_requests
