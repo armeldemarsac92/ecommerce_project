@@ -23,7 +23,6 @@ frontend-test:
     - yarn run lint || true
     - yarn test || true
     - yarn run test:coverage || true
-    - yarn cypress run
   allow_failure: false
   only:
     - merge_requests
@@ -90,5 +89,6 @@ build:
     - main
   dependencies:
     - frontend-test
+    - frontend-e2e
     - backend-test
   
