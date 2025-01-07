@@ -19,6 +19,9 @@ public class ProductResponse
     [Column("price")]
     public required double Price { get; init; }
     
+    [Column("tag_id")]
+    public long? TagId { get; init; }
+    
     [Column("brand_id")]
     public long? BrandId { get; init; }
     

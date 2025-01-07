@@ -7,6 +7,7 @@ public class UpdateProductRequest
     public string? Title { get; init; }
     public string? Description { get; init; }
     public double? Price { get; init; }
+    public string? Tags { get; init; }
     public long? BrandId { get; init; }
     public long? CategoryId { get; init; }
     public long? OpenFoodFactId { get; init; }

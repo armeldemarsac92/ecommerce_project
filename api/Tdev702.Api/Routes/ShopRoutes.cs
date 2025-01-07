@@ -38,4 +38,11 @@ public static class ShopRoutes
         public const string Update = $"{Base}/categories/{{id}}";
         public const string Delete = $"{Base}/categories/{{id}}";
     }
+
+    public static class TagsLinks
+    {
+        public const string GetById = $"{Base}/tags_links/{{tagId}}";
+        public const string GetAll = $"{Base}/tags_links";
+        public const string Create = $"{Base}/tags_links";
+    }
 }

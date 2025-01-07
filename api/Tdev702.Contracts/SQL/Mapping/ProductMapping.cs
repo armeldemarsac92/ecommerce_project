@@ -5,7 +5,7 @@ namespace Tdev702.Contracts.SQL.Mapping;
 
 public static class ProductMapping
 {
-    public static Product MapToProduct(this ProductResponse productResponse)
+    public static Product MapToProduct(this ProductResponse productResponse, TagResponse? tagResponse)
     {
         return new Product
         {
@@ -14,6 +14,7 @@ public static class ProductMapping
             Title = productResponse.Title,
             Description = productResponse.Description,
             Price = productResponse.Price,
+            TagsId = tagResponse.TagId,
             PriceHt = productResponse.Price / 1.2,
             BrandId = productResponse.BrandId,
             CategoryId = productResponse.CategoryId,
@@ -23,8 +24,8 @@ public static class ProductMapping
         };
     }
 
-    public static List<Product> MapToProducts(this List<ProductResponse> productResponses)
+    public static List<Product> MapToProducts(this List<ProductResponse> productResponses, TagResponse? tagLinksResponses)
     {
-        return productResponses.Select(MapToProduct).ToList();
+        return productResponses.Select(x => MapToProduct(x, tagLinksResponses)).ToList();
     }
 }

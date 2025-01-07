@@ -2,10 +2,10 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Tdev702.Contracts.SQL.Response.Shop;
 
-public class ProductTagResponse
+public class TagResponse
 {
     [Column("id")]
-    public required long ProductTagId { get; init; }
+    public required long TagId { get; init; }
     
     [Column("title")]
     public required string Title { get; init; }

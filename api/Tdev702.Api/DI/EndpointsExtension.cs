@@ -8,9 +8,9 @@ public static class EndpointExtensions
     public static IEndpointRouteBuilder MapApiEndpoints(this IEndpointRouteBuilder app)
     {
         app.MapProductEndpoints();
-        app.MapProductTagEndpoints();
         app.MapBrandEndpoints();
         app.MapCategoryEndpoints();
+        app.MapTagEndpoints();
 
         return app;
     }
@@ -18,9 +18,10 @@ public static class EndpointExtensions
     public static IServiceCollection AddApiServices(this IServiceCollection services)
     {
         services.AddScoped<IProductsService, ProductsService>();
+        services.AddScoped<ITagLinksService, TagLinksService>();
         services.AddScoped<IBrandsService, BrandsService>();
         services.AddScoped<ICategoriesService, CategoriesService>();
-        services.AddScoped<IProductTagsService, ProductTagsService>();
+        services.AddScoped<ITagsService, TagsService>();
         return services;
     }
 }

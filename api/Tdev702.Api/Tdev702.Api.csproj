@@ -25,4 +25,8 @@
       <ProjectReference Include="..\Tdev702.Repository\Tdev702.Repository.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Compile Remove="Services\ITagLinksService.cs" />
+    </ItemGroup>
+
 </Project>

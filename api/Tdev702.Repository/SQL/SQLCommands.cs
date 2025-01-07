@@ -8,7 +8,7 @@ namespace Tdev702.Repository.SQL;
 
 public interface IDBSQLCommand
 {
-    Task<int> ExecuteAsync(string sql, object? parameters = null, CancellationToken cancellationToken = default);
+    Task<int>  ExecuteAsync(string sql, object? parameters = null, CancellationToken cancellationToken = default);
 
     Task<T> ExecuteAndRetrieveAsync<T>(string sql, object? parameters = null,
         CancellationToken cancellationToken = default);

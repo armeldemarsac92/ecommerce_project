@@ -12,6 +12,8 @@ public class CreateProductRequest
     
     public long? BrandId { get; set; }
     
+    public List<long> TagIds { get; set; }
+    
     public long? CategoryId { get; set; }
     
     public long? OpenFoodFactId { get; set; }

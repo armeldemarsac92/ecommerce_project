@@ -26,6 +26,9 @@ public class Product
     [JsonPropertyName("brand_id")]
     public long? BrandId { get; init; }
     
+    [JsonPropertyName("tags_id")]
+    public long? TagsId { get; init; }
+    
     [JsonPropertyName("category_id")]
     public long? CategoryId { get; init; }
     
