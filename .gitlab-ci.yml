@@ -14,7 +14,7 @@ stages:
 # Frontend Test Stage
 frontend-test:
   stage: test
-  image: cypress/included
+  image: node:21-alpine3.19
   before_script:
     - cd $CI_PROJECT_DIR
     - cd ./web
@@ -28,6 +28,21 @@ frontend-test:
   only:
     - merge_requests
     - main
+
+frontend-e2e:
+  stage: test
+  image: cypress/base
+  before_script:
+    - cd $CI_PROJECT_DIR
+    - cd ./web
+    - yarn install
+  script:
+    - yarn cypress run
+  allow_failure: false
+  only:
+    - merge_requests
+    - main
+
 
 # Backend Test Stage
 backend-test:
