@@ -14,7 +14,7 @@ stages:
 # Frontend Test Stage
 frontend-test:
   stage: test
-  image: cypress/included:13.7.0-node21.5.0-alpine3.18
+  image: node:21-alpine3.19, cypress/base
   before_script:
     - cd $CI_PROJECT_DIR
     - cd ./web
