@@ -11,6 +11,7 @@ RUN apk update && apk add --no-cache \
     curl \
     busybox-extras \
     bind-tools \
+    xvfb \
     netcat-openbsd \
     iputils \
     net-tools \
