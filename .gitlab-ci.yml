@@ -23,6 +23,8 @@ frontend-test:
     - yarn run lint || true
     - yarn test || true
     - yarn run test:coverage || true
+    - yarn dev &
+    - sleep 30
     - yarn cypress run --headless
   allow_failure: false
   only:
