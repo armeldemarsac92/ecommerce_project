@@ -1,4 +1,3 @@
-using Tdev702.Contracts.SQL.Request.Shop;
 using Tdev702.Contracts.SQL.Request.Shop.Product;
 using Tdev702.Contracts.SQL.Response.Shop;
 using Tdev702.Repository.SQL;
@@ -11,6 +10,7 @@ public interface IProductRepository
     public Task<List<ProductResponse>> GetAllAsync(CancellationToken cancellationToken = default);
     public Task<ProductResponse> CreateAsync(CreateProductRequest request, CancellationToken cancellationToken = default);
     public Task<int> UpdateAsync(UpdateProductRequest request, CancellationToken cancellationToken = default);
+    public Task DeleteAsync(long id, CancellationToken cancellationToken = default);
 }
 
 public class ProductRepository : IProductRepository
@@ -24,7 +24,7 @@ public class ProductRepository : IProductRepository
 
     public async Task<ProductResponse?> GetByIdAsync(long id, CancellationToken cancellationToken = default)
     {
-        return await _dbCommand.QueryFirstOrDefaultAsync<ProductResponse>(ProductQueries.GetProductById, new { ProductId = id }, cancellationToken);
+        return await _dbCommand.QueryFirstOrDefaultAsync<ProductResponse>(ProductQueries.GetProductById, new { Id = id }, cancellationToken);
     }
 
     public async Task<List<ProductResponse>> GetAllAsync(CancellationToken cancellationToken = default)
@@ -41,5 +41,10 @@ public class ProductRepository : IProductRepository
     public async Task<int> UpdateAsync(UpdateProductRequest request, CancellationToken cancellationToken = default)
     {
         return await _dbCommand.ExecuteAsync(ProductQueries.UpdateProduct, request, cancellationToken);
+    }
+
+    public async Task DeleteAsync(long id, CancellationToken cancellationToken = default)
+    {
+        await _dbCommand.ExecuteAsync(ProductQueries.DeleteProduct, new { Id = id }, cancellationToken);
     }
 }

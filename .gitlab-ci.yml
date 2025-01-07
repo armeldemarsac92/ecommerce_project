@@ -1,0 +1,78 @@
+default:
+  image: docker:24.0.5
+  
+variables:
+  DOCKER_TLS_CERTDIR: ""
+  DOCKER_HOST: unix:///var/run/docker.sock
+  DOCKER_DRIVER: overlay2
+  GIT_DEPTH: 0
+
+stages:
+  - test
+  - build
+
+# Frontend Test Stage
+frontend-test:
+  stage: test
+  image: node:21-alpine3.19
+  before_script:
+    - cd $CI_PROJECT_DIR
+    - cd ./web
+    - yarn install
+  script:
+    - yarn run lint || true
+    - yarn test || true
+    - yarn run test:coverage || true
+  allow_failure: false
+  only:
+    - merge_requests
+    - main
+
+# Backend Test Stage
+backend-test:
+  stage: test
+  image: mcr.microsoft.com/dotnet/sdk:8.0
+  before_script:
+    - cd $CI_PROJECT_DIR
+    - cd ./api
+    - dotnet restore
+  script:
+    # Run unit tests
+    - dotnet test ./Tdev702.Api/Tdev702.Api.csproj
+  only:
+    - merge_requests
+    - main
+
+build:
+  stage: build
+  script:
+    # AWS ECR Login
+    - apk add --no-cache git aws-cli
+    - docker info
+    - aws configure set aws_access_key_id $AWS_ACCESS_KEY_ID
+    - aws configure set aws_secret_access_key $AWS_SECRET_ACCESS_KEY
+    - aws configure set default.region $AWS_REGION
+    - aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com
+    
+    # Build Docker images
+    # build front
+    - cd $CI_PROJECT_DIR
+    - cd ./web
+    - docker build --load -t t-dev-702-web:latest -f ./Dockerfile .
+    - docker tag t-dev-702-web:latest $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/t-dev-702/prod/frontend:latest
+    
+    # build back
+    - cd $CI_PROJECT_DIR
+    - cd ./api
+    - docker build --load -t t-dev-702-api:latest -f ./Tdev702.Api/Dockerfile .
+    - docker tag t-dev-702-api:latest $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/t-dev-702/prod/api:latest
+    
+    # Push images to AWS ECR
+    - docker push $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/t-dev-702/prod/frontend:latest
+    - docker push $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/t-dev-702/prod/api:latest
+  only:
+    - main
+  dependencies:
+    - frontend-test
+    - backend-test
+  
