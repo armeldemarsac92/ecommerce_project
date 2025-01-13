@@ -1,7 +1,7 @@
 using Tdev702.Contracts.API.Shop;
 using Tdev702.Contracts.Exceptions;
 using Tdev702.Contracts.SQL.Mapping;
-using Tdev702.Contracts.SQL.Request.Shop.Product;
+using Tdev702.Contracts.SQL.Request.Shop;
 using Tdev702.Repository.Repository;
 
 namespace Tdev702.Api.Services;
@@ -11,8 +11,7 @@ public interface IProductsService
     public Task<Product> GetByIdAsync(long id, CancellationToken cancellationToken = default);
     public Task<List<Product>> GetAllAsync(CancellationToken cancellationToken = default);
     public Task<Product> CreateAsync(CreateProductRequest createProductRequest, CancellationToken cancellationToken = default);
-    public Task<Product> UpdateAsync(long id, UpdateProductRequest updateProductRequest, CancellationToken cancellationToken = default);
-    public Task DeleteAsync(long id ,CancellationToken cancellationToken = default);
+    public Task<Product> UpdateAsync(long productId, UpdateProductRequest updateProductRequest, CancellationToken cancellationToken = default);
 }
 
 public class ProductsService : IProductsService
@@ -41,23 +40,19 @@ public class ProductsService : IProductsService
 
     public async Task<Product> CreateAsync(CreateProductRequest createProductRequest, CancellationToken cancellationToken = default)
     {
-        var response = await _productRepository.CreateAsync(createProductRequest, cancellationToken);
-        return response.MapToProduct();
+        throw new NotImplementedException();
     }
 
-    public async Task<Product> UpdateAsync(long Id, UpdateProductRequest updateProductRequest, CancellationToken cancellationToken = default)
+    public async Task<Product> UpdateAsync(long productId, UpdateProductRequest updateProductRequest, CancellationToken cancellationToken = default)
     {
-        updateProductRequest.Id = Id;
+        updateProductRequest.Id = productId;
         var affectedRows = await _productRepository.UpdateAsync(updateProductRequest, cancellationToken);
 
-        if (affectedRows == 0) throw new NotFoundException($"Product {Id} not found");
+        if (affectedRows == 0) throw new NotFoundException($"Product {productId} not found");
         
-        var updatedProduct = await _productRepository.GetByIdAsync(Id, cancellationToken);
+        var updatedProduct = await _productRepository.GetByIdAsync(productId, cancellationToken);
         return updatedProduct.MapToProduct();
-    }
-
-    public async Task DeleteAsync(long id, CancellationToken cancellationToken = default)
-    {
-        await _productRepository.DeleteAsync(id, cancellationToken);
+        
+        
     }
 }

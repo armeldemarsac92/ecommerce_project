@@ -1,8 +1,7 @@
 using System.Security.Cryptography.X509Certificates;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Npgsql;
-using Tdev702.Contracts.Config;
+using Tdev702.Contracts.API.Auth;
 using Tdev702.Repository.Config;
 using Tdev702.Repository.Repository;
 using Tdev702.Repository.SQL;
@@ -12,20 +11,28 @@ namespace Tdev702.Repository.DI;
 
 public static class DbExtensions
 {
-    public static IServiceCollection AddDbConnection(this IServiceCollection services, IConfiguration configuration)
+    public static IServiceCollection AddDbConnection(this IServiceCollection services)
     {
-        var databaseConfiguration = configuration.GetSection("database").Get<DatabaseConfiguration>() ?? throw new InvalidOperationException("Database configuration not found");
-        var cert = new X509Certificate2(Convert.FromBase64String(databaseConfiguration.SslCert));
+        var connectionString = Environment.GetEnvironmentVariable("DB_CONNECTION_STRING") ??
+                               throw new InvalidOperationException(
+                                   "DB_CONNECTION_STRING not found in environment variables");
+        
+        var certificatePath = Environment.GetEnvironmentVariable("SUPABASE_SSL_CERT_PATH") ??
+                               throw new InvalidOperationException(
+                                   "SUPABASE_SSL_CERT_PATH not found in environment variables");
+        
+        var cert = new X509Certificate2(certificatePath);
 
         DapperMappingConfiguration.ConfigureMappings();
         services.AddSingleton<INpgsqlExceptionHandler, NpgsqlExceptionHandler>();
-        services.AddNpgsqlDataSource(databaseConfiguration.DbConnectionString, dataSourceBuilder =>
+        services.AddNpgsqlDataSource(connectionString, dataSourceBuilder =>
         {
             dataSourceBuilder.UseVector();
             dataSourceBuilder.UseClientCertificate(cert);
         });
         services.AddTransient<IDBSQLCommand, DbsqlCommand>();
         services.AddScoped<IProductRepository, ProductRepository>();
+        services.AddScoped<IIdentityRepository<ApplicationUser>, IdentityRepository<ApplicationUser>>();
 
         return services;
     }
