@@ -1,7 +1,9 @@
 using Tdev702.Api.DI;
+using Tdev702.AWS.SDK.SecretsManager;
 using Tdev702.Repository.DI;
 
 var builder = WebApplication.CreateBuilder(args);
+builder.AddAwsConfiguration(SecretType.Database);
 
 // Add services to the container.
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle

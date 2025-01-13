@@ -21,6 +21,7 @@
     </ItemGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\Tdev702.AWS.SDK\Tdev702.AWS.SDK.csproj" />
       <ProjectReference Include="..\Tdev702.Contracts\Tdev702.Contracts.csproj" />
       <ProjectReference Include="..\Tdev702.Repository\Tdev702.Repository.csproj" />
     </ItemGroup>
