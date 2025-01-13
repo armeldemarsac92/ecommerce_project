@@ -5,7 +5,6 @@ import { ArrowRight, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { ScrollShadow } from "@nextui-org/react";
 import { Button } from "@/components/shadcn/button";
-import {useIsSSR} from "@react-aria/ssr";
 
 export default function LastOrders() {
   const [activeTransaction, setActiveTransaction] = useState<null | TransactionType>(null);
