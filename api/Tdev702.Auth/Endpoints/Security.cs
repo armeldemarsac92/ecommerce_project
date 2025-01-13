@@ -20,19 +20,19 @@ public static class SecurityEndpoints
             .WithTags(Tags);
         
         app.MapPost(ApiRoutes.Security.Enable, Setup2FA)
-            // .Accepts<Setup2FaRequest>(ContentType)
-            .RequireAuthorization()
+            .Accepts<Setup2FaRequest>(ContentType)
+            .RequireAuthorization("Authenticated")
             .WithName("Enable2FA")
             .WithTags(Tags);
 
         app.MapPost(ApiRoutes.Security.Verify, Verify2fa)
-            // .Accepts<string>(ContentType)
-            .RequireAuthorization()
+            .Accepts<Verify2FaRequest>(ContentType)
+            .RequireAuthorization("Authenticated")
             .WithName("Verify2FA")
             .WithTags(Tags);
 
         app.MapPost(ApiRoutes.Security.Disable, Disable2fa)
-            .RequireAuthorization()
+             .RequireAuthorization("Authenticated")
             .WithName("Disable2FA")
             .WithTags(Tags);
         
@@ -49,13 +49,14 @@ public static class SecurityEndpoints
         UserManager<User> userManager,
         ClaimsPrincipal claimsPrincipal,
         Setup2FaRequest request,
+        TwoFactorType twoFactorType,
         IEmailService emailService)
     {
         var user = await userManager.GetUserAsync(claimsPrincipal);
         if (user == null)
-            return Results.NotFound();
+            return Results.BadRequest();
 
-        switch (request.Type)
+        switch (twoFactorType)
         {
             case TwoFactorType.Authenticator:
                 return await SetupAuthenticator(userManager, user);
@@ -83,6 +84,9 @@ public static class SecurityEndpoints
         }
 
         var authenticatorUri = GenerateQrCodeUri(user.Email!, unformattedKey!);
+        
+        user.PreferredTwoFactorProvider = TwoFactorType.Authenticator;
+        await userManager.UpdateAsync(user);
 
         return Results.Ok(new
         {
@@ -98,6 +102,9 @@ public static class SecurityEndpoints
             TokenOptions.DefaultEmailProvider);
         
         await emailService.SendVerificationCodeAsync(user.Email!, token);
+        
+        user.PreferredTwoFactorProvider = TwoFactorType.Email;
+        await userManager.UpdateAsync(user);
         
         return Results.Ok(new
         {
@@ -115,7 +122,8 @@ public static class SecurityEndpoints
         var token = await userManager.GenerateTwoFactorTokenAsync(user, 
             TokenOptions.DefaultPhoneProvider);
         
-        // TODO: Send SMS with token
+        user.PreferredTwoFactorProvider = TwoFactorType.SMS;
+        await userManager.UpdateAsync(user);
         
         return Results.Ok(new
         {
@@ -128,18 +136,35 @@ public static class SecurityEndpoints
         UserManager<User> userManager,
         SignInManager<User> signInManager,
         ClaimsPrincipal claimsPrincipal,
-        [FromBody] string code)
+        Verify2FaRequest request)
     {
         var user = await userManager.GetUserAsync(claimsPrincipal);
         if (user == null)
             return Results.NotFound();
 
-        var verificationCode = code.Replace(" ", string.Empty).Replace("-", string.Empty);
+        var verificationCode = request.VerificationCode.Replace(" ", string.Empty).Replace("-", string.Empty);
 
-        var is2faTokenValid = await userManager.VerifyTwoFactorTokenAsync(
-            user, TokenOptions.DefaultAuthenticatorProvider, verificationCode);
+        var is2FaTokenValid = false;
+        
+        switch (user.PreferredTwoFactorProvider)
+        {
+            case TwoFactorType.Authenticator:
+                is2FaTokenValid = await userManager.VerifyTwoFactorTokenAsync(user, TokenOptions.DefaultAuthenticatorProvider, verificationCode);
+                break;
+                
+            case TwoFactorType.Email:
+                is2FaTokenValid = await userManager.VerifyTwoFactorTokenAsync(user, TokenOptions.DefaultEmailProvider, verificationCode);
+                break;
 
-        if (!is2faTokenValid)
+            case TwoFactorType.SMS:
+                is2FaTokenValid = await userManager.VerifyTwoFactorTokenAsync(user, TokenOptions.DefaultPhoneProvider, verificationCode);
+                break;
+
+            default:
+                return Results.BadRequest("Invalid 2FA type");
+        }
+
+        if (!is2FaTokenValid)
             return Results.BadRequest("Verification code is invalid.");
 
         await userManager.SetTwoFactorEnabledAsync(user, true);

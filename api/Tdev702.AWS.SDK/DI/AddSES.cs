@@ -9,7 +9,7 @@ public static class AddSES
     public static IServiceCollection AddSEService(this IServiceCollection services)
     {
         services.AddSingleton<IAmazonSimpleEmailService, AmazonSimpleEmailServiceClient>();
-        services.AddScoped<IEmailService, AwsSesEmailService>();
+        services.AddSingleton<IEmailService, AwsSesEmailService>();
         return services;
     }
 }

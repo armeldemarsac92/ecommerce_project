@@ -8,6 +8,7 @@ namespace Tdev702.AWS.SDK.SES;
 public interface IEmailService
 {
     Task SendVerificationCodeAsync(string email, string code);
+    Task SendEmailAsync(string toEmail, string subject, string message);
 }
 
 public class AwsSesEmailService : IEmailService
@@ -19,6 +20,47 @@ public class AwsSesEmailService : IEmailService
     {
         _sesClient = sesClient;
         _configuration = configuration.GetSection("auth").Get<AuthConfiguration>() ?? throw new InvalidOperationException("Auth configuration not found");
+    }
+
+    public async Task SendEmailAsync(string toEmail, string subject, string message)
+    {
+        try
+        {
+            var request = new SendEmailRequest
+            {
+                Source = _configuration.SourceEmail,
+                Destination = new Destination
+                {
+                    ToAddresses = new List<string> { toEmail }
+                },
+                Message = new Message
+                {
+                    Subject = new Content { Data = subject },
+                    Body = new Body
+                    {
+                        Text = new Content
+                        {
+                            Data = message
+                        },
+                        Html = new Content
+                        {
+                            Data = $@"
+                            <html>
+                                <body>
+                                    <h2>{subject}</h2>
+                                    <p>{message}</p>
+                                </body>
+                            </html>"
+                        }
+                    }
+                }
+            };
+            await _sesClient.SendEmailAsync(request);
+        }
+        catch (Exception ex)
+        {
+            throw new Exception("Failed to send verification code", ex);
+        }
     }
 
     public async Task SendVerificationCodeAsync(string email, string code)

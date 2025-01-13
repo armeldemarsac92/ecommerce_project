@@ -7,6 +7,7 @@ using Microsoft.OpenApi.Models;
 using Tdev702.AWS.SDK;
 using Tdev702.Auth.Database;
 using Tdev702.Auth.Extensions;
+using Tdev702.Auth.Services;
 using Tdev702.AWS.SDK.DI;
 using Tdev702.AWS.SDK.SecretsManager;
 using Tdev702.Contracts.Config;
@@ -17,28 +18,20 @@ var databaseConfiguration = builder.Configuration.GetSection("database").Get<Dat
 var connectionString = databaseConfiguration.DbConnectionString;
 
 builder.Services.AddSEService();
+builder.Services.AddTransient<IEmailSender<User>, EmailSender>();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
 {
     c.SwaggerDoc("v1", new OpenApiInfo { Title = "Auth API", Version = "v1" });
     
-    // Bearer token configuration
     c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
     {
-        Description = "JWT Authorization header using the Bearer scheme",
+        Description = "JWT Authorization header using the Bearer scheme. Example: 'Bearer {token}'",
         Name = "Authorization",
         In = ParameterLocation.Header,
         Type = SecuritySchemeType.Http,
-        Scheme = "bearer"
-    });
-
-    // XSRF token configuration
-    c.AddSecurityDefinition("X-XSRF-TOKEN", new OpenApiSecurityScheme
-    {
-        Description = "XSRF token for form submission",
-        Name = "X-XSRF-TOKEN",
-        In = ParameterLocation.Header,
-        Type = SecuritySchemeType.ApiKey
+        Scheme = "Bearer",
+        BearerFormat = "JWT"
     });
 
     c.AddSecurityRequirement(new OpenApiSecurityRequirement
@@ -46,36 +39,17 @@ builder.Services.AddSwaggerGen(c =>
         {
             new OpenApiSecurityScheme
             {
-                Reference = new OpenApiReference 
-                { 
-                    Type = ReferenceType.SecurityScheme,
-                    Id = "Bearer" 
-                }
-            },
-            Array.Empty<string>()
-        },
-        {
-            new OpenApiSecurityScheme
-            {
                 Reference = new OpenApiReference
                 {
                     Type = ReferenceType.SecurityScheme,
-                    Id = "X-XSRF-TOKEN"
+                    Id = "Bearer"
                 }
             },
-            Array.Empty<string>()
+            new string[] {}
         }
     });
 });
 builder.Services.AddDistributedMemoryCache();
-builder.Services.AddAntiforgery(options => 
-{
-    options.HeaderName = "X-XSRF-TOKEN";
-    options.Cookie.Name = "XSRF-TOKEN";
-    options.Cookie.HttpOnly = false; 
-    options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
-    options.Cookie.SameSite = SameSiteMode.Lax; 
-});
 
 builder.Services.AddIdentity<User, Role>(options =>
 {
@@ -86,7 +60,7 @@ builder.Services.AddIdentity<User, Role>(options =>
     options.Password.RequireLowercase = true;
 
     options.User.RequireUniqueEmail = true;
-    options.SignIn.RequireConfirmedEmail = false;
+    options.SignIn.RequireConfirmedEmail = true;
 
     options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(15);
     options.Lockout.MaxFailedAccessAttempts = 5;
@@ -99,23 +73,12 @@ builder.Services.AddIdentity<User, Role>(options =>
 .AddDefaultTokenProviders()
 .AddApiEndpoints();
 
-builder.Services.ConfigureApplicationCookie(options =>
-{
-    options.Cookie.HttpOnly = true;
-    options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
-    options.Cookie.SameSite = SameSiteMode.Lax; 
-    options.ExpireTimeSpan = TimeSpan.FromDays(1);
-    
-    options.LoginPath = "/login";
-    options.AccessDeniedPath = "/access-denied";
-    options.SlidingExpiration = true;
-});
-
-builder.Services.AddAuthentication()
-    .AddBearerToken(IdentityConstants.BearerScheme, options =>
+builder.Services.AddAuthentication(options => 
     {
-        options.BearerTokenExpiration = TimeSpan.FromHours(1);
+        options.DefaultAuthenticateScheme = IdentityConstants.BearerScheme;
+        options.DefaultChallengeScheme = IdentityConstants.BearerScheme;
     })
+    .AddBearerToken(IdentityConstants.BearerScheme)
     .AddGoogle(options =>
     {
         options.ClientId = builder.Configuration["auth:googleclientid"]!;
@@ -129,8 +92,18 @@ builder.Services.AddAuthentication()
         options.CallbackPath = "/signin-facebook";
     });
 
+builder.Services.AddAntiforgery(options => 
+{
+    options.HeaderName = "X-XSRF-TOKEN";
+    options.Cookie.Name = "XSRF-TOKEN";
+    options.Cookie.HttpOnly = false; 
+    options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+    options.Cookie.SameSite = SameSiteMode.Lax; 
+});
 
-builder.Services.AddAuthorizationBuilder();
+
+builder.Services.AddSecurityPolicies();
+
 
 builder.Services.AddCors(options =>
 {
@@ -145,7 +118,6 @@ builder.Services.AddCors(options =>
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseNpgsql(connectionString));
 
-builder.Services.AddSecurityPolicies();
 
 var app = builder.Build();
 
@@ -159,6 +131,7 @@ if (app.Environment.IsDevelopment())
     app.ApplyMigrations();
 }
 app.UseHttpsRedirection(); 
+app.UseCors("AllowAll");
 app.UseAuthentication(); // Must be added
 app.UseAuthorization();
 

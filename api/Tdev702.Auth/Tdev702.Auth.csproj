@@ -14,6 +14,10 @@
         <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="8.0.11" />
         <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="8.0.11" />
         <PackageReference Include="Microsoft.EntityFrameworkCore" Version="8.0.11" />
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.11">
+          <PrivateAssets>all</PrivateAssets>
+          <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
         <PackageReference Include="Microsoft.Extensions.Identity.Core" Version="8.0.11" />
         <PackageReference Include="Microsoft.Extensions.Identity.Stores" Version="8.0.11" />
         <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="8.0.11" />
@@ -30,6 +34,10 @@
       <ProjectReference Include="..\Tdev702.AWS.SDK\Tdev702.AWS.SDK.csproj" />
       <ProjectReference Include="..\Tdev702.Contracts\Tdev702.Contracts.csproj" />
       <ProjectReference Include="..\Tdev702.Repository\Tdev702.Repository.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Folder Include="Policies\" />
     </ItemGroup>
 
 </Project>
