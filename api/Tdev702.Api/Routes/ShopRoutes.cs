@@ -21,15 +21,6 @@ public static class ShopRoutes
         public const string Update = $"{Base}/products_tags/{{productTagsId}}";
         public const string Delete = $"{Base}/products_tags/{{productTagsId}}";
     }
-    
-    public static class ProductsTags
-    {
-        public const string GetById = $"{Base}/products_tags/{{productTagsId}}";
-        public const string GetAll = $"{Base}/products_tags";
-        public const string Create = $"{Base}/products_tags";
-        public const string Update = $"{Base}/products_tags/{{productTagsId}}";
-        public const string Delete = $"{Base}/products_tags/{{productTagsId}}";
-    }
 
     public static class Brands
     {
