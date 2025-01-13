@@ -3,29 +3,38 @@ using Microsoft.AspNetCore.Antiforgery;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Tdev702.Auth.Database;
+using Tdev702.Auth.Models;
 using Tdev702.Auth.Routes;
+using Tdev702.AWS.SDK.SES;
 
 namespace Tdev702.Auth.Endpoints;
 
 public static class SecurityEndpoints
 {
-    
+    private const string ContentType = "application/json";
+    private const string Tags = "Security";
     public static IEndpointRouteBuilder MapSecurityEndpoints(this IEndpointRouteBuilder app)
     {
         app.MapGet(ApiRoutes.Security.XsrfToken, GetXsrfToken)
-            .WithName("GetXsrfToken");
+            .WithName("GetXsrfToken")
+            .WithTags(Tags);
         
-        app.MapGet(ApiRoutes.Security.Enable, Enable2fa)
+        app.MapPost(ApiRoutes.Security.Enable, Setup2FA)
+            // .Accepts<Setup2FaRequest>(ContentType)
             .RequireAuthorization()
-            .WithName("Enable2FA");
+            .WithName("Enable2FA")
+            .WithTags(Tags);
 
         app.MapPost(ApiRoutes.Security.Verify, Verify2fa)
+            // .Accepts<string>(ContentType)
             .RequireAuthorization()
-            .WithName("Verify2FA");
+            .WithName("Verify2FA")
+            .WithTags(Tags);
 
         app.MapPost(ApiRoutes.Security.Disable, Disable2fa)
             .RequireAuthorization()
-            .WithName("Disable2FA");
+            .WithName("Disable2FA")
+            .WithTags(Tags);
         
         return app;
     }
@@ -36,16 +45,36 @@ public static class SecurityEndpoints
         return Results.Ok(new { token = tokens.RequestToken });
     }
     
-    private static async Task<IResult> Enable2fa(
+    private static async Task<IResult> Setup2FA(
         UserManager<User> userManager,
-        SignInManager<User> signInManager,
-        ClaimsPrincipal claimsPrincipal)
+        ClaimsPrincipal claimsPrincipal,
+        Setup2FaRequest request,
+        IEmailService emailService)
     {
         var user = await userManager.GetUserAsync(claimsPrincipal);
         if (user == null)
             return Results.NotFound();
 
-        // Generate the authenticator key
+        switch (request.Type)
+        {
+            case TwoFactorType.Authenticator:
+                return await SetupAuthenticator(userManager, user);
+                
+            case TwoFactorType.Email:
+                return await SetupEmail(userManager, user, emailService);
+                
+            case TwoFactorType.SMS:
+                if (string.IsNullOrEmpty(request.PhoneNumber))
+                    return Results.BadRequest("Phone number is required for SMS 2FA");
+                return await SetupSMS(userManager, user, request.PhoneNumber);
+                
+            default:
+                return Results.BadRequest("Invalid 2FA type");
+        }
+    }
+
+    private static async Task<IResult> SetupAuthenticator(UserManager<User> userManager, User user)
+    {
         var unformattedKey = await userManager.GetAuthenticatorKeyAsync(user);
         if (string.IsNullOrEmpty(unformattedKey))
         {
@@ -57,8 +86,41 @@ public static class SecurityEndpoints
 
         return Results.Ok(new
         {
+            Type = TwoFactorType.Authenticator,
             SharedKey = unformattedKey,
             AuthenticatorUri = authenticatorUri
+        });
+    }
+
+    private static async Task<IResult> SetupEmail(UserManager<User> userManager, User user, IEmailService emailService)
+    {
+        var token = await userManager.GenerateTwoFactorTokenAsync(user, 
+            TokenOptions.DefaultEmailProvider);
+        
+        await emailService.SendVerificationCodeAsync(user.Email!, token);
+        
+        return Results.Ok(new
+        {
+            Type = TwoFactorType.Email,
+            Message = "Verification code sent to your email"
+        });
+    }
+
+    private static async Task<IResult> SetupSMS(UserManager<User> userManager, User user, string phoneNumber)
+    {
+        var setPhoneResult = await userManager.SetPhoneNumberAsync(user, phoneNumber);
+        if (!setPhoneResult.Succeeded)
+            return Results.BadRequest(setPhoneResult.Errors);
+
+        var token = await userManager.GenerateTwoFactorTokenAsync(user, 
+            TokenOptions.DefaultPhoneProvider);
+        
+        // TODO: Send SMS with token
+        
+        return Results.Ok(new
+        {
+            Type = TwoFactorType.SMS,
+            Message = "Verification code sent to your phone"
         });
     }
 
@@ -106,7 +168,7 @@ public static class SecurityEndpoints
         
         return string.Format(
             AuthenticatorUriFormat,
-            Uri.EscapeDataString("Your App Name"),
+            Uri.EscapeDataString("Epitech Project"),
             Uri.EscapeDataString(email),
             unformattedKey);
     }
