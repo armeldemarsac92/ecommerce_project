@@ -18,5 +18,5 @@ public class CreateProductRequest
     
     public DateTimeOffset? UpdatedAt { get; set; }
     
-    public required DateTimeOffset CreatedAt { get; set; }
+    public required DateTimeOffset? CreatedAt { get; set; }
 }
