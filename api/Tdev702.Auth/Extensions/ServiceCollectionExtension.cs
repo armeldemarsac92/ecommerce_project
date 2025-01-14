@@ -6,6 +6,7 @@ public static class ServiceCollectionExtension
 {
     public static IEndpointRouteBuilder MapApiEndpoints(this IEndpointRouteBuilder app)
     {
+        app.MapAuthEndpoints();
         app.MapSecurityEndpoints();
         app.MapRoleEndpoints();
         

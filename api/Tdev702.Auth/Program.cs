@@ -1,10 +1,6 @@
-using System.Configuration;
-using System.Text;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
-using Tdev702.AWS.SDK;
 using Tdev702.Auth.Database;
 using Tdev702.Auth.Extensions;
 using Tdev702.Auth.Services;
@@ -19,6 +15,7 @@ var connectionString = databaseConfiguration.DbConnectionString;
 
 builder.Services.AddSEService();
 builder.Services.AddTransient<IEmailSender<User>, EmailSender>();
+builder.Services.AddScoped<ITokenService, TokenService>();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
 {
@@ -67,6 +64,7 @@ builder.Services.AddIdentity<User, Role>(options =>
     
     options.Tokens.AuthenticatorTokenProvider = TokenOptions.DefaultAuthenticatorProvider;
     options.Tokens.AuthenticatorIssuer = "Epitech Project";
+    
 })
 .AddEntityFrameworkStores<ApplicationDbContext>()
 .AddRoles<Role>()
@@ -137,6 +135,6 @@ app.UseAuthorization();
 
 app.MapApiEndpoints();
 
-app.MapIdentityApi<User>();
+// app.MapIdentityApi<User>();
 
 app.Run();
