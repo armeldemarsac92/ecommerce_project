@@ -21,6 +21,7 @@ public static class AuthEndpoints
     {
         app.MapPost(ApiRoutes.Auth.Login, Login)
             .Accepts<LoginRequest>(ContentType)
+            .Produces<AuthResponse>()
             .WithName("Login")
             .WithTags(Tags);
         
@@ -36,6 +37,7 @@ public static class AuthEndpoints
 
         app.MapPost(ApiRoutes.Auth.Refresh, RefreshToken)
             .Accepts<RefreshTokenRequest>(ContentType)
+            .Produces<AuthResponse>()
             .WithName("RefreshToken")
             .WithTags(Tags);
 
@@ -107,8 +109,8 @@ public static class AuthEndpoints
 
                        if (isValid)
                        {
-                           var accessToken = tokenService.GenerateAccessToken(user);
-                           var refreshToken = tokenService.GenerateRefreshToken(user);
+                           var accessToken = await tokenService.GenerateAccessToken(user);
+                           var refreshToken = await tokenService.GenerateRefreshToken(user);
                            return Results.Ok(new { token = accessToken, refreshToken = refreshToken });
                        }
                        return Results.BadRequest("Invalid authenticator code");
@@ -129,13 +131,13 @@ public static class AuthEndpoints
        if (result.Succeeded)
        {
            var user = await userManager.FindByEmailAsync(request.Email);
-           var accessToken = tokenService.GenerateAccessToken(user);
-           var refreshToken = tokenService.GenerateRefreshToken(user);
+           var accessToken = await tokenService.GenerateAccessToken(user);
+           var refreshToken = await tokenService.GenerateRefreshToken(user);
 
-           return Results.Ok(new 
+           return Results.Ok(new AuthResponse()
            { 
-               token = accessToken,
-               refreshToken = refreshToken
+               Token = accessToken,
+               RefreshToken = refreshToken
            });
        }
 
@@ -172,13 +174,13 @@ public static class AuthEndpoints
         }
 
         // Generate tokens after successful 2FA
-        var accessToken = tokenService.GenerateAccessToken(user);
-        var refreshToken = tokenService.GenerateRefreshToken(user);
+        var accessToken = await tokenService.GenerateAccessToken(user);
+        var refreshToken = await tokenService.GenerateRefreshToken(user);
 
-        return Results.Ok(new 
+        return Results.Ok(new AuthResponse()
         { 
-            token = accessToken,
-            refreshToken = refreshToken
+            Token = accessToken,
+            RefreshToken = refreshToken
         });
     }
         
@@ -232,8 +234,8 @@ public static class AuthEndpoints
 
             return Results.Ok(new
             {
-                token = tokenService.GenerateAccessToken(user),
-                refreshToken = tokenService.GenerateRefreshToken(user)
+                token = await tokenService.GenerateAccessToken(user),
+                refreshToken = await tokenService.GenerateRefreshToken(user)
             });
         }
         catch (Exception)

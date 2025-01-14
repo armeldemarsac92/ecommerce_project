@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 
 namespace Tdev702.Auth.Extensions;
@@ -19,7 +20,7 @@ public static class SecurityPolicies
             .AddPolicy("Authenticated", policy =>
             {
                 policy.RequireAuthenticatedUser()
-                    .AddAuthenticationSchemes(IdentityConstants.BearerScheme);
+                    .AddAuthenticationSchemes(JwtBearerDefaults.AuthenticationScheme);
             });
         
         return services;

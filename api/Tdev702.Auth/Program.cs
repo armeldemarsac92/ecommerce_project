@@ -1,5 +1,7 @@
+using System.Text;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Tdev702.Auth.Database;
 using Tdev702.Auth.Extensions;
@@ -12,6 +14,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.AddAwsConfiguration(SecretType.Database, SecretType.Auth);
 var databaseConfiguration = builder.Configuration.GetSection("database").Get<DatabaseConfiguration>() ?? throw new InvalidOperationException("Database configuration not found");
 var connectionString = databaseConfiguration.DbConnectionString;
+var authConfiguration = builder.Configuration.GetSection("auth").Get<AuthConfiguration>() ?? throw new InvalidOperationException("Auth configuration not found");
 
 builder.Services.AddSEService();
 builder.Services.AddTransient<IEmailSender<User>, EmailSender>();
@@ -76,7 +79,18 @@ builder.Services.AddAuthentication(options =>
         options.DefaultAuthenticateScheme = IdentityConstants.BearerScheme;
         options.DefaultChallengeScheme = IdentityConstants.BearerScheme;
     })
-    .AddBearerToken(IdentityConstants.BearerScheme)
+    .AddJwtBearer(options =>
+    {
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuerSigningKey = true,
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(authConfiguration.SigninKey!)),
+            ValidateIssuer = false,
+            ValidateAudience = false,
+            ValidateLifetime = true,
+            ClockSkew = TimeSpan.Zero
+        };
+    })
     .AddGoogle(options =>
     {
         options.ClientId = builder.Configuration["auth:googleclientid"]!;
