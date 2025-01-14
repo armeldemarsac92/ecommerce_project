@@ -18,6 +18,7 @@ export default function Page() {
           <div className={"w-4/6 h-full bg-white rounded-xl"}>
             <NumberSalesChart/>
           </div>
+
           <LastOrders/>
         </div>
       </div>

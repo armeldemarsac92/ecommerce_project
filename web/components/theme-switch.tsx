@@ -12,7 +12,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/shadcn/dropdown-menu"
 
-export function ThemeSwitch() {
+export const ThemeSwitch = () => {
   const { setTheme } = useTheme()
 
   return (
