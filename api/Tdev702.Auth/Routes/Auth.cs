@@ -14,5 +14,8 @@ public static partial class ApiRoutes
         public static string ForgotPassword = $"{Base}/forgot-password";
         public static string ResetPassword = $"{Base}/reset-password";
         public static string Verify2FA = $"{Base}/verify-2fa";
+        
+        public static string ExternalLogin = $"{Base}/external-login/{{provider}}";
+        public static string ExternalCallback = $"{Base}/external-callback/{{provider}}";
     }
 }

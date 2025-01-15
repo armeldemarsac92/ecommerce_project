@@ -1,4 +1,6 @@
 using System.Text;
+using System.Web;
+using Microsoft.AspNetCore.Authentication.OAuth;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -17,6 +19,7 @@ var connectionString = databaseConfiguration.DbConnectionString;
 var authConfiguration = builder.Configuration.GetSection("auth").Get<AuthConfiguration>() ?? throw new InvalidOperationException("Auth configuration not found");
 
 builder.Services.AddSEService();
+builder.Services.AddDistributedMemoryCache();
 builder.Services.AddTransient<IEmailSender<User>, EmailSender>();
 builder.Services.AddScoped<ITokenService, TokenService>();
 builder.Services.AddEndpointsApiExplorer();
@@ -49,7 +52,6 @@ builder.Services.AddSwaggerGen(c =>
         }
     });
 });
-builder.Services.AddDistributedMemoryCache();
 
 builder.Services.AddIdentity<User, Role>(options =>
 {
@@ -95,14 +97,39 @@ builder.Services.AddAuthentication(options =>
     {
         options.ClientId = builder.Configuration["auth:googleclientid"]!;
         options.ClientSecret = builder.Configuration["auth:googleclientsecret"]!;
-        options.CallbackPath = "/signin-google";
+        options.SignInScheme = "ExternalAuth";
+
+    })
+    .AddCookie("ExternalAuth", options => 
+    {
+        options.Cookie.Name = "ExternalAuth";
+        options.ExpireTimeSpan = TimeSpan.FromMinutes(5);
     })
     .AddFacebook(options =>
     {
         options.ClientId = builder.Configuration["auth:facebookappid"]!;
         options.ClientSecret = builder.Configuration["auth:facebookappsecret"]!;
-        options.CallbackPath = "/signin-facebook";
     });
+
+builder.Services.AddHttpClient("GoogleToken", client =>
+{
+    client.BaseAddress = new Uri("https://oauth2.googleapis.com/");
+});
+
+builder.Services.AddHttpClient("GoogleUserInfo", client =>
+{
+    client.BaseAddress = new Uri("https://www.googleapis.com/oauth2/v2/");
+});
+
+builder.Services.AddHttpClient("FacebookToken", client =>
+{
+    client.BaseAddress = new Uri("https://graph.facebook.com/v21.0/oauth/");
+});
+
+builder.Services.AddHttpClient("FacebookUserInfo", client =>
+{
+    client.BaseAddress = new Uri("https://graph.facebook.com/v21.0/");
+});
 
 builder.Services.AddAntiforgery(options => 
 {

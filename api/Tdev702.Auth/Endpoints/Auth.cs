@@ -1,4 +1,8 @@
+using System.Net.Http.Headers;
 using System.Security.Claims;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.Data;
 using Microsoft.AspNetCore.Identity.UI.Services;
@@ -7,6 +11,7 @@ using Tdev702.Auth.Models;
 using Tdev702.Auth.Routes;
 using Tdev702.Auth.Services;
 using Tdev702.AWS.SDK.SES;
+using Tdev702.Contracts.Config;
 using Tdev702.Contracts.SQL.Request.Auth;
 using CreateUserRequest = Tdev702.Contracts.SQL.Request.Auth.CreateUserRequest;
 
@@ -58,6 +63,14 @@ public static class AuthEndpoints
         app.MapPost(ApiRoutes.Auth.ResetPassword, ResetPassword)
             .Accepts<ResetPasswordRequest>(ContentType)
             .WithName("ResetPassword")
+            .WithTags(Tags);
+        
+        app.MapGet(ApiRoutes.Auth.ExternalLogin, ExternalLogin)
+            .WithName("ExternalLogin")
+            .WithTags(Tags);
+        
+        app.MapGet(ApiRoutes.Auth.ExternalCallback, Callback)
+            .WithName("ExternalCallback")
             .WithTags(Tags);
 
         return app;
@@ -314,4 +327,206 @@ public static class AuthEndpoints
         return Results.Ok("Password reset successful");
     }
     
+    private static async Task<IResult> ExternalLogin(
+        IConfiguration configuration,
+        string provider,
+        HttpContext context)
+    {
+        var authSettings = configuration.GetSection("auth").Get<AuthConfiguration>();
+        var redirectUri = $"{context.Request.Scheme}://{context.Request.Host}/api/auth/external-callback/{provider}";
+        var loginUrls = new Dictionary<string, string>
+        {
+            ["Google"] = $"https://accounts.google.com/o/oauth2/v2/auth?" +
+                         $"client_id={authSettings.GoogleClientId}&" +
+                         $"response_type=code&" +
+                         $"scope=openid%20email%20profile&" +
+                         $"redirect_uri={redirectUri}",
+
+            ["Facebook"] = $"https://www.facebook.com/v12.0/dialog/oauth?" +
+                           $"client_id={authSettings.FacebookAppId}&" +
+                           $"redirect_uri={redirectUri}&" +
+                           $"scope=email,public_profile"
+        };
+
+        if (!loginUrls.ContainsKey(provider))
+        {
+            return Results.BadRequest($"Provider {provider} not supported");
+        }
+        
+        return Results.Ok(new { loginUrl = loginUrls[provider] });
+    }
+
+    private static async Task<IResult> Callback(
+    HttpContext context,
+    IConfiguration config,
+    UserManager<User> userManager,
+    SignInManager<User> signInManager,
+    ITokenService tokenService,
+    string provider,
+    IHttpClientFactory httpClientFactory)
+    {
+        var authSettings = config.GetSection("auth").Get<AuthConfiguration>();
+
+        if (provider == "Google")
+        {
+            var tokenClient = httpClientFactory.CreateClient("GoogleToken");
+        
+            var code = context.Request.Query["code"].ToString();
+            if (string.IsNullOrEmpty(code))
+            {
+                return Results.BadRequest("No authorization code provided");
+            }
+            
+            var tokenResponse = await tokenClient.PostAsync(
+                "token",
+                new FormUrlEncodedContent(new Dictionary<string, string>
+                {
+                    ["code"] = code,
+                    ["client_id"] = authSettings.GoogleClientId,
+                    ["client_secret"] = authSettings.GoogleClientSecret,
+                    ["redirect_uri"] = $"https://{context.Request.Host}/api/auth/external-callback/Google",
+                    ["grant_type"] = "authorization_code"
+                }));
+
+            if (!tokenResponse.IsSuccessStatusCode)
+            {
+                return Results.BadRequest("Failed to exchange code");
+            }
+
+            var tokenData = await tokenResponse.Content.ReadFromJsonAsync<GoogleTokenResponse>();
+
+            var infosClient = httpClientFactory.CreateClient("GoogleUserInfo");
+            infosClient.DefaultRequestHeaders.Authorization =
+                new AuthenticationHeaderValue("Bearer", tokenData.AccessToken);
+
+            var userInfoResponse = await infosClient.GetAsync("userinfo");
+            if (!userInfoResponse.IsSuccessStatusCode)
+            {
+                return Results.BadRequest("Failed to get user info");
+            }
+
+            var googleUser = await userInfoResponse.Content.ReadFromJsonAsync<GoogleUserInfo>();
+
+            // Check if user exists
+            var user = await userManager.FindByEmailAsync(googleUser.Email);
+            if (user != null)
+            {
+                return Results.Ok(new AuthResponse
+                {
+                    Token = await tokenService.GenerateAccessToken(user),
+                    RefreshToken = await tokenService.GenerateRefreshToken(user)
+                });
+            }
+
+            // Create new user
+            var newUser = new User
+            {
+                UserName = googleUser.Email,
+                Email = googleUser.Email,
+                EmailConfirmed = true,
+                FirstName = googleUser.GivenName,
+                LastName = googleUser.FamilyName
+            };
+
+            var createResult = await userManager.CreateAsync(newUser);
+            if (!createResult.Succeeded)
+            {
+                return Results.BadRequest("Failed to create user");
+            }
+            await userManager.AddToRoleAsync(newUser, "User");
+
+            var info = new UserLoginInfo("Google", googleUser.Id, "Google");
+            var addLoginResult = await userManager.AddLoginAsync(newUser, info);
+            if (!addLoginResult.Succeeded)
+            {
+                return Results.BadRequest("Failed to add external login");
+            }
+
+            return Results.Ok(new AuthResponse
+            {
+                Token = await tokenService.GenerateAccessToken(newUser),
+                RefreshToken = await tokenService.GenerateRefreshToken(newUser)
+            });
+        }
+        
+        if (provider == "Facebook")
+        {
+            var tokenClient = httpClientFactory.CreateClient("FacebookToken");
+            var code = context.Request.Query["code"].ToString();
+            if (string.IsNullOrEmpty(code))
+            {
+                return Results.BadRequest("No authorization code provided");
+            }
+            
+            var tokenResponse = await tokenClient.PostAsync(
+                "access_token",
+                new FormUrlEncodedContent(new Dictionary<string, string>
+                {
+                    ["code"] = code,
+                    ["client_id"] = authSettings.FacebookAppId,
+                    ["client_secret"] = authSettings.FacebookAppSecret,
+                    ["redirect_uri"] = $"https://{context.Request.Host}/api/auth/external-callback/Facebook",
+                    ["grant_type"] = "authorization_code"
+                }));
+
+            if (!tokenResponse.IsSuccessStatusCode)
+            {
+                return Results.BadRequest("Failed to exchange code");
+            }
+
+            var tokenData = await tokenResponse.Content.ReadFromJsonAsync<FacebookTokenResponse>();
+
+            var infosClient = httpClientFactory.CreateClient("FacebookUserInfo");
+            var userInfoResponse = await infosClient.GetAsync(
+                $"me?fields=id,email,first_name,last_name&access_token={tokenData.AccessToken}");
+            
+            if (!userInfoResponse.IsSuccessStatusCode)
+            {
+                return Results.BadRequest("Failed to get user info");
+            }
+
+            var facebookUser = await userInfoResponse.Content.ReadFromJsonAsync<FacebookUserInfo>();
+
+            var user = await userManager.FindByEmailAsync(facebookUser.Email);
+            if (user != null)
+            {
+                return Results.Ok(new AuthResponse
+                {
+                    Token = await tokenService.GenerateAccessToken(user),
+                    RefreshToken = await tokenService.GenerateRefreshToken(user)
+                });
+            }
+
+            var newUser = new User
+            {
+                UserName = facebookUser.Email,
+                Email = facebookUser.Email,
+                EmailConfirmed = true,
+                FirstName = facebookUser.FirstName,
+                LastName = facebookUser.LastName
+            };
+
+            var createResult = await userManager.CreateAsync(newUser);
+            if (!createResult.Succeeded)
+            {
+                return Results.BadRequest("Failed to create user");
+            }
+            await userManager.AddToRoleAsync(newUser, "User");
+
+            var info = new UserLoginInfo("Facebook", facebookUser.Id, "Facebook");
+            var addLoginResult = await userManager.AddLoginAsync(newUser, info);
+            if (!addLoginResult.Succeeded)
+            {
+                return Results.BadRequest("Failed to add external login");
+            }
+
+            return Results.Ok(new AuthResponse
+            {
+                Token = await tokenService.GenerateAccessToken(newUser),
+                RefreshToken = await tokenService.GenerateRefreshToken(newUser)
+            });
+        }
+        
+        return Results.BadRequest($"Provider {provider} not supported");
+    }
 }
