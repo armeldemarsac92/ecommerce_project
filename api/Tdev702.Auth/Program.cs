@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Tdev702.Auth.Database;
+using Tdev702.Auth.DI;
 using Tdev702.Auth.Extensions;
 using Tdev702.Auth.Services;
 using Tdev702.AWS.SDK.DI;
@@ -18,12 +19,17 @@ var databaseConfiguration = builder.Configuration.GetSection("database").Get<Dat
 var connectionString = databaseConfiguration.DbConnectionString;
 var authConfiguration = builder.Configuration.GetSection("auth").Get<AuthConfiguration>() ?? throw new InvalidOperationException("Auth configuration not found");
 
-builder.Services.AddSEService();
-builder.Services.AddDistributedMemoryCache();
-builder.Services.AddTransient<IEmailSender<User>, EmailSender>();
-builder.Services.AddScoped<ITokenService, TokenService>();
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen(c =>
+var services = builder.Services;
+
+services.AddSEService();
+services.AddDistributedMemoryCache();
+services.AddEndpointsApiExplorer();
+services.AddAuthServices();
+
+services.AddDbContext<ApplicationDbContext>(options =>
+    options.UseNpgsql(connectionString));
+
+services.AddSwaggerGen(c =>
 {
     c.SwaggerDoc("v1", new OpenApiInfo { Title = "Auth API", Version = "v1" });
     
@@ -53,7 +59,7 @@ builder.Services.AddSwaggerGen(c =>
     });
 });
 
-builder.Services.AddIdentity<User, Role>(options =>
+services.AddIdentity<User, Role>(options =>
 {
     options.Password.RequireDigit = true;
     options.Password.RequiredLength = 8;
@@ -76,7 +82,7 @@ builder.Services.AddIdentity<User, Role>(options =>
 .AddDefaultTokenProviders()
 .AddApiEndpoints();
 
-builder.Services.AddAuthentication(options => 
+services.AddAuthentication(options => 
     {
         options.DefaultAuthenticateScheme = IdentityConstants.BearerScheme;
         options.DefaultChallengeScheme = IdentityConstants.BearerScheme;
@@ -95,43 +101,17 @@ builder.Services.AddAuthentication(options =>
     })
     .AddGoogle(options =>
     {
-        options.ClientId = builder.Configuration["auth:googleclientid"]!;
-        options.ClientSecret = builder.Configuration["auth:googleclientsecret"]!;
-        options.SignInScheme = "ExternalAuth";
+        options.ClientId = authConfiguration.GoogleClientId;
+        options.ClientSecret = authConfiguration.GoogleClientSecret;
 
-    })
-    .AddCookie("ExternalAuth", options => 
-    {
-        options.Cookie.Name = "ExternalAuth";
-        options.ExpireTimeSpan = TimeSpan.FromMinutes(5);
     })
     .AddFacebook(options =>
     {
-        options.ClientId = builder.Configuration["auth:facebookappid"]!;
-        options.ClientSecret = builder.Configuration["auth:facebookappsecret"]!;
+        options.ClientId = authConfiguration.FacebookAppId;
+        options.ClientSecret = authConfiguration.FacebookAppSecret;
     });
 
-builder.Services.AddHttpClient("GoogleToken", client =>
-{
-    client.BaseAddress = new Uri("https://oauth2.googleapis.com/");
-});
-
-builder.Services.AddHttpClient("GoogleUserInfo", client =>
-{
-    client.BaseAddress = new Uri("https://www.googleapis.com/oauth2/v2/");
-});
-
-builder.Services.AddHttpClient("FacebookToken", client =>
-{
-    client.BaseAddress = new Uri("https://graph.facebook.com/v21.0/oauth/");
-});
-
-builder.Services.AddHttpClient("FacebookUserInfo", client =>
-{
-    client.BaseAddress = new Uri("https://graph.facebook.com/v21.0/");
-});
-
-builder.Services.AddAntiforgery(options => 
+services.AddAntiforgery(options => 
 {
     options.HeaderName = "X-XSRF-TOKEN";
     options.Cookie.Name = "XSRF-TOKEN";
@@ -140,11 +120,9 @@ builder.Services.AddAntiforgery(options =>
     options.Cookie.SameSite = SameSiteMode.Lax; 
 });
 
+services.AddSecurityPolicies();
 
-builder.Services.AddSecurityPolicies();
-
-
-builder.Services.AddCors(options =>
+services.AddCors(options =>
 {
     options.AddPolicy("AllowAll", builder =>
     {
@@ -154,15 +132,8 @@ builder.Services.AddCors(options =>
     });
 });
 
-builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseNpgsql(connectionString));
-
-
 var app = builder.Build();
 
-
-
-// Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
@@ -171,11 +142,9 @@ if (app.Environment.IsDevelopment())
 }
 app.UseHttpsRedirection(); 
 app.UseCors("AllowAll");
-app.UseAuthentication(); // Must be added
+app.UseAuthentication(); 
 app.UseAuthorization();
 
 app.MapApiEndpoints();
-
-// app.MapIdentityApi<User>();
 
 app.Run();
