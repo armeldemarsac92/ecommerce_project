@@ -320,7 +320,7 @@ public static class AuthEndpoints
                 return Results.Ok(await tokenService.GetAccessTokenAsync(user));
             }
             
-            var newUser = await userService.CreateUserAsync(new UserRecord(googleUser.GivenName, googleUser.FamilyName, googleUser.Email, true, null));
+            var newUser = await userService.CreateUserAsync(new UserRecord(googleUser.GivenName, googleUser.FamilyName, googleUser.Email, true, ""));
 
             var info = new UserLoginInfo("Google", googleUser.Id, "Google");
             var addLoginResult = await userManager.AddLoginAsync(newUser, info);
@@ -344,7 +344,7 @@ public static class AuthEndpoints
                 return Results.Ok(await tokenService.GetAccessTokenAsync(user));
             }
 
-            var newUser = await userService.CreateUserAsync(new UserRecord(facebookUser.FirstName, facebookUser.LastName, facebookUser.Email, true, null));
+            var newUser = await userService.CreateUserAsync(new UserRecord(facebookUser.FirstName, facebookUser.LastName, facebookUser.Email, true, ""));
 
             var info = new UserLoginInfo("Facebook", facebookUser.Id, "Facebook");
             var addLoginResult = await userManager.AddLoginAsync(newUser, info);
