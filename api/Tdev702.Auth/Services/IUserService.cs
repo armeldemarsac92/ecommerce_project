@@ -28,11 +28,13 @@ public class UserService : IUserService
     public UserService(
         UserManager<User> userManager, 
         ILogger<UserService> logger, 
-        LinkGenerator linkGenerator)
+        LinkGenerator linkGenerator, 
+        IEmailSender<User> emailSender)
     {
         _userManager = userManager;
         _logger = logger;
         _linkGenerator = linkGenerator;
+        _emailSender = emailSender;
     }
 
     public async Task<User> CreateUserAsync(UserRecord record)
