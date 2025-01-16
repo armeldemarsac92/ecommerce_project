@@ -290,9 +290,10 @@ public static class AuthEndpoints
     
     private static async Task<IResult> ExternalLogin(
         HttpContext context,
+        string provider,
         IOAuthService oauthService)
     {
-        return Results.Ok(new {login_uri = oauthService.GetRedirectUrl(context)});
+        return Results.Redirect(oauthService.GetRedirectUrl(context));
     }
 
     private static async Task<IResult> Callback(
