@@ -253,24 +253,27 @@ public static class AuthEndpoints
         await emailSender.SendConfirmationLinkAsync(
             user,
             user.Email,
-            $"Please confirm your email by clicking this link: {confirmationLink}");
+            confirmationLink);
 
         return Results.Ok("Confirmation email sent");
     }
 
     private static async Task<IResult> ForgotPassword(
         UserManager<User> userManager,
-        IEmailSender emailSender,
+        IEmailSender<User> emailSender,
+        LinkGenerator linkGenerator,
+        HttpContext httpContext,
         ForgotPasswordRequest request)
     {
         var user = await userManager.FindByEmailAsync(request.Email);
         if (user == null) return Results.Ok(); 
 
         var token = await userManager.GeneratePasswordResetTokenAsync(user);
-        await emailSender.SendEmailAsync(
+        
+        await emailSender.SendPasswordResetCodeAsync(
+            user,
             user.Email,
-            "Reset your password",
-            $"Reset your password with this token: {token}");
+            token);
 
         return Results.Ok("If the email exists, password reset instructions have been sent.");
     }
