@@ -1,4 +1,5 @@
 using System.Net.Http.Headers;
+using System.Security.Authentication;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.BearerToken;
@@ -13,6 +14,7 @@ using Tdev702.Auth.Routes;
 using Tdev702.Auth.Services;
 using Tdev702.AWS.SDK.SES;
 using Tdev702.Contracts.Config;
+using Tdev702.Contracts.Exceptions;
 using Tdev702.Contracts.SQL.Request.Auth;
 using CreateUserRequest = Tdev702.Contracts.SQL.Request.Auth.CreateUserRequest;
 
@@ -95,7 +97,7 @@ public static class AuthEndpoints
 
        if (result.IsLockedOut)
        {
-           return Results.BadRequest("Account is locked. Please try again later.");
+           throw new BadRequestException("Account is locked. Please try again later.");
        }
 
        if (result.RequiresTwoFactor)
@@ -103,7 +105,7 @@ public static class AuthEndpoints
            var user = await signInManager.UserManager.FindByEmailAsync(request.Email);
            if (user == null)
            {
-               return Results.BadRequest("Invalid credentials");
+               throw new BadRequestException("User not found");
            }
 
            switch (user.PreferredTwoFactorProvider)
@@ -127,18 +129,16 @@ public static class AuthEndpoints
                        {
                            return Results.Ok(await tokenService.GetAccessTokenAsync(user));
                        }
-                       return Results.BadRequest("Invalid authenticator code");
+                       throw new BadRequestException("Invalid 2FA code");
                    }
                    return Results.Ok(new { requiresTwoFactor = true, provider = "Authenticator" });
 
                case TwoFactorType.SMS:
                    var phoneToken = await signInManager.UserManager.GenerateTwoFactorTokenAsync(user, "Phone");
-                   // Assuming you have an SMS sender service
-                   // await smsSender.SendSmsAsync(user.PhoneNumber, $"Your verification code is: {phoneToken}");
                    return Results.Ok(new { requiresTwoFactor = true, provider = "Phone" });
 
                default:
-                   return Results.BadRequest("Invalid 2FA provider");
+                   throw new BadRequestException("Invalid 2FA provider");
            }
        }
 
@@ -149,7 +149,7 @@ public static class AuthEndpoints
            return Results.Ok(await tokenService.GetAccessTokenAsync(user));
        }
 
-       return Results.BadRequest("Invalid credentials");
+       throw new BadRequestException("Invalid credentials");
     }
     
     private static async Task<IResult> Verify2Fa(
@@ -161,7 +161,7 @@ public static class AuthEndpoints
         var user = await userManager.FindByEmailAsync(request.Email);
         if (user == null)
         {
-            return Results.BadRequest("Invalid request");
+            throw new BadRequestException("User not found");
         }
 
         bool isValid = false;
@@ -178,7 +178,7 @@ public static class AuthEndpoints
 
         if (!isValid)
         {
-            return Results.BadRequest("Invalid verification code");
+            throw new BadRequestException("Invalid verification code");
         }
 
         return Results.Ok(await tokenService.GetAccessTokenAsync(user));
@@ -200,22 +200,15 @@ public static class AuthEndpoints
         ITokenService tokenService,
         RefreshTokenRequest request)
     {
-        try
-        {
-            var principal = tokenService.ValidateToken(request.RefreshToken, validateLifetime: false);
-        
-            var userId = principal.FindFirst(ClaimTypes.NameIdentifier).Value;
+        var principal = tokenService.ValidateToken(request.RefreshToken, validateLifetime: false);
+    
+        var userId = principal.FindFirst(ClaimTypes.NameIdentifier).Value;
 
-            var user = await userManager.FindByIdAsync(userId);
-            if (user == null)
-                return Results.Unauthorized();
+        var user = await userManager.FindByIdAsync(userId);
+        if (user == null)
+            throw new BadRequestException("User not found.");
 
-            return Results.Ok(await tokenService.GetAccessTokenAsync(user));
-        }
-        catch (Exception)
-        {
-            return Results.Unauthorized();
-        }
+        return Results.Ok(await tokenService.GetAccessTokenAsync(user));
     }
 
     private static async Task<IResult> ConfirmEmail(
@@ -224,11 +217,11 @@ public static class AuthEndpoints
         string token)
     {
         var user = await userManager.FindByIdAsync(userId);
-        if (user == null) return Results.NotFound();
+        if (user == null) throw new NotFoundException("User not found");
 
         var decodedToken = Uri.UnescapeDataString(token);
         var result = await userManager.ConfirmEmailAsync(user, decodedToken);
-        if (!result.Succeeded) return Results.BadRequest(result.Errors);
+        if (!result.Succeeded) throw new BadRequestException($"Error while trying to confirm email : {result.Errors}");
 
         return Results.Ok("Email confirmed successfully");
     }
@@ -310,7 +303,6 @@ public static class AuthEndpoints
     string provider,
     IHttpClientFactory httpClientFactory)
     {
-        var authSettings = config.GetSection("auth").Get<AuthConfiguration>();
 
         if (provider == "Google")
         {
@@ -330,7 +322,7 @@ public static class AuthEndpoints
             var addLoginResult = await userManager.AddLoginAsync(newUser, info);
             if (!addLoginResult.Succeeded)
             {
-                return Results.BadRequest("Failed to add external login");
+                throw new Exception("Failed to add external login");
             }
 
             return Results.Ok(await tokenService.GetAccessTokenAsync(newUser));
@@ -354,12 +346,12 @@ public static class AuthEndpoints
             var addLoginResult = await userManager.AddLoginAsync(newUser, info);
             if (!addLoginResult.Succeeded)
             {
-                return Results.BadRequest("Failed to add external login");
+                throw new Exception("Failed to add external login");
             }
 
             return Results.Ok(await tokenService.GetAccessTokenAsync(newUser));
         }
         
-        return Results.BadRequest($"Provider {provider} not supported");
+        throw new BadRequestException("Invalid external login provider");
     }
 }

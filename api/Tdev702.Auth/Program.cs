@@ -8,6 +8,7 @@ using Microsoft.OpenApi.Models;
 using Tdev702.Auth.Database;
 using Tdev702.Auth.DI;
 using Tdev702.Auth.Extensions;
+using Tdev702.Auth.Middlewares.ExceptionHandlers;
 using Tdev702.Auth.Services;
 using Tdev702.AWS.SDK.DI;
 using Tdev702.AWS.SDK.SecretsManager;
@@ -20,7 +21,6 @@ var connectionString = databaseConfiguration.DbConnectionString;
 var authConfiguration = builder.Configuration.GetSection("auth").Get<AuthConfiguration>() ?? throw new InvalidOperationException("Auth configuration not found");
 
 var services = builder.Services;
-
 services.AddSEService();
 services.AddDistributedMemoryCache();
 services.AddEndpointsApiExplorer();
@@ -131,15 +131,22 @@ services.AddCors(options =>
             .AllowAnyHeader();
     });
 });
+services.AddProblemDetails();
+services.AddExceptionHandler<BadRequestExceptionHandler>();
+services.AddExceptionHandler<NotFoundExceptionHandler>();
+services.AddExceptionHandler<DatabaseExceptionHandler>();
+services.AddExceptionHandler<GlobalExceptionHandler>();
 
 var app = builder.Build();
 
+app.UseExceptionHandler();
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
     app.ApplyMigrations();
 }
+
 app.UseHttpsRedirection(); 
 app.UseCors("AllowAll");
 app.UseAuthentication(); 
