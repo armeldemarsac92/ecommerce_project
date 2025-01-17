@@ -14,6 +14,7 @@ public static class EndpointExtensions
         app.MapBrandEndpoints();
         app.MapCategoryEndpoints();
         app.MapInvoiceEndpoints();
+        app.MapInvoiceEndpoints();
         return app;
     }
 

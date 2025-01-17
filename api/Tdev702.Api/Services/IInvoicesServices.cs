@@ -14,7 +14,7 @@ public class InvoicesService : IInvoicesService
 
     public InvoicesService(InvoiceService invoiceService)
     {
-        _invoiceService = new InvoiceService();
+        _invoiceService = invoiceService;
     }
     
     
