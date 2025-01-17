@@ -1,7 +1,9 @@
 using Microsoft.OpenApi.Models;
 using Tdev702.Api.DI;
 using Tdev702.AWS.SDK.SecretsManager;
+using Tdev702.Contracts.Config;
 using Tdev702.Repository.DI;
+using Tdev702.Stripe.SDK.DI;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.AddAwsConfiguration(SecretType.Database);
@@ -13,7 +15,10 @@ builder.AddAwsConfiguration(SecretType.Database);
 var services = builder.Services;
 
 services.AddDbConnection(builder.Configuration);
-services.AddApiServices(builder.Configuration); // add stripe
+
+var stripeConfiguration = builder.Configuration.GetSection("stripe").Get<StripeConfiguration>() ?? throw new InvalidOperationException("Stripe configuration not found");
+services.AddStripeServices(stripeConfiguration); 
+services.AddApiServices(builder.Configuration); 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
 {

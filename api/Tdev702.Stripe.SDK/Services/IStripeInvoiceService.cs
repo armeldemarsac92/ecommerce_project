@@ -1,18 +1,18 @@
 using Stripe;
 
-namespace Tdev702.Api.Services;
-public interface IInvoicesService
+namespace Tdev702.Stripe.SDK.Services;
+public interface IStripeInvoiceService
 {
     Task<Invoice> GetAsync(string id, InvoiceGetOptions? options = null, RequestOptions? requestOptions = null, CancellationToken cancellationToken = default);
     Task<Invoice> CreateAsync(InvoiceCreateOptions options, RequestOptions? requestOptions = null, CancellationToken cancellationToken = default);
     Task<Invoice> UpdateAsync(string id, InvoiceUpdateOptions options, RequestOptions? requestOptions = null, CancellationToken cancellationToken = default);
     Task<Invoice> DeleteAsync(string id, InvoiceDeleteOptions? options = null, RequestOptions? requestOptions = null, CancellationToken cancellationToken = default);
 }
-public class InvoicesService : IInvoicesService
+public class StripeInvoiceService : IStripeInvoiceService
 {
     private readonly InvoiceService _invoiceService;
 
-    public InvoicesService(InvoiceService invoiceService)
+    public StripeInvoiceService(InvoiceService invoiceService)
     {
         _invoiceService = invoiceService;
     }

@@ -2,6 +2,7 @@ using Stripe;
 using Tdev702.Api.Routes;
 using Tdev702.Api.Services;
 using Tdev702.Contracts.SQL.Request.Shop.Product;
+using Tdev702.Stripe.SDK.Services;
 
 namespace Tdev702.Api.Endpoints.Shop;
 
@@ -41,13 +42,13 @@ public static class InvoiceEndpoints
     
     private static async Task<IResult> GetInvoice(
         HttpContext context,
-        IInvoicesService invoicesService,
+        IStripeInvoiceService stripeInvoiceService,
         string id,
         CancellationToken cancellationToken)
     {   
         try 
         {
-            var invoice = await invoicesService.GetAsync(
+            var invoice = await stripeInvoiceService.GetAsync(
                 id,
                 null,  // options
                 null,  // requestOptions
@@ -63,13 +64,13 @@ public static class InvoiceEndpoints
     
     private static async Task<IResult> CreateInvoice(
         HttpContext context,
-        IInvoicesService invoicesService,
+        IStripeInvoiceService stripeInvoiceService,
         InvoiceCreateOptions invoiceOptions,
         CancellationToken cancellationToken)
     {
         try 
         {
-            var invoice = await invoicesService.CreateAsync(
+            var invoice = await stripeInvoiceService.CreateAsync(
                 invoiceOptions,
                 null, // requestOptions
                 cancellationToken);
@@ -84,14 +85,14 @@ public static class InvoiceEndpoints
 
     private static async Task<IResult> UpdateInvoice(
         HttpContext context,
-        IInvoicesService invoicesService,
+        IStripeInvoiceService stripeInvoiceService,
         string id,
         InvoiceUpdateOptions invoiceOptions,
         CancellationToken cancellationToken)
     {
         try 
         {
-            var invoice = await invoicesService.UpdateAsync(
+            var invoice = await stripeInvoiceService.UpdateAsync(
                 id,
                 invoiceOptions,
                 null, // requestOptions
@@ -111,13 +112,13 @@ public static class InvoiceEndpoints
 
     private static async Task<IResult> DeleteInvoice(
         HttpContext context,
-        IInvoicesService invoicesService,
+        IStripeInvoiceService stripeInvoiceService,
         string id,
         CancellationToken cancellationToken)
     {
         try 
         {
-            await invoicesService.DeleteAsync(
+            await stripeInvoiceService.DeleteAsync(
                 id,
                 null, // options
                 null, // requestOptions

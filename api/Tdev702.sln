@@ -10,6 +10,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tdev702.Auth", "Tdev702.Aut
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tdev702.AWS.SDK", "Tdev702.AWS.SDK\Tdev702.AWS.SDK.csproj", "{8FBC8DC2-D1A0-4907-BCCE-3C32A64FDFAD}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tdev702.Stripe.SDK", "Tdev702.Stripe.SDK\Tdev702.Stripe.SDK.csproj", "{68FBBABF-2F68-4A6C-B496-610A9E10F7D7}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -36,5 +38,9 @@ Global
 		{8FBC8DC2-D1A0-4907-BCCE-3C32A64FDFAD}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8FBC8DC2-D1A0-4907-BCCE-3C32A64FDFAD}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8FBC8DC2-D1A0-4907-BCCE-3C32A64FDFAD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{68FBBABF-2F68-4A6C-B496-610A9E10F7D7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{68FBBABF-2F68-4A6C-B496-610A9E10F7D7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{68FBBABF-2F68-4A6C-B496-610A9E10F7D7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{68FBBABF-2F68-4A6C-B496-610A9E10F7D7}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

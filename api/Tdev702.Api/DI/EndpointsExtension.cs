@@ -21,12 +21,8 @@ public static class EndpointExtensions
     public static IServiceCollection AddApiServices(this IServiceCollection services, IConfiguration _)
     {
         // Configure Stripe
-        StripeConfiguration.ApiKey = StripeApiKey;
-
-        // Register Stripe services
-        services.AddScoped<InvoiceService>();
-        services.AddScoped<IInvoicesService, InvoicesService>();
         
+
         // Register other services
         services.AddScoped<IProductsService, ProductsService>();
         services.AddScoped<IBrandsService, BrandsService>();
