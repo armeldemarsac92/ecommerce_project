@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Tdev702.Auth.Database;
 using Tdev702.Auth.Routes;
+using Tdev702.Contracts.Exceptions;
 
 namespace Tdev702.Auth.Endpoints;
 
@@ -48,13 +49,13 @@ public static class RoleEndpoints
     private static async Task<IResult> CreateRole(RoleManager<Role> roleManager, [FromBody] string roleName)
     {
         if (await roleManager.RoleExistsAsync(roleName))
-            return Results.BadRequest($"Role {roleName} already exists");
+            throw new ConflictException($"Role {roleName} already exists");
 
         var result = await roleManager.CreateAsync(new Role { Name = roleName });
         if (result.Succeeded)
             return Results.Ok();
 
-        return Results.BadRequest(result.Errors);
+        throw new BadRequestException($"Error creating role :{result.Errors}");
     }
 
     private static async Task<IResult> DeleteRole(RoleManager<Role> roleManager, string roleName)
@@ -67,7 +68,7 @@ public static class RoleEndpoints
         if (result.Succeeded)
             return Results.Ok();
 
-        return Results.BadRequest(result.Errors);
+        throw new BadRequestException($"Error creating role :{result.Errors}");
     }
 
     private static async Task<IResult> AddUserToRole(UserManager<User> userManager, string userId,
@@ -81,7 +82,7 @@ public static class RoleEndpoints
         if (result.Succeeded)
             return Results.Ok();
 
-        return Results.BadRequest(result.Errors);
+        throw new BadRequestException($"Error creating role :{result.Errors}");
     }
 
     private static async Task<IResult> RemoveUserFromRole(UserManager<User> userManager, string userId, string roleName)
@@ -94,14 +95,14 @@ public static class RoleEndpoints
         if (result.Succeeded)
             return Results.Ok();
 
-        return Results.BadRequest(result.Errors);
+        throw new BadRequestException($"Error creating role :{result.Errors}");
     }
 
     private static async Task<IResult> GetUserRoles(UserManager<User> userManager, string userId)
     {
         var user = await userManager.FindByIdAsync(userId);
         if (user == null)
-            return Results.NotFound();
+            throw new NotFoundException($"User {userId} not found");
 
         var roles = await userManager.GetRolesAsync(user);
         return Results.Ok(roles);

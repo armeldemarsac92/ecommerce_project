@@ -6,6 +6,7 @@ using Tdev702.Auth.Database;
 using Tdev702.Auth.Models;
 using Tdev702.Auth.Routes;
 using Tdev702.AWS.SDK.SES;
+using Tdev702.Contracts.Exceptions;
 
 namespace Tdev702.Auth.Endpoints;
 
@@ -54,7 +55,7 @@ public static class SecurityEndpoints
     {
         var user = await userManager.GetUserAsync(claimsPrincipal);
         if (user == null)
-            return Results.BadRequest();
+            throw new BadRequestException("User not found");
 
         switch (twoFactorType)
         {
@@ -66,11 +67,11 @@ public static class SecurityEndpoints
                 
             case TwoFactorType.SMS:
                 if (string.IsNullOrEmpty(request.PhoneNumber))
-                    return Results.BadRequest("Phone number is required for SMS 2FA");
+                    throw new BadRequestException("Phone number is required for SMS 2FA");
                 return await SetupSMS(userManager, user, request.PhoneNumber);
                 
             default:
-                return Results.BadRequest("Invalid 2FA type");
+                throw new BadRequestException("Invalid 2FA type");
         }
     }
 
@@ -117,7 +118,7 @@ public static class SecurityEndpoints
     {
         var setPhoneResult = await userManager.SetPhoneNumberAsync(user, phoneNumber);
         if (!setPhoneResult.Succeeded)
-            return Results.BadRequest(setPhoneResult.Errors);
+            throw new BadRequestException($"Error setting phone number :{setPhoneResult.Errors}");
 
         var token = await userManager.GenerateTwoFactorTokenAsync(user, 
             TokenOptions.DefaultPhoneProvider);
@@ -140,7 +141,7 @@ public static class SecurityEndpoints
     {
         var user = await userManager.GetUserAsync(claimsPrincipal);
         if (user == null)
-            return Results.NotFound();
+            throw new BadRequestException("User not found");
 
         var verificationCode = request.VerificationCode.Replace(" ", string.Empty).Replace("-", string.Empty);
 
@@ -161,11 +162,11 @@ public static class SecurityEndpoints
                 break;
 
             default:
-                return Results.BadRequest("Invalid 2FA type");
+                throw new BadRequestException("Invalid 2FA type");
         }
 
         if (!is2FaTokenValid)
-            return Results.BadRequest("Verification code is invalid.");
+            throw new BadRequestException("Verification code is invalid.");
 
         await userManager.SetTwoFactorEnabledAsync(user, true);
 
@@ -178,11 +179,11 @@ public static class SecurityEndpoints
     {
         var user = await userManager.GetUserAsync(claimsPrincipal);
         if (user == null)
-            return Results.NotFound();
+            throw new BadRequestException("User not found");
 
         var disable2faResult = await userManager.SetTwoFactorEnabledAsync(user, false);
         if (!disable2faResult.Succeeded)
-            return Results.BadRequest(disable2faResult.Errors);
+            throw new BadRequestException($"Error disabling 2FA :{disable2faResult.Errors}");
 
         return Results.Ok("2FA has been disabled.");
     }

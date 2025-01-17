@@ -13,6 +13,7 @@ using Tdev702.Auth.Services;
 using Tdev702.AWS.SDK.DI;
 using Tdev702.AWS.SDK.SecretsManager;
 using Tdev702.Contracts.Config;
+using Tdev702.Contracts.Exceptions;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.AddAwsConfiguration(SecretType.Database, SecretType.Auth);
@@ -133,6 +134,7 @@ services.AddCors(options =>
 });
 services.AddProblemDetails();
 services.AddExceptionHandler<BadRequestExceptionHandler>();
+services.AddExceptionHandler<ConflictExceptionHandler>();
 services.AddExceptionHandler<NotFoundExceptionHandler>();
 services.AddExceptionHandler<DatabaseExceptionHandler>();
 services.AddExceptionHandler<GlobalExceptionHandler>();
