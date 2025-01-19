@@ -1,3 +1,4 @@
+using MassTransit;
 using Microsoft.AspNetCore.Identity;
 using Tdev702.Auth.Database;
 using Tdev702.Auth.Models;
@@ -22,6 +23,7 @@ public class UserService : IUserService
     private readonly UserManager<User> _userManager;
     private readonly LinkGenerator _linkGenerator;
     private readonly IEmailSender<User> _emailSender;
+    private readonly IPublishEndpoint _publishEndpoint;
     
     private readonly ILogger<UserService> _logger;
 
@@ -29,12 +31,14 @@ public class UserService : IUserService
         UserManager<User> userManager, 
         ILogger<UserService> logger, 
         LinkGenerator linkGenerator, 
-        IEmailSender<User> emailSender)
+        IEmailSender<User> emailSender, 
+        IPublishEndpoint publishEndpoint)
     {
         _userManager = userManager;
         _logger = logger;
         _linkGenerator = linkGenerator;
         _emailSender = emailSender;
+        _publishEndpoint = publishEndpoint;
     }
 
     public async Task<User> CreateUserAsync(UserRecord record)
@@ -50,6 +54,7 @@ public class UserService : IUserService
             _logger.LogInformation("Adding user {Email} to role: {UserRole}", user.Email, defaultRole);
             await _userManager.AddToRoleAsync(user, defaultRole);
             _logger.LogInformation("User {Email} added to role: {UserRole}", user.Email, defaultRole);
+            await _publishEndpoint.Publish(user);
             return user;
         }
         catch (Exception ex)

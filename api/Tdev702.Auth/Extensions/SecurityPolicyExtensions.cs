@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Identity;
 
 namespace Tdev702.Auth.Extensions;
 
-public static class SecurityPolicies
+public static class SecurityPolicyExtensions  
 {
     public static IServiceCollection AddSecurityPolicies(this IServiceCollection services)
     {

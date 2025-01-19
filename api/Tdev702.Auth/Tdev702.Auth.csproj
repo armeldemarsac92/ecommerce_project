@@ -9,6 +9,7 @@
 
     <ItemGroup>
         <PackageReference Include="FluentValidation" Version="11.11.0" />
+        <PackageReference Include="MassTransit" Version="8.3.4" />
         <PackageReference Include="Microsoft.AspNetCore.Authentication.Facebook" Version="8.0.11" />
         <PackageReference Include="Microsoft.AspNetCore.Authentication.Google" Version="8.0.11" />
         <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.11" />
@@ -38,6 +39,11 @@
       <ProjectReference Include="..\Tdev702.AWS.SDK\Tdev702.AWS.SDK.csproj" />
       <ProjectReference Include="..\Tdev702.Contracts\Tdev702.Contracts.csproj" />
       <ProjectReference Include="..\Tdev702.Repository\Tdev702.Repository.csproj" />
+      <ProjectReference Include="..\Tdev702.Stripe.SDK\Tdev702.Stripe.SDK.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Folder Include="DI\" />
     </ItemGroup>
 
 </Project>

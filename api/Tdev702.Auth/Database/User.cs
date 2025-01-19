@@ -9,6 +9,9 @@ public class User : IdentityUser
     public TwoFactorType? PreferredTwoFactorProvider { get; set; }
     
     [StringLength(50)]
+    public string? StripeCustomerId { get; set; }
+    
+    [StringLength(50)]
     public required string FirstName { get; set; }
     
     [StringLength(50)]

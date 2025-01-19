@@ -2,9 +2,9 @@ using Microsoft.AspNetCore.Identity;
 using Tdev702.Auth.Database;
 using Tdev702.Auth.Services;
 
-namespace Tdev702.Auth.DI;
+namespace Tdev702.Auth.Extensions;
 
-public static class ServiceCollectionExtension
+public static partial class AuthServiceExtensions
 {
     public static IServiceCollection AddAuthServices(this IServiceCollection services)
     {
