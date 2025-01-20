@@ -94,7 +94,8 @@ public static class OrderEndpoints
        UpdateOrderRequest orderRequest,
        CancellationToken cancellationToken)
    {
-       var order = await orderService.UpdateAsync(id, orderRequest, cancellationToken);
+       orderRequest.Id = id; 
+       var order = await orderService.UpdateAsync(orderRequest, cancellationToken);
        return Results.Ok(order);
    }
 }

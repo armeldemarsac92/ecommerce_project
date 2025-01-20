@@ -11,8 +11,8 @@ namespace Tdev702.Repository.Repository;
 public interface IOrderRepository
 {
     public Task<OrderSQLResponse?> GetByIdAsync(long id, CancellationToken cancellationToken = default);
+    public Task<OrderSQLResponse?> GetByPaymentIntentIdAsync(string stripePaymentIntentId, CancellationToken cancellationToken = default);
     public Task<List<OrderSQLResponse>> GetAllAsync(CancellationToken cancellationToken = default);
-
     public Task<List<OrderSQLResponse>> GetAllByUserIdAsync(string userId,
         CancellationToken cancellationToken = default);
     public Task<OrderSQLResponse> CreateAsync(CreateOrderSQLRequest createOrderSqlRequest, CancellationToken cancellationToken = default);
@@ -32,6 +32,11 @@ public class OrderRepository : IOrderRepository
    public async Task<OrderSQLResponse?> GetByIdAsync(long id, CancellationToken cancellationToken = default)
    {
        return await _dbCommand.QueryFirstOrDefaultAsync<OrderSQLResponse>(OrderQueries.GetOrderById, new { OrderId = id }, cancellationToken);
+   }
+
+   public async Task<OrderSQLResponse?> GetByPaymentIntentIdAsync(string stripePaymentIntentId, CancellationToken cancellationToken = default)
+   {
+       return await _dbCommand.QueryFirstOrDefaultAsync<OrderSQLResponse>(OrderQueries.GetOrderByIntentId, new { StripePaymentIntentId = stripePaymentIntentId }, cancellationToken);
    }
 
    public async Task<List<OrderSQLResponse>> GetAllByUserIdAsync(string userId, CancellationToken cancellationToken = default)

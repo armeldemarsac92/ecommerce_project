@@ -9,6 +9,7 @@ namespace Tdev702.Api.Services;
 public interface IOrderService
 {
     Task<OrderResponse> GetByIdAsync(long orderId, CancellationToken cancellationToken = default);
+    Task<long> GetOrderIdByPaymentIntentIdAsync(string stripePaymentIntentId, CancellationToken cancellationToken = default);
     
     Task<List<OrderResponse>> GetAllAsync(CancellationToken cancellationToken = default);
     
@@ -16,7 +17,7 @@ public interface IOrderService
     
     Task<OrderResponse> CreateAsync(CreateOrderRequest createOrderRequest, CancellationToken cancellationToken = default);
     
-    Task<OrderResponse> UpdateAsync(long orderId, UpdateOrderRequest updateOrderRequest, CancellationToken cancellationToken = default);
+    Task<OrderResponse> UpdateAsync(UpdateOrderRequest updateOrderRequest, CancellationToken cancellationToken = default);
 }
 public class OrderService : IOrderService
 {
@@ -47,7 +48,14 @@ public class OrderService : IOrderService
         var products = await _productRepository.GetByIdsAsync(productIds, cancellationToken);
         var mappedOrderProducts = orderProducts.MapToOrderProducts(products);
         var mappedOrder = order.MapToOrder(mappedOrderProducts);
-        return mappedOrder;
+        return mappedOrder; //to refactor, too much code duplication
+    }
+
+    public async Task<long> GetOrderIdByPaymentIntentIdAsync(string stripePaymentIntentId, CancellationToken cancellationToken = default)
+    {
+        var order = await _orderRepository.GetByPaymentIntentIdAsync(stripePaymentIntentId, cancellationToken);
+        if(order is null) throw new NotFoundException($"Order with payment intent {stripePaymentIntentId} not found");
+        return order.Id;
     }
 
     public async Task<List<OrderResponse>> GetAllAsync(CancellationToken cancellationToken = default)
@@ -91,24 +99,25 @@ public class OrderService : IOrderService
         return order;
     }
 
-    public async Task<OrderResponse> UpdateAsync(long orderId, UpdateOrderRequest updateOrderRequest,
+    public async Task<OrderResponse> UpdateAsync(UpdateOrderRequest updateOrderRequest,
         CancellationToken cancellationToken = default)
     {
-        var order = await _orderRepository.GetByIdAsync(orderId, cancellationToken);
-        if (order is null) throw new NotFoundException($"Order {orderId} not found");
+        var order = await _orderRepository.GetByIdAsync(updateOrderRequest.Id, cancellationToken);
+        if (order is null) throw new NotFoundException($"Order {updateOrderRequest.Id} not found");
+        if (order.PaymentStatus is "succeeded") throw new BadRequestException("Cannot update an order with a succeeded payment status");
         var products =
             await _productRepository.GetByIdsAsync(updateOrderRequest.Products.Select(p => p.ProductId).ToList(),
                 cancellationToken);
         var updateOrderProductsSqlRequest =
-            updateOrderRequest.Products.MapToUpdateOrderProductRequests(products, orderId);
+            updateOrderRequest.Products.MapToUpdateOrderProductRequests(products, updateOrderRequest.Id);
         await _orderProductRepository.UpdateManyAsync(updateOrderProductsSqlRequest,
             cancellationToken);
 
         var totalAmount = products.Sum(p =>
             p.Price * updateOrderRequest.Products.First(op => op.ProductId == p.Id).Quantity);
-        var updateOrderSqlRequest = updateOrderRequest.MapToUpdateOrderRequest(orderId, totalAmount);
+        var updateOrderSqlRequest = updateOrderRequest.MapToUpdateOrderRequest(updateOrderRequest.Id, totalAmount);
         var affectedOrderRows = await _orderRepository.UpdateAsync(updateOrderSqlRequest, cancellationToken);
         if (affectedOrderRows == 0) throw new InvalidOperationException("Update failed");
-        return await GetByIdAsync(orderId, cancellationToken);
+        return await GetByIdAsync(updateOrderRequest.Id, cancellationToken);
     }
 }

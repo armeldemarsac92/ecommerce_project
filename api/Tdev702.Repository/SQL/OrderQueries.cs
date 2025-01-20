@@ -6,6 +6,11 @@ public static class OrderQueries
    SELECT *
    FROM backoffice.orders
    WHERE id = @OrderId;";
+    
+    public static string GetOrderByIntentId = @"
+   SELECT *
+   FROM backoffice.orders
+   WHERE stripe_payment_intent_id = @StripePaymentIntentId;";
 
     public static string GetAllOrders = @"
    SELECT *
@@ -41,6 +46,7 @@ public static class OrderQueries
        user_id = COALESCE(@UserId, user_id),
        stripe_invoice_id = COALESCE(@StripeInvoiceId, stripe_invoice_id),
        updated_at = CURRENT_TIMESTAMP,
+       stripe_payment_intent_id = COALESCE(@StripePaymentIntentId, stripe_payment_intent_id),
        payment_status = COALESCE(@PaymentStatus, payment_status),
        total_amount = COALESCE(@TotalAmount, total_amount)
    WHERE id = @OrderId;";
