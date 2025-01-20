@@ -47,4 +47,10 @@ public static class ShopRoutes
         public const string Update = $"{Base}/invoices/{{Id}}";
         public const string Delete = $"{Base}/invoices/{{Id}}";
     }
+
+    public static class PaymentIntents
+    {
+        public const string Create = $"{Base}/payments";
+        public const string Get = $"{Base}/payments/{{paymentIntentId}}";
+    }
 }

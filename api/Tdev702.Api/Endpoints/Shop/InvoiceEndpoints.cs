@@ -46,20 +46,13 @@ public static class InvoiceEndpoints
         string id,
         CancellationToken cancellationToken)
     {   
-        try 
-        {
-            var invoice = await stripeInvoiceService.GetAsync(
-                id,
-                null,  // options
-                null,  // requestOptions
-                cancellationToken);
-                
-            return Results.Ok(invoice);
-        }
-        catch (StripeException ex) when (ex.StripeError.Type == "invalid_request_error")
-        {
-            return Results.NotFound();
-        }
+        var invoice = await stripeInvoiceService.GetAsync(
+            id,
+            null, 
+            null,  
+            cancellationToken);
+            
+        return Results.Ok(invoice);
     }
     
     private static async Task<IResult> CreateInvoice(
@@ -68,19 +61,12 @@ public static class InvoiceEndpoints
         InvoiceCreateOptions invoiceOptions,
         CancellationToken cancellationToken)
     {
-        try 
-        {
-            var invoice = await stripeInvoiceService.CreateAsync(
-                invoiceOptions,
-                null, // requestOptions
-                cancellationToken);
-                
-            return Results.Ok(invoice);
-        }
-        catch (StripeException ex)
-        {
-            return Results.BadRequest(new { error = ex.StripeError.Message });
-        }
+        var invoice = await stripeInvoiceService.CreateAsync(
+            invoiceOptions,
+            null, 
+            cancellationToken);
+            
+        return Results.Ok(invoice);
     }
 
     private static async Task<IResult> UpdateInvoice(
@@ -90,24 +76,13 @@ public static class InvoiceEndpoints
         InvoiceUpdateOptions invoiceOptions,
         CancellationToken cancellationToken)
     {
-        try 
-        {
-            var invoice = await stripeInvoiceService.UpdateAsync(
-                id,
-                invoiceOptions,
-                null, // requestOptions
-                cancellationToken);
-                
-            return Results.Ok(invoice);
-        }
-        catch (StripeException ex) when (ex.StripeError.Type == "invalid_request_error")
-        {
-            return Results.NotFound();
-        }
-        catch (StripeException ex)
-        {
-            return Results.BadRequest(new { error = ex.StripeError.Message });
-        }
+        var invoice = await stripeInvoiceService.UpdateAsync(
+            id,
+            invoiceOptions,
+            null, 
+            cancellationToken);
+            
+        return Results.Ok(invoice);
     }
 
     private static async Task<IResult> DeleteInvoice(
@@ -116,19 +91,12 @@ public static class InvoiceEndpoints
         string id,
         CancellationToken cancellationToken)
     {
-        try 
-        {
-            await stripeInvoiceService.DeleteAsync(
-                id,
-                null, // options
-                null, // requestOptions
-                cancellationToken);
-                
-            return Results.NoContent();
-        }
-        catch (StripeException ex) when (ex.StripeError.Type == "invalid_request_error")
-        {
-            return Results.NotFound();
-        }
+        await stripeInvoiceService.DeleteAsync(
+            id,
+            null, // options
+            null, // requestOptions
+            cancellationToken);
+            
+        return Results.NoContent();
     }
 }
