@@ -33,7 +33,7 @@ services.AddCors(options =>
     });
 });
 
-builder.Services.AddEndpointsApiExplorer();
+services.AddEndpointsApiExplorer();
 services.AddSwagger("API");
 
 services.AddProblemDetails();

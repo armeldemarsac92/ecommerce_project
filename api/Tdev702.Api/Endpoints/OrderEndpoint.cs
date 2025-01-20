@@ -1,6 +1,8 @@
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
 using Tdev702.Api.Routes;
 using Tdev702.Api.Services;
+using Tdev702.Api.Utils;
 using Tdev702.Contracts.API.Request.Order;
 using Tdev702.Contracts.API.Response;
 using Tdev702.Contracts.Database;
@@ -33,6 +35,7 @@ public static class OrderEndpoints
            .WithTags(Tags)
            .WithDescription("Create one Order")
            .RequireAuthorization("Authenticated")
+           .Accepts<CreateOrderRequest>(ContentType)
            .Produces<OrderResponse>(201)
            .Produces(404);
 
@@ -40,6 +43,7 @@ public static class OrderEndpoints
            .WithTags(Tags)
            .WithDescription("Update one Order")
            .RequireAuthorization("Authenticated")
+           .Accepts<UpdateOrderRequest>(ContentType)
            .Produces<OrderResponse>(200)
            .Produces(404);
 
@@ -68,12 +72,10 @@ public static class OrderEndpoints
    private static async Task<IResult> GetOrdersByUserId(
        HttpContext context,
        IOrderService orderService,
-       UserManager<User> userManager,
        CancellationToken cancellationToken)
    {
-       var user = await userManager.GetUserAsync(context.User);
-       if (user == null) throw new BadRequestException("Unknown user");
-       var orders = await orderService.GetAllByUserIdAsync(user.Id, cancellationToken);
+       var userId = context.GetUserIdFromClaims();
+       var orders = await orderService.GetAllByUserIdAsync(userId, cancellationToken);
        return Results.Ok(orders);
    }
 

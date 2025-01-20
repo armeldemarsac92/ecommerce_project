@@ -11,15 +11,21 @@ public static class EndpointExtensions
         app.MapBrandEndpoints();
         app.MapCategoryEndpoints();
         app.MapInvoiceEndpoints();
+        app.MapOrderEndpoints();
+        app.MapPaymentEndpoints();
+        app.MapPaymentMethodEndpoints();
+        app.MapWebhookEndpoint();
         return app;
     }
 
     public static IServiceCollection AddApiServices(this IServiceCollection services, IConfiguration _)
     {
+        services.AddScoped<IProductTagsService, ProductTagsService>();
         services.AddScoped<IProductsService, ProductsService>();
         services.AddScoped<IBrandsService, BrandsService>();
         services.AddScoped<ICategoriesService, CategoriesService>();
-        
+        services.AddScoped<IOrderService, OrderService>();
+        services.AddScoped<IUserService, UserService>();
         return services;
     }
 }
