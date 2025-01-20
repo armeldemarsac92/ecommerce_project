@@ -1,17 +1,17 @@
-using Tdev702.Contracts.API.Shop;
 using Tdev702.Contracts.Exceptions;
-using Tdev702.Contracts.SQL.Mapping;
-using Tdev702.Contracts.SQL.Request.Shop.ProductTag;
+using Tdev702.Contracts.Mapping;
+using Tdev702.Contracts.Request.Shop.ProductTag;
+using Tdev702.Contracts.Response.Shop;
 using Tdev702.Repository.Repository;
 
 namespace Tdev702.Api.Services;
 
 public interface IProductTagsService
 {
-    public Task<ProductTag> GetByIdAsync(long id, CancellationToken cancellationToken = default);
-    public Task<List<ProductTag>> GetAllAsync(CancellationToken cancellationToken = default);
-    public Task<ProductTag> CreateAsync(CreateProductTagRequest createProductTagRequest, CancellationToken cancellationToken = default);
-    public Task<ProductTag> UpdateAsync(long id, UpdateProductTagRequest updateProductTagRequest, CancellationToken cancellationToken = default);
+    public Task<ProductTagResponse> GetByIdAsync(long id, CancellationToken cancellationToken = default);
+    public Task<List<ProductTagResponse>> GetAllAsync(CancellationToken cancellationToken = default);
+    public Task<ProductTagResponse> CreateAsync(CreateProductTagRequest createProductTagRequest, CancellationToken cancellationToken = default);
+    public Task<ProductTagResponse> UpdateAsync(long id, UpdateProductTagRequest updateProductTagRequest, CancellationToken cancellationToken = default);
     public Task DeleteAsync(long id, CancellationToken cancellationToken = default);
 }
 public class ProductTagsService : IProductTagsService
@@ -24,7 +24,7 @@ public class ProductTagsService : IProductTagsService
         
     }
     
-    public async Task<ProductTag> GetByIdAsync(long productTagId, CancellationToken cancellationToken = default)
+    public async Task<ProductTagResponse> GetByIdAsync(long productTagId, CancellationToken cancellationToken = default)
     {
         var response = await _productTagRepository.GetByIdAsync(productTagId, cancellationToken);
         if(response is null) throw new NotFoundException($"Product Tags {productTagId} not found");
@@ -32,19 +32,19 @@ public class ProductTagsService : IProductTagsService
         return response.MapToProductTag();
     }
 
-    public async Task<List<ProductTag>> GetAllAsync(CancellationToken cancellationToken = default)
+    public async Task<List<ProductTagResponse>> GetAllAsync(CancellationToken cancellationToken = default)
     {
         var response = await _productTagRepository.GetAllAsync(cancellationToken);
         return response.Any() ? response.MapToProductTags() :  throw new NotFoundException("Product Tags not found");
     }
 
-    public async Task<ProductTag> CreateAsync(CreateProductTagRequest createProductTagRequest, CancellationToken cancellationToken = default)
+    public async Task<ProductTagResponse> CreateAsync(CreateProductTagRequest createProductTagRequest, CancellationToken cancellationToken = default)
     {
         var response = await _productTagRepository.CreateAsync(createProductTagRequest, cancellationToken);
         return response.MapToProductTag();
     }
 
-    public async Task<ProductTag> UpdateAsync(long productTagId, UpdateProductTagRequest updateProductTagRequest, CancellationToken cancellationToken = default)
+    public async Task<ProductTagResponse> UpdateAsync(long productTagId, UpdateProductTagRequest updateProductTagRequest, CancellationToken cancellationToken = default)
     {
         updateProductTagRequest.ProductTagId = productTagId;
         var affectedRows = await _productTagRepository.UpdateAsync(updateProductTagRequest, cancellationToken);

@@ -1,91 +1,52 @@
 using System.Text;
+using System.Web;
+using Microsoft.AspNetCore.Authentication.OAuth;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
-using Tdev702.Auth.Store;
-using Tdev702.Contracts.API.Auth;
-using Tdev702.Repository.DI;
+using Microsoft.OpenApi.Models;
+using Tdev702.Auth.Extensions;
+using Tdev702.Auth.Middlewares.ExceptionHandlers;
+using Tdev702.Auth.Services;
+using Tdev702.AWS.SDK.DI;
+using Tdev702.AWS.SDK.SecretsManager;
+using Tdev702.Contracts.Config;
+using Tdev702.Contracts.Database;
+using Tdev702.Contracts.Exceptions;
+using Tdev702.Stripe.SDK.DI;
 
 var builder = WebApplication.CreateBuilder(args);
+builder.AddAwsConfiguration(SecretType.Database, SecretType.Auth, SecretType.Stripe);
+var databaseConfiguration = builder.Configuration.GetSection("database").Get<DatabaseConfiguration>() ?? throw new InvalidOperationException("Database configuration not found");
+var connectionString = databaseConfiguration.DbConnectionString;
+var authConfiguration = builder.Configuration.GetSection("auth").Get<AuthConfiguration>() ?? throw new InvalidOperationException("Auth configuration not found");
+var stripeConfiguration = builder.Configuration.GetSection("stripe").Get<StripeConfiguration>()?? throw new InvalidOperationException("Stripe configuration not found");
+var services = builder.Services;
+services.AddSEService();
+services.AddDistributedMemoryCache();
+services.AddStripeServices(stripeConfiguration);
+services.AddMessaging();
+services.AddEndpointsApiExplorer();
+services.AddAuthServices();
 
-// Add services to the container.
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
-builder.Services.AddDbConnection(builder.Configuration);
-builder.Services.AddAntiforgery(options => 
+services.AddDbContext<ApplicationDbContext>(options =>
+    options.UseNpgsql(connectionString));
+
+services.AddSwagger("Auth Server");
+services.AddIdentity();
+services.AddAuth(authConfiguration);
+services.AddAntiforgery(options => 
 {
     options.HeaderName = "X-XSRF-TOKEN";
     options.Cookie.Name = "XSRF-TOKEN";
-    options.Cookie.HttpOnly = true;
+    options.Cookie.HttpOnly = false; 
     options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
-    options.Cookie.SameSite = SameSiteMode.Strict;
+    options.Cookie.SameSite = SameSiteMode.Lax; 
 });
 
-builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
-    {
-        options.Password.RequireDigit = true;
-        options.Password.RequiredLength = 8;
-        options.Password.RequireNonAlphanumeric = false;
-        options.Password.RequireUppercase = true;
-        options.Password.RequireLowercase = true;
+services.AddSecurityPolicies();
 
-        options.User.RequireUniqueEmail = true;
-        options.SignIn.RequireConfirmedEmail = false;
-
-        options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(15);
-        options.Lockout.MaxFailedAccessAttempts = 5;
-    })
-    .AddUserStore<CustomUserStore>()
-    .AddDefaultTokenProviders()
-    .AddApiEndpoints();
-
-builder.Services.AddAuthentication(options =>
-    {
-        options.DefaultAuthenticateScheme = IdentityConstants.BearerScheme;
-        options.DefaultChallengeScheme = IdentityConstants.BearerScheme;
-        options.DefaultScheme = IdentityConstants.BearerScheme;
-    })
-    .AddJwtBearer(IdentityConstants.BearerScheme, options =>
-    {
-        options.TokenValidationParameters = new TokenValidationParameters
-        {
-            ValidateIssuer = true,
-            ValidateAudience = true,
-            ValidateLifetime = true,
-            ValidateIssuerSigningKey = true,
-            ValidIssuer = builder.Configuration["Jwt:Issuer"],
-            ValidAudience = builder.Configuration["Jwt:Audience"],
-            IssuerSigningKey = new SymmetricSecurityKey(
-                Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]!))
-        };
-    })
-    .AddGoogle(options =>
-    {
-        options.ClientId = builder.Configuration["Authentication:Google:ClientId"]!;
-        options.ClientSecret = builder.Configuration["Authentication:Google:ClientSecret"]!;
-        options.CallbackPath = "/signin-google";
-    })
-    .AddFacebook(options =>
-    {
-        options.ClientId = builder.Configuration["Authentication:Facebook:AppId"]!;
-        options.ClientSecret = builder.Configuration["Authentication:Facebook:AppSecret"]!;
-        options.CallbackPath = "/signin-facebook";
-    });
-
-// Add session support (needed for CSRF)
-builder.Services.AddSession(options =>
-{
-    options.Cookie.Name = ".MyApp.Session";
-    options.IdleTimeout = TimeSpan.FromMinutes(30);
-    options.Cookie.HttpOnly = true;
-    options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
-    options.Cookie.SameSite = SameSiteMode.Strict;
-});
-
-
-builder.Services.AddAuthorizationBuilder();
-
-builder.Services.AddCors(options =>
+services.AddCors(options =>
 {
     options.AddPolicy("AllowAll", builder =>
     {
@@ -94,23 +55,28 @@ builder.Services.AddCors(options =>
             .AllowAnyHeader();
     });
 });
+services.AddProblemDetails();
+services.AddExceptionHandler<BadRequestExceptionHandler>();
+services.AddExceptionHandler<ConflictExceptionHandler>();
+services.AddExceptionHandler<NotFoundExceptionHandler>();
+services.AddExceptionHandler<DatabaseExceptionHandler>();
+services.AddExceptionHandler<GlobalExceptionHandler>();
 
 var app = builder.Build();
 
-app.MapIdentityApi<ApplicationUser>();
-
-// Configure the HTTP request pipeline.
+app.UseExceptionHandler();
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
+    app.ApplyMigrations();
 }
 
 app.UseHttpsRedirection(); 
+app.UseCors("AllowAll");
+app.UseAuthentication(); 
+app.UseAuthorization();
+
+app.MapApiEndpoints();
 
 app.Run();
-
-record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
-{
-    public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
-}

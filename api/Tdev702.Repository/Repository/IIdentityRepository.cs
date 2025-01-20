@@ -1,5 +1,5 @@
 using Microsoft.AspNetCore.Identity;
-using Tdev702.Contracts.API.Auth;
+using Tdev702.Contracts.Auth;
 using Tdev702.Repository.SQL;
 
 namespace Tdev702.Repository.Repository;
