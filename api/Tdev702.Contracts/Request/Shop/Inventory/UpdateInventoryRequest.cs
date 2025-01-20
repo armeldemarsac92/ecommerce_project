@@ -6,5 +6,6 @@ public class UpdateInventoryRequest
     public long? ProductId { get; set; }
     public long? Quantity { get; set; }
     public DateTimeOffset? UpdatedAt { get; set; }
+    public DateTimeOffset? CreatedAt { get; set; }
     public string? Sku { get; set; }
 }

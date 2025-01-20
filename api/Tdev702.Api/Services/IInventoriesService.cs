@@ -10,6 +10,7 @@ public interface IInventoriesService
 {
     public Task<InventoryResponse> GetByIdAsync(long id, CancellationToken cancellationToken = default);
     public Task<List<InventoryResponse>> GetAllAsync(CancellationToken cancellationToken = default);
+    public Task<InventoryResponse> GetByProductIdAsync(long productId, CancellationToken cancellationToken = default);
     public Task<InventoryResponse> CreateAsync(CreateInventoryRequest createProductInventoryRequest, CancellationToken cancellationToken = default);
     public Task<InventoryResponse> UpdateAsync(long id, UpdateInventoryRequest updateProductInventoryRequest, CancellationToken cancellationToken = default);
     public Task DeleteAsync(long id ,CancellationToken cancellationToken = default);  
@@ -38,19 +39,32 @@ public class InventoriesService : IInventoriesService
         return response.Any() ? response.MapToProductInventories() :  throw new NotFoundException("Inventories not found");
     }
 
-    public async Task<InventoryResponse> CreateAsync(CreateInventoryRequest createProductInventoryRequest, CancellationToken cancellationToken = default)
+    public async Task<InventoryResponse> GetByProductIdAsync(long productId, CancellationToken cancellationToken = default)
     {
-        throw new NotImplementedException();
+        var response = await _inventoryRepository.GetInventoryByProductIdAsync(productId, cancellationToken);
+        if(response is null) throw new NotFoundException($"The inventory for this product id: {productId} was not found");
+        return response.MapToProductInventory();
     }
 
-    public async Task<InventoryResponse> UpdateAsync(long id, UpdateInventoryRequest updateProductInventoryRequest,
-        CancellationToken cancellationToken = default)
+    public async Task<InventoryResponse> CreateAsync(CreateInventoryRequest createProductInventoryRequest, CancellationToken cancellationToken = default)
     {
-        throw new NotImplementedException();
+        var response = await _inventoryRepository.CreateAsync(createProductInventoryRequest, cancellationToken);
+        return response.MapToProductInventory();
+    }
+
+    public async Task<InventoryResponse> UpdateAsync(long id, UpdateInventoryRequest updateInventoryRequest, CancellationToken cancellationToken = default)
+    {
+        updateInventoryRequest.Id = id;
+        var affectedRows = await _inventoryRepository.UpdateAsync(updateInventoryRequest, cancellationToken);
+
+        if (affectedRows == 0) throw new NotFoundException($"Inventory {id} not found");
+        
+        var updatedProduct = await _inventoryRepository.GetByIdAsync(id, cancellationToken);
+        return updatedProduct.MapToProductInventory();
     }
 
     public async Task DeleteAsync(long id, CancellationToken cancellationToken = default)
     {
-        throw new NotImplementedException();
+        await _inventoryRepository.DeleteAsync(id, cancellationToken);
     }
 }

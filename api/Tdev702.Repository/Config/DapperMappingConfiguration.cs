@@ -1,6 +1,7 @@
 using System.ComponentModel.DataAnnotations.Schema;
 using Dapper;
 using Tdev702.Contracts.SQL;
+using Tdev702.Contracts.SQL.Response.Shop;
 
 namespace Tdev702.Repository.Config;
 
@@ -11,6 +12,7 @@ public class DapperMappingConfiguration
         SetupDapperMapping<ProductResponse>();
         SetupDapperMapping<BrandResponse>();
         SetupDapperMapping<CategoryResponse>();
+        SetupDapperMapping<InventoryResponse>();
     }
 
     private static void SetupDapperMapping<TModel>()

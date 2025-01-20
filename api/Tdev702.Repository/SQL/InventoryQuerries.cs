@@ -21,15 +21,15 @@ public class InventoryQuerries
     VALUES (@sku, @quantity, @product_id, current_timestamp)
     RETURNING * ;";
 
-    public static string DeleteInventory = @"
-    DELETE FROM shop.inventory
-    WHERE id = @id;";
-
     public static string UpdateInventory = @"
     UPDATE shop.inventory
     SET 
     sku = @sku,
     quantity = @quantity,
     updated_at = CURRENT_TIMESTAMP
+    WHERE id = @id;";
+    
+    public static string DeleteInventory = @"
+    DELETE FROM shop.inventory
     WHERE id = @id;";
 }

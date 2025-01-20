@@ -20,6 +20,6 @@ public class InventoryResponse
     public required DateTimeOffset  CreatedAt { get; init; }
     
     [Column("Update_at")]
-    public required DateTimeOffset  UpdatedAt { get; init; }
+    public DateTimeOffset  UpdatedAt { get; init; }
     
 }
