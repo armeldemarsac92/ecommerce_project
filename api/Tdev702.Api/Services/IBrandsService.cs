@@ -1,17 +1,17 @@
-using Tdev702.Contracts.API.Shop;
 using Tdev702.Contracts.Exceptions;
-using Tdev702.Contracts.SQL.Mapping;
-using Tdev702.Contracts.SQL.Request.Shop.Brand;
+using Tdev702.Contracts.Mapping;
+using Tdev702.Contracts.Request.Shop.Brand;
+using Tdev702.Contracts.Response.Shop;
 using Tdev702.Repository.Brands;
 
 namespace Tdev702.Api.Services;
 
 public interface IBrandsService
 {
-    public Task<Brand> GetByIdAsync(long id, CancellationToken cancellationToken = default);
-    public Task<List<Brand>> GetAllAsync(CancellationToken cancellationToken = default);
-    public Task<Brand> CreateAsync(CreateBrandRequest createBrandRequest, CancellationToken cancellationToken = default);
-    public Task<Brand> UpdateAsync(long id, UpdateBrandRequest updateBrandRequest, CancellationToken cancellationToken = default);
+    public Task<BrandResponse> GetByIdAsync(long id, CancellationToken cancellationToken = default);
+    public Task<List<BrandResponse>> GetAllAsync(CancellationToken cancellationToken = default);
+    public Task<BrandResponse> CreateAsync(CreateBrandRequest createBrandRequest, CancellationToken cancellationToken = default);
+    public Task<BrandResponse> UpdateAsync(long id, UpdateBrandRequest updateBrandRequest, CancellationToken cancellationToken = default);
     public Task DeleteAsync(long id ,CancellationToken cancellationToken = default);
 }
 
@@ -24,7 +24,7 @@ public class BrandsService : IBrandsService
         _brandRepository = brandRepository;
     }
     
-    public async Task<Brand> GetByIdAsync(long brandId, CancellationToken cancellationToken = default)
+    public async Task<BrandResponse> GetByIdAsync(long brandId, CancellationToken cancellationToken = default)
     {
         var response = await _brandRepository.GetByIdAsync(brandId, cancellationToken);
         if(response is null) throw new NotFoundException($"Brand {brandId} not found");
@@ -32,19 +32,19 @@ public class BrandsService : IBrandsService
         return response.MapToBrand();
     }
 
-    public async Task<List<Brand>> GetAllAsync(CancellationToken cancellationToken = default)
+    public async Task<List<BrandResponse>> GetAllAsync(CancellationToken cancellationToken = default)
     {
         var response = await _brandRepository.GetAllAsync(cancellationToken);
         return response.Any() ? response.MapToBrands() :  throw new NotFoundException("Brands not found");
     }
 
-    public async Task<Brand> CreateAsync(CreateBrandRequest createBrandRequest, CancellationToken cancellationToken = default)
+    public async Task<BrandResponse> CreateAsync(CreateBrandRequest createBrandRequest, CancellationToken cancellationToken = default)
     {
         var response = await _brandRepository.CreateAsync(createBrandRequest, cancellationToken);
         return response.MapToBrand();
     }
 
-    public async Task<Brand> UpdateAsync(long brandId, UpdateBrandRequest updateBrandRequest, CancellationToken cancellationToken = default)
+    public async Task<BrandResponse> UpdateAsync(long brandId, UpdateBrandRequest updateBrandRequest, CancellationToken cancellationToken = default)
     {
         updateBrandRequest.BrandId = brandId;
         var affectedRows = await _brandRepository.UpdateAsync(updateBrandRequest, cancellationToken);

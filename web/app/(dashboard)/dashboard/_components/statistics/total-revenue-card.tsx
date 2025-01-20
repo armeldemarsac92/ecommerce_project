@@ -11,6 +11,7 @@ export function TotalRevenueCard() {
         <div className={"flex justify-between items-center"}>
           <h3 className={"text-muted-foreground"}>Total Revenue</h3>
 
+
           <Euro className={"text-icon"} size={20} />
         </div>
         <div>

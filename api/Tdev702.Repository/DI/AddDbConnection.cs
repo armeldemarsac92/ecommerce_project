@@ -26,6 +26,9 @@ public static class DbExtensions
         });
         services.AddTransient<IDBSQLCommand, DbsqlCommand>();
         services.AddScoped<IProductRepository, ProductRepository>();
+        services.AddScoped<ICategoryRepository, CategoryRepository>();
+        services.AddScoped<IBrandRepository, BrandRepository>();
+        services.AddScoped<IProductTagRepository, ProductTagRepository>();
 
         return services;
     }

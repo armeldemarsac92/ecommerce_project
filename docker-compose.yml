@@ -1,0 +1,25 @@
+version: '3.8'
+
+services:
+  # api:
+  #   container_name: api
+  #   build: ./api/Tdev702.Api
+  #   ports:
+  #     - 8080:8080
+  #     - 8081:8081
+  #   volumes:
+  #     - ./api/:/app
+    #depends_on:
+      
+    # env_file:
+    #   - api.env
+    
+  front:
+    container_name: front
+    build: ./web
+    ports:
+      - 3000:3000
+    volumes:
+      - ./web:/app
+    # depends_on:
+    #   - api

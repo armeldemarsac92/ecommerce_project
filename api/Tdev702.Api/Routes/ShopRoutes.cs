@@ -39,4 +39,30 @@ public static class ShopRoutes
         public const string Update = $"{Base}/categories/{{id}}";
         public const string Delete = $"{Base}/categories/{{id}}";
     }
+    
+    public static class Invoices
+    {
+        public const string GetById = $"{Base}/invoices/{{Id}}";
+        public const string GetAll = $"{Base}/invoices";
+        public const string Create = $"{Base}/invoices";
+        public const string Update = $"{Base}/invoices/{{Id}}";
+        public const string Delete = $"{Base}/invoices/{{Id}}";
+    }
+
+    public static class Payments
+    {
+        public const string Create = $"{Base}/payments";
+    }
+
+    public static class PaymentMethods
+    {
+        public const string Get = $"{Base}/payment_methods";
+        public const string Attach = $"{Base}/payment_methods/{{paymentMethodId}}/attach";
+        public const string Detach = $"{Base}/payment_methods/{{paymentMethodId}}/detach";
+    }
+
+    public static class Webhooks
+    {
+        public const string PaymentIntent = $"{Base}/webhooks/payment_intent";
+    }
 }

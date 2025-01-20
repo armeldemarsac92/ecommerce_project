@@ -60,39 +60,49 @@ public static class ConfigurationExtensions
     }
 
     public static IServiceCollection AddConfigurationOptions(this IServiceCollection services, IConfiguration configuration, SecretType[] secretTypes)
+{
+    foreach (var secretType in secretTypes)
     {
-        foreach (var secretType in secretTypes)
+        switch (secretType)
         {
-            switch (secretType)
-            {
-                case SecretType.Database:
-                    services.Configure<DatabaseConfiguration>(
-                        configuration.GetSection($"database"));
-                    break;
+            case SecretType.Database:
+                services.Configure<DatabaseConfiguration>(configuration.GetSection("database"));
+                services.AddSingleton(sp => 
+                    configuration.GetSection("database").Get<DatabaseConfiguration>() 
+                    ?? throw new InvalidOperationException("Database configuration not found"));
+                break;
 
-                case SecretType.Networking:
-                    services.Configure<NetworkConfiguration>(
-                        configuration.GetSection($"networking"));
-                    break;
-                    
-                case SecretType.Stripe:
-                    services.Configure<StripeConfiguration>(
-                        configuration.GetSection($"stripe"));
-                    break; 
+            case SecretType.Networking:
+                services.Configure<NetworkConfiguration>(configuration.GetSection("networking"));
+                services.AddSingleton(sp => 
+                    configuration.GetSection("networking").Get<NetworkConfiguration>() 
+                    ?? throw new InvalidOperationException("Network configuration not found"));
+                break;
                 
-                case SecretType.Auth:
-                    services.Configure<AuthConfiguration>(
-                        configuration.GetSection($"auth"));
-                    break;
-                
-                case SecretType.Cache:
-                    services.Configure<CacheConfiguration>(
-                        configuration.GetSection($"cache"));
-                    break;
-            }
+            case SecretType.Stripe:
+                services.Configure<StripeConfiguration>(configuration.GetSection("stripe"));
+                services.AddSingleton(sp => 
+                    configuration.GetSection("stripe").Get<StripeConfiguration>() 
+                    ?? throw new InvalidOperationException("Stripe configuration not found"));
+                break;
+            
+            case SecretType.Auth:
+                services.Configure<AuthConfiguration>(configuration.GetSection("auth"));
+                services.AddSingleton(sp => 
+                    configuration.GetSection("auth").Get<AuthConfiguration>() 
+                    ?? throw new InvalidOperationException("Auth configuration not found"));
+                break;
+            
+            case SecretType.Cache:
+                services.Configure<CacheConfiguration>(configuration.GetSection("cache"));
+                services.AddSingleton(sp => 
+                    configuration.GetSection("cache").Get<CacheConfiguration>() 
+                    ?? throw new InvalidOperationException("Cache configuration not found"));
+                break;
         }
-        return services;
     }
+    return services;
+}
     
 }
 

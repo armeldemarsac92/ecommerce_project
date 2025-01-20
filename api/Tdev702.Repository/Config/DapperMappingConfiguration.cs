@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations.Schema;
 using Dapper;
-using Tdev702.Contracts.SQL.Response.Shop;
+using Tdev702.Contracts.SQL;
 
 namespace Tdev702.Repository.Config;
 
