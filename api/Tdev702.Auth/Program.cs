@@ -12,6 +12,7 @@ using Tdev702.Auth.Services;
 using Tdev702.AWS.SDK.DI;
 using Tdev702.AWS.SDK.SecretsManager;
 using Tdev702.Contracts.Config;
+using Tdev702.Contracts.Database;
 using Tdev702.Contracts.Exceptions;
 using Tdev702.Stripe.SDK.DI;
 
@@ -32,88 +33,9 @@ services.AddAuthServices();
 services.AddDbContext<ApplicationDbContext>(options =>
     options.UseNpgsql(connectionString));
 
-services.AddSwaggerGen(c =>
-{
-    c.SwaggerDoc("v1", new OpenApiInfo { Title = "Auth API", Version = "v1" });
-    
-    c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
-    {
-        Description = "JWT Authorization header using the Bearer scheme. Example: 'Bearer {token}'",
-        Name = "Authorization",
-        In = ParameterLocation.Header,
-        Type = SecuritySchemeType.Http,
-        Scheme = "Bearer",
-        BearerFormat = "JWT"
-    });
-
-    c.AddSecurityRequirement(new OpenApiSecurityRequirement
-    {
-        {
-            new OpenApiSecurityScheme
-            {
-                Reference = new OpenApiReference
-                {
-                    Type = ReferenceType.SecurityScheme,
-                    Id = "Bearer"
-                }
-            },
-            new string[] {}
-        }
-    });
-});
-
-services.AddIdentity<User, Role>(options =>
-{
-    options.Password.RequireDigit = true;
-    options.Password.RequiredLength = 8;
-    options.Password.RequireNonAlphanumeric = false;
-    options.Password.RequireUppercase = true;
-    options.Password.RequireLowercase = true;
-
-    options.User.RequireUniqueEmail = true;
-    options.SignIn.RequireConfirmedEmail = true;
-
-    options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(15);
-    options.Lockout.MaxFailedAccessAttempts = 5;
-    
-    options.Tokens.AuthenticatorTokenProvider = TokenOptions.DefaultAuthenticatorProvider;
-    options.Tokens.AuthenticatorIssuer = "Epitech Project";
-    
-})
-.AddEntityFrameworkStores<ApplicationDbContext>()
-.AddRoles<Role>()
-.AddDefaultTokenProviders()
-.AddApiEndpoints();
-
-services.AddAuthentication(options => 
-    {
-        options.DefaultAuthenticateScheme = IdentityConstants.BearerScheme;
-        options.DefaultChallengeScheme = IdentityConstants.BearerScheme;
-    })
-    .AddJwtBearer(options =>
-    {
-        options.TokenValidationParameters = new TokenValidationParameters
-        {
-            ValidateIssuerSigningKey = true,
-            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(authConfiguration.SigninKey!)),
-            ValidateIssuer = false,
-            ValidateAudience = false,
-            ValidateLifetime = true,
-            ClockSkew = TimeSpan.Zero
-        };
-    })
-    .AddGoogle(options =>
-    {
-        options.ClientId = authConfiguration.GoogleClientId;
-        options.ClientSecret = authConfiguration.GoogleClientSecret;
-
-    })
-    .AddFacebook(options =>
-    {
-        options.ClientId = authConfiguration.FacebookAppId;
-        options.ClientSecret = authConfiguration.FacebookAppSecret;
-    });
-
+services.AddSwagger("Auth Server");
+services.AddIdentity();
+services.AddAuth(authConfiguration);
 services.AddAntiforgery(options => 
 {
     options.HeaderName = "X-XSRF-TOKEN";

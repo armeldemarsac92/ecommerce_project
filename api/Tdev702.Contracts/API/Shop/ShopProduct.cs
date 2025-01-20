@@ -2,7 +2,7 @@ using System.Text.Json.Serialization;
 
 namespace Tdev702.Contracts.API.Shop;
 
-public class Product
+public class ShopProduct
 {
     [JsonPropertyName("id")]
     public required long Id { get; init; }

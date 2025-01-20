@@ -5,9 +5,9 @@ namespace Tdev702.Api.Services;
 
 public class TestProductService : IProductsService
 {
-    public async Task<Product> GetByIdAsync(long id, CancellationToken cancellationToken = default)
+    public async Task<ShopProduct> GetByIdAsync(long id, CancellationToken cancellationToken = default)
     {
-        return new Product()
+        return new ShopProduct()
         {
             Id = 1,
             Title = "Test Product",
@@ -18,11 +18,11 @@ public class TestProductService : IProductsService
         };
     }
 
-    public async Task<List<Product>> GetAllAsync(CancellationToken cancellationToken = default)
+    public async Task<List<ShopProduct>> GetAllAsync(CancellationToken cancellationToken = default)
     {
-        return new List<Product>()
+        return new List<ShopProduct>()
         {
-            new Product()
+            new ShopProduct()
             {
                 Id = 1,
                 Title = "Test Product 2",
@@ -31,7 +31,7 @@ public class TestProductService : IProductsService
                 CreatedAt = DateTimeOffset.UtcNow,
                 UpdatedAt = DateTimeOffset.UtcNow
             },
-            new Product()
+            new ShopProduct()
             {
                 Id = 1,
                 Title = "Test Product",
@@ -40,7 +40,7 @@ public class TestProductService : IProductsService
                 CreatedAt = DateTimeOffset.UtcNow,
                 UpdatedAt = DateTimeOffset.UtcNow
             },
-            new Product()
+            new ShopProduct()
             {
                 Id = 1,
                 Title = "Test Product",
@@ -49,7 +49,7 @@ public class TestProductService : IProductsService
                 CreatedAt = DateTimeOffset.UtcNow,
                 UpdatedAt = DateTimeOffset.UtcNow
             },
-            new Product()
+            new ShopProduct()
             {
                 Id = 1,
                 Title = "Test Product",
@@ -61,9 +61,9 @@ public class TestProductService : IProductsService
         };
     }
 
-    public async Task<Product> CreateAsync(CreateProductRequest createProductRequest, CancellationToken cancellationToken = default)
+    public async Task<ShopProduct> CreateAsync(CreateProductRequest createProductRequest, CancellationToken cancellationToken = default)
     {
-        return new Product()
+        return new ShopProduct()
         {
             Id = 1,
             Title = "Created Product",
@@ -79,10 +79,10 @@ public class TestProductService : IProductsService
         throw new NotImplementedException();
     }
 
-    public async Task<Product> UpdateAsync(long id, UpdateProductRequest updateProductRequest,
+    public async Task<ShopProduct> UpdateAsync(long id, UpdateProductRequest updateProductRequest,
         CancellationToken cancellationToken = default)
     {
-        return new Product()
+        return new ShopProduct()
         {
             Id = 1,
             Title = "Updated Product",

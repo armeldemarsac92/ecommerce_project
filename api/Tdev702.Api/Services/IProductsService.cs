@@ -8,10 +8,10 @@ namespace Tdev702.Api.Services;
 
 public interface IProductsService
 {
-    public Task<Product> GetByIdAsync(long id, CancellationToken cancellationToken = default);
-    public Task<List<Product>> GetAllAsync(CancellationToken cancellationToken = default);
-    public Task<Product> CreateAsync(CreateProductRequest createProductRequest, CancellationToken cancellationToken = default);
-    public Task<Product> UpdateAsync(long id, UpdateProductRequest updateProductRequest, CancellationToken cancellationToken = default);
+    public Task<ShopProduct> GetByIdAsync(long id, CancellationToken cancellationToken = default);
+    public Task<List<ShopProduct>> GetAllAsync(CancellationToken cancellationToken = default);
+    public Task<ShopProduct> CreateAsync(CreateProductRequest createProductRequest, CancellationToken cancellationToken = default);
+    public Task<ShopProduct> UpdateAsync(long id, UpdateProductRequest updateProductRequest, CancellationToken cancellationToken = default);
     public Task DeleteAsync(long id ,CancellationToken cancellationToken = default);
 }
 
@@ -25,7 +25,7 @@ public class ProductsService : IProductsService
     }
 
 
-    public async Task<Product> GetByIdAsync(long id, CancellationToken cancellationToken = default)
+    public async Task<ShopProduct> GetByIdAsync(long id, CancellationToken cancellationToken = default)
     {
         var response = await _productRepository.GetByIdAsync(id, cancellationToken);
         if(response is null) throw new NotFoundException($"Product {id} not found");
@@ -33,19 +33,19 @@ public class ProductsService : IProductsService
         return response.MapToProduct();
     }
 
-    public async Task<List<Product>> GetAllAsync(CancellationToken cancellationToken = default)
+    public async Task<List<ShopProduct>> GetAllAsync(CancellationToken cancellationToken = default)
     {
         var response = await _productRepository.GetAllAsync(cancellationToken);
         return response.Any() ? response.MapToProducts() : throw new NotFoundException("No products found");
     }
 
-    public async Task<Product> CreateAsync(CreateProductRequest createProductRequest, CancellationToken cancellationToken = default)
+    public async Task<ShopProduct> CreateAsync(CreateProductRequest createProductRequest, CancellationToken cancellationToken = default)
     {
         var response = await _productRepository.CreateAsync(createProductRequest, cancellationToken);
         return response.MapToProduct();
     }
 
-    public async Task<Product> UpdateAsync(long Id, UpdateProductRequest updateProductRequest, CancellationToken cancellationToken = default)
+    public async Task<ShopProduct> UpdateAsync(long Id, UpdateProductRequest updateProductRequest, CancellationToken cancellationToken = default)
     {
         updateProductRequest.Id = Id;
         var affectedRows = await _productRepository.UpdateAsync(updateProductRequest, cancellationToken);

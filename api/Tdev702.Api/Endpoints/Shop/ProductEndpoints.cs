@@ -15,31 +15,31 @@ public static class ProductEndpoints
         app.MapGet(ShopRoutes.Products.GetAll, GetAllProducts)
             .WithTags(Tags)
             .WithDescription("Get all products")
-            .Produces<List<Product>>(200)
+            .Produces<List<ShopProduct>>(200)
             .Produces(404);
         
         app.MapGet(ShopRoutes.Products.GetById, GetProduct)
             .WithTags(Tags)
             .WithDescription("Get one product")
-            .Produces<Product>(200)
+            .Produces<ShopProduct>(200)
             .Produces(404);
         
         app.MapPost(ShopRoutes.Products.Create, CreateProduct)
             .WithTags(Tags)
             .WithDescription("Create one product")
-            .Produces<Product>(200)
+            .Produces<ShopProduct>(200)
             .Produces(404);
         
         app.MapPut(ShopRoutes.Products.Update, UpdateProduct)
             .WithTags(Tags)
             .WithDescription("Create one product")
-            .Produces<Product>(200)
+            .Produces<ShopProduct>(200)
             .Produces(404);
         
         app.MapDelete(ShopRoutes.Products.Delete, DeleteProduct)
             .WithTags(Tags)
             .WithDescription("Delete one product by Id")
-            .Produces<Product>(200)
+            .Produces<ShopProduct>(200)
             .Produces(404);
         
         return app;
