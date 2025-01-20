@@ -19,8 +19,8 @@ public static class BrandQueries
     public static string UpdateBrand = @"
     UPDATE shop.brands
     SET 
-    title = @Title,
-    description = @Description
+        title = COALESCE(@Title, title),
+        description = COALESCE(@Description, description)
     WHERE id = @BrandId;";
 
     public static string DeleteBrand = @"

@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using Tdev702.Auth.Routes;
 using Tdev702.AWS.SDK.SES;
 using Tdev702.Contracts.Auth;
+using Tdev702.Contracts.Auth.Request;
 using Tdev702.Contracts.Database;
 using Tdev702.Contracts.Exceptions;
 

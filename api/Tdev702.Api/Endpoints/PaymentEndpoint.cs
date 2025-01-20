@@ -1,11 +1,10 @@
 using Microsoft.AspNetCore.Identity;
 using Stripe;
 using Tdev702.Api.Routes;
+using Tdev702.Contracts.API.Request.Payment;
 using Tdev702.Contracts.Database;
 using Tdev702.Contracts.Exceptions;
 using Tdev702.Contracts.Mapping;
-using Tdev702.Contracts.Request.Shop.Payment;
-using Tdev702.Contracts.Response.Shop;
 using Tdev702.Stripe.SDK.Services;
 
 namespace Tdev702.Api.Endpoints;

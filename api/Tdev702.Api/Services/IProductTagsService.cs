@@ -1,7 +1,7 @@
+using Tdev702.Contracts.API.Request.ProductTag;
+using Tdev702.Contracts.API.Response;
 using Tdev702.Contracts.Exceptions;
 using Tdev702.Contracts.Mapping;
-using Tdev702.Contracts.Request.Shop.ProductTag;
-using Tdev702.Contracts.Response.Shop;
 using Tdev702.Repository.Repository;
 
 namespace Tdev702.Api.Services;

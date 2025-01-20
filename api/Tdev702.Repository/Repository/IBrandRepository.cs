@@ -1,15 +1,17 @@
-using Tdev702.Contracts.Request.Shop.Brand;
+using Tdev702.Contracts.API.Request.Brand;
 using Tdev702.Contracts.SQL;
+using Tdev702.Contracts.SQL.Request.Brand;
+using Tdev702.Contracts.SQL.Response;
 using Tdev702.Repository.SQL;
 
 namespace Tdev702.Repository.Brands;
 
 public interface IBrandRepository
 {
-    public Task<BrandResponse?> GetByIdAsync(long id, CancellationToken cancellationToken = default);
-    public Task<List<BrandResponse>> GetAllAsync(CancellationToken cancellationToken = default);
-    public Task<BrandResponse> CreateAsync(CreateBrandRequest createBrandRequest, CancellationToken cancellationToken = default);
-    public Task<int> UpdateAsync(UpdateBrandRequest updateBrandRequest, CancellationToken cancellationToken = default);
+    public Task<BrandSQLResponse?> GetByIdAsync(long id, CancellationToken cancellationToken = default);
+    public Task<List<BrandSQLResponse>> GetAllAsync(CancellationToken cancellationToken = default);
+    public Task<BrandSQLResponse> CreateAsync(CreateBrandSQLRequest createBrandRequest, CancellationToken cancellationToken = default);
+    public Task<int> UpdateAsync(UpdateBrandSQLRequest updateBrandRequest, CancellationToken cancellationToken = default);
     public Task DeleteAsync(long id, CancellationToken cancellationToken = default);
 }
 
@@ -22,23 +24,23 @@ public class BrandRepository : IBrandRepository
         _dbCommand = dbCommand;
     }
 
-    public async Task<BrandResponse?> GetByIdAsync(long id, CancellationToken cancellationToken = default)
+    public async Task<BrandSQLResponse?> GetByIdAsync(long id, CancellationToken cancellationToken = default)
     {
-        return await _dbCommand.QueryFirstOrDefaultAsync<BrandResponse>(BrandQueries.GetBrandById, new { BrandId = id }, cancellationToken);
+        return await _dbCommand.QueryFirstOrDefaultAsync<BrandSQLResponse>(BrandQueries.GetBrandById, new { BrandId = id }, cancellationToken);
     }
 
-    public async Task<List<BrandResponse>> GetAllAsync(CancellationToken cancellationToken = default)
+    public async Task<List<BrandSQLResponse>> GetAllAsync(CancellationToken cancellationToken = default)
     {
-        var response = await _dbCommand.QueryAsync<BrandResponse>(BrandQueries.GetAllBrands, cancellationToken);
-        return response.Any() ? response.ToList() : new List<BrandResponse>();
+        var response = await _dbCommand.QueryAsync<BrandSQLResponse>(BrandQueries.GetAllBrands, cancellationToken);
+        return response.Any() ? response.ToList() : new List<BrandSQLResponse>();
     }
 
-    public async Task<BrandResponse> CreateAsync(CreateBrandRequest createBrandRequest, CancellationToken cancellationToken = default)
+    public async Task<BrandSQLResponse> CreateAsync(CreateBrandSQLRequest createBrandRequest, CancellationToken cancellationToken = default)
     {
-        return await _dbCommand.QuerySingleAsync<BrandResponse>(BrandQueries.CreateBrand, createBrandRequest, cancellationToken);
+        return await _dbCommand.QuerySingleAsync<BrandSQLResponse>(BrandQueries.CreateBrand, createBrandRequest, cancellationToken);
     }
 
-    public async Task<int> UpdateAsync(UpdateBrandRequest updateBrandRequest, CancellationToken cancellationToken = default)
+    public async Task<int> UpdateAsync(UpdateBrandSQLRequest updateBrandRequest, CancellationToken cancellationToken = default)
     { 
         return await _dbCommand.ExecuteAsync(BrandQueries.UpdateBrand, updateBrandRequest, cancellationToken);
     }
