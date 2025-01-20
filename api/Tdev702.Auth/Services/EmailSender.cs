@@ -1,8 +1,8 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.Extensions.Options;
-using Tdev702.Auth.Database;
 using Tdev702.AWS.SDK.SES;
+using Tdev702.Contracts.Database;
 
 namespace Tdev702.Auth.Services;
 

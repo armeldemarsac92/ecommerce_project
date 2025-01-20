@@ -1,17 +1,17 @@
-using Tdev702.Contracts.API.Shop;
 using Tdev702.Contracts.Exceptions;
-using Tdev702.Contracts.SQL.Mapping;
-using Tdev702.Contracts.SQL.Request.Shop.Product;
+using Tdev702.Contracts.Mapping;
+using Tdev702.Contracts.Request.Shop.Product;
+using Tdev702.Contracts.Response.Shop;
 using Tdev702.Repository.Repository;
 
 namespace Tdev702.Api.Services;
 
 public interface IProductsService
 {
-    public Task<ShopProduct> GetByIdAsync(long id, CancellationToken cancellationToken = default);
-    public Task<List<ShopProduct>> GetAllAsync(CancellationToken cancellationToken = default);
-    public Task<ShopProduct> CreateAsync(CreateProductRequest createProductRequest, CancellationToken cancellationToken = default);
-    public Task<ShopProduct> UpdateAsync(long id, UpdateProductRequest updateProductRequest, CancellationToken cancellationToken = default);
+    public Task<ShopProductResponse> GetByIdAsync(long id, CancellationToken cancellationToken = default);
+    public Task<List<ShopProductResponse>> GetAllAsync(CancellationToken cancellationToken = default);
+    public Task<ShopProductResponse> CreateAsync(CreateProductRequest createProductRequest, CancellationToken cancellationToken = default);
+    public Task<ShopProductResponse> UpdateAsync(long id, UpdateProductRequest updateProductRequest, CancellationToken cancellationToken = default);
     public Task DeleteAsync(long id ,CancellationToken cancellationToken = default);
 }
 
@@ -25,7 +25,7 @@ public class ProductsService : IProductsService
     }
 
 
-    public async Task<ShopProduct> GetByIdAsync(long id, CancellationToken cancellationToken = default)
+    public async Task<ShopProductResponse> GetByIdAsync(long id, CancellationToken cancellationToken = default)
     {
         var response = await _productRepository.GetByIdAsync(id, cancellationToken);
         if(response is null) throw new NotFoundException($"Product {id} not found");
@@ -33,19 +33,19 @@ public class ProductsService : IProductsService
         return response.MapToProduct();
     }
 
-    public async Task<List<ShopProduct>> GetAllAsync(CancellationToken cancellationToken = default)
+    public async Task<List<ShopProductResponse>> GetAllAsync(CancellationToken cancellationToken = default)
     {
         var response = await _productRepository.GetAllAsync(cancellationToken);
         return response.Any() ? response.MapToProducts() : throw new NotFoundException("No products found");
     }
 
-    public async Task<ShopProduct> CreateAsync(CreateProductRequest createProductRequest, CancellationToken cancellationToken = default)
+    public async Task<ShopProductResponse> CreateAsync(CreateProductRequest createProductRequest, CancellationToken cancellationToken = default)
     {
         var response = await _productRepository.CreateAsync(createProductRequest, cancellationToken);
         return response.MapToProduct();
     }
 
-    public async Task<ShopProduct> UpdateAsync(long Id, UpdateProductRequest updateProductRequest, CancellationToken cancellationToken = default)
+    public async Task<ShopProductResponse> UpdateAsync(long Id, UpdateProductRequest updateProductRequest, CancellationToken cancellationToken = default)
     {
         updateProductRequest.Id = Id;
         var affectedRows = await _productRepository.UpdateAsync(updateProductRequest, cancellationToken);

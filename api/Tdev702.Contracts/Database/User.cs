@@ -1,8 +1,8 @@
 using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Identity;
-using Tdev702.Auth.Models;
+using Tdev702.Contracts.Auth;
 
-namespace Tdev702.Auth.Database;
+namespace Tdev702.Contracts.Database;
 
 public class User : IdentityUser
 {

@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Identity;
-using Tdev702.Auth.Database;
 using Tdev702.Auth.Services;
+using Tdev702.Contracts.Database;
 
 namespace Tdev702.Auth.Extensions;
 

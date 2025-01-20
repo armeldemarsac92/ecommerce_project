@@ -1,6 +1,6 @@
 using System.Net.Http.Headers;
 using Tdev702.Auth.Extensions;
-using Tdev702.Auth.Models;
+using Tdev702.Contracts.Auth;
 using Tdev702.Contracts.Config;
 
 namespace Tdev702.Auth.Services;

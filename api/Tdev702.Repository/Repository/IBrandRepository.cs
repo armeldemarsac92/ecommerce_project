@@ -1,5 +1,5 @@
-using Tdev702.Contracts.SQL.Request.Shop.Brand;
-using Tdev702.Contracts.SQL.Response.Shop;
+using Tdev702.Contracts.Request.Shop.Brand;
+using Tdev702.Contracts.SQL;
 using Tdev702.Repository.SQL;
 
 namespace Tdev702.Repository.Brands;

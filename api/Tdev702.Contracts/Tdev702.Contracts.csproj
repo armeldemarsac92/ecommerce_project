@@ -7,12 +7,6 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <Folder Include="API\Backoffice\" />
-      <Folder Include="SQL\Request\Backoffice\" />
-      <Folder Include="SQL\Response\Backoffice\" />
-    </ItemGroup>
-
-    <ItemGroup>
       <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="8.0.12" />
       <PackageReference Include="Microsoft.EntityFrameworkCore" Version="8.0.12" />
       <PackageReference Include="Microsoft.Extensions.Identity.Stores" Version="8.0.12" />

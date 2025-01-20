@@ -8,15 +8,14 @@ using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.Data;
 using Microsoft.AspNetCore.Identity.UI.Services;
-using Tdev702.Auth.Database;
-using Tdev702.Auth.Models;
 using Tdev702.Auth.Routes;
 using Tdev702.Auth.Services;
 using Tdev702.AWS.SDK.SES;
+using Tdev702.Contracts.Auth;
 using Tdev702.Contracts.Config;
+using Tdev702.Contracts.Database;
 using Tdev702.Contracts.Exceptions;
-using Tdev702.Contracts.SQL.Request.Auth;
-using CreateUserRequest = Tdev702.Contracts.SQL.Request.Auth.CreateUserRequest;
+using CreateUserRequest = Tdev702.Contracts.Request.Auth.CreateUserRequest;
 
 namespace Tdev702.Auth.Endpoints;
 

@@ -1,7 +1,7 @@
 using MassTransit;
 using Microsoft.AspNetCore.Identity;
 using Stripe;
-using Tdev702.Auth.Database;
+using Tdev702.Contracts.Database;
 using Tdev702.Stripe.SDK.Services;
 
 namespace Tdev702.Auth.Consumer;

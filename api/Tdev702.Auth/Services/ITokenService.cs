@@ -4,8 +4,8 @@ using System.Text;
 using Microsoft.AspNetCore.Authentication.BearerToken;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
-using Tdev702.Auth.Database;
 using Tdev702.Contracts.Config;
+using Tdev702.Contracts.Database;
 
 namespace Tdev702.Auth.Services;
 

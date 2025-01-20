@@ -1,7 +1,6 @@
 using MassTransit;
 using Microsoft.AspNetCore.Identity;
-using Tdev702.Auth.Database;
-using Tdev702.Auth.Models;
+using Tdev702.Contracts.Database;
 
 namespace Tdev702.Auth.Services;
 

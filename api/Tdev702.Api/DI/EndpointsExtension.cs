@@ -1,5 +1,5 @@
 using Stripe;
-using Tdev702.Api.Endpoints.Shop;
+using Tdev702.Api.Endpoints;
 using Tdev702.Api.Services;
 
 namespace Tdev702.Api.DI;

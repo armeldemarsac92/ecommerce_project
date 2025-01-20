@@ -1,5 +1,6 @@
 using Tdev702.Api.DI;
 using Tdev702.Api.Extensions;
+using Tdev702.Api.Middlewares.ExceptionHandlers;
 using Tdev702.AWS.SDK.SecretsManager;
 using Tdev702.Contracts.Config;
 using Tdev702.Repository.DI;
@@ -22,8 +23,25 @@ services.AddStripeServices(stripeConfiguration);
 services.AddApiServices(builder.Configuration); 
 services.AddAuth(authConfiguration);
 services.AddSecurityPolicies();
+services.AddCors(options =>
+{
+    options.AddPolicy("AllowAll", builder =>
+    {
+        builder.AllowAnyOrigin()
+            .AllowAnyMethod()
+            .AllowAnyHeader();
+    });
+});
+
 builder.Services.AddEndpointsApiExplorer();
 services.AddSwagger("API");
+
+services.AddProblemDetails();
+services.AddExceptionHandler<BadRequestExceptionHandler>();
+services.AddExceptionHandler<ConflictExceptionHandler>();
+services.AddExceptionHandler<NotFoundExceptionHandler>();
+services.AddExceptionHandler<DatabaseExceptionHandler>();
+services.AddExceptionHandler<GlobalExceptionHandler>();
 
 var app = builder.Build();
 
@@ -34,6 +52,7 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+app.UseCors("AllowAll");
 
 app.MapApiEndpoints();
 

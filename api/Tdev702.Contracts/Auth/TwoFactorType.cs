@@ -1,4 +1,4 @@
-namespace Tdev702.Auth.Models;
+namespace Tdev702.Contracts.Auth;
 
 public enum TwoFactorType
 {

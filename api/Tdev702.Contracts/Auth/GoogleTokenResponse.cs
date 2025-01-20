@@ -1,6 +1,6 @@
 using System.Text.Json.Serialization;
 
-namespace Tdev702.Auth.Models;
+namespace Tdev702.Contracts.Auth;
 
 public class GoogleTokenResponse
 {

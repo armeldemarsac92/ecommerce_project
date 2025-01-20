@@ -1,6 +1,5 @@
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
-using Tdev702.Auth.Database;
 
 namespace Tdev702.Contracts.Database;
 

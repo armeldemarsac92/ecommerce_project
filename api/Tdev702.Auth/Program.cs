@@ -5,7 +5,6 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
-using Tdev702.Auth.Database;
 using Tdev702.Auth.Extensions;
 using Tdev702.Auth.Middlewares.ExceptionHandlers;
 using Tdev702.Auth.Services;

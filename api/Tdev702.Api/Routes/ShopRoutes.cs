@@ -51,13 +51,16 @@ public static class ShopRoutes
     public static class Payments
     {
         public const string Create = $"{Base}/payments";
-        public const string Confirm = $"{Base}/payments/{{paymentIntentId}}/confirm";
-        public const string Get = $"{Base}/payments/{{paymentIntentId}}";
     }
 
     public static class PaymentMethods
     {
         public const string Get = $"{Base}/payment_methods/{{customerId}}";
         public const string Create = $"{Base}/payment_methods";
+    }
+
+    public static class Webhooks
+    {
+        public const string PaymentIntent = $"{Base}/webhooks/payment_intent";
     }
 }

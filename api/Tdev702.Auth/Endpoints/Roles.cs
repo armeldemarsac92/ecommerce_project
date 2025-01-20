@@ -2,8 +2,8 @@ using Microsoft.AspNetCore.Antiforgery;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Tdev702.Auth.Database;
 using Tdev702.Auth.Routes;
+using Tdev702.Contracts.Database;
 using Tdev702.Contracts.Exceptions;
 
 namespace Tdev702.Auth.Endpoints;
