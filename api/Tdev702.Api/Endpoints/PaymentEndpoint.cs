@@ -12,21 +12,6 @@ namespace Tdev702.Api.Endpoints;
 public static class PaymentEndpoint
 {
     private const string ContentType = "application/json";
-    private const string Tags = "Payments";
-
-    public static IEndpointRouteBuilder MapPaymentEndpoints(this IEndpointRouteBuilder app)
-    {
-        app.MapPost(ShopRoutes.Payments.Create, CreatePayment)
-            .WithTags(Tags)
-            .WithDescription("Create a new payment")
-            .Accepts<CreatePaymentRequest>(ContentType)
-            .Produces<PaymentIntent>(200)
-            .Produces(400);
-
-        app.MapGet(ShopRoutes.)
-        
-        return app;
-    }
 
     private static async Task<IResult> CreatePayment(
         HttpContext context,

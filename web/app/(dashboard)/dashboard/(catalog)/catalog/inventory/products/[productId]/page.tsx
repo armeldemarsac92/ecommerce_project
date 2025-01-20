@@ -3,75 +3,51 @@
 import { z } from "zod";
 import { motion } from "framer-motion";
 import AutoForm, { AutoFormSubmit } from "@/components/ui/auto-form";
-import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
-import { Card, CardContent } from "@/components/shadcn/card";
-import {
-    Carousel,
-    CarouselContent,
-    CarouselItem,
-    CarouselNext,
-    CarouselPrevious,
-} from "@/components/shadcn/carousel";
-import { Image } from "@nextui-org/react";
+import {Image, Spinner} from "@nextui-org/react";
 import * as React from "react";
-import {Product} from "@/types/Product";
+import Product from "@/types/product";
+import {getProduct} from "@/actions/products/products";
+import {useToast} from "@/hooks/use-toast";
 
-enum Category {
-    Drink = 'Drink',
-    Meat = 'Meat',
-    Vegetables = 'Vegetables',
-    Snacks = 'Snacks'
-}
-
-enum Brand {
-    CocaCola = "Coca cola",
-    Volvic = "Volvic",
-    Freedent = "Freedent",
-    Danone = "Danone",
-    Sigis = "Sigis"
-}
-
-export default function InventoryProductIdPage() {
-    const params = useParams();
+export default function InventoryProductIdPage({params}: {params: {productId: string}}) {
     const [isNewProduct, setIsNewProduct] = useState(false);
-    const [isHovered, setIsHovered] = React.useState(false);
-    const [isLoading, setLoading] = React.useState(true);
-    const [product, setProduct] = React.useState<Product>({
+    const [loading, isLoading] = useState(true);
+    const [product, setProduct] = useState<Product>({
         id: 0,
-        title: '',
+        title: "",
+        description: "",
         price: 0,
+        image: "",
+        category: 0,
+        brand: 0,
         stock: 0,
-        image: [],
-        description: '',
-        category: '',
-        brand: ''
     });
+    const { toast } = useToast()
+
+
+    const getData = async () => {
+        await getProduct(params.productId).then((response) => {
+            setProduct(response)
+        }).catch(() => {
+            toast({ variant: "destructive", title: "Error", description: "An error occurred"})
+        })
+    }
 
     useEffect(() => {
         if(params.productId === "new") {
             setIsNewProduct(true);
-            setLoading(false);
+            isLoading(false);
         } else {
-            setProduct({
-                id: 1,
-                title: 'Coca Cola',
-                price: 1.5,
-                stock: 10,
-                image: ['/images/coca-cola.jpg',
-                    '/images/fanta.jpeg',
-                    '/images/banana.jpeg',
-                ],
-                description: 'Coca-Cola, or Coke, is a carbonated soft drink manufactured by The Coca-Cola Company. Originally marketed as a temperance drink and intended as a patent medicine, it was invented in the late 19th century by John Stith Pemberton and was bought out by businessman Asa Griggs Candler, whose marketing tactics led Coca-Cola to its dominance of the world soft-drink market throughout the 20th century.',
-                category: 'Drink',
-                brand: 'Coca cola',
-            })
-            setLoading(false);
+            getData().then(() => {
+                    isLoading(false)
+                }
+            )
         }
     }, [params]);
 
     const formSchema = z.object({
-        image: z.string().default(product.image[0]),
+        image: z.string().default(product?.image),
         title: z
           .string({ required_error: 'Title is required' })
           .describe('Title')
@@ -90,20 +66,7 @@ export default function InventoryProductIdPage() {
             .min(0, { message: 'Price must be greater than 0'
         })
           .describe('Price')
-          .default(product.price)
-      ,
-        category_id: z.nativeEnum(Category, {
-            required_error: 'Category is required'
-        })
-          .describe('Category')
-          .default(product.category as Category)
-      ,
-        brand_id: z.nativeEnum(Brand, {
-            required_error: 'Brand is required'
-        })
-          .describe('Brand')
-          .default(product.brand as Brand)
-      ,
+          .default(product.price),
     });
 
     const onSubmit = (data: z.infer<typeof formSchema>) => {
@@ -116,44 +79,15 @@ export default function InventoryProductIdPage() {
 
     return (
         <div>
-            { !isLoading ? (
+            { !loading ? (
             <div className={`${isNewProduct ? "" : "grid m-5 grid-cols-1 lg:grid-cols-2"}`}>
             {!isNewProduct ? (
                 <div className="flex justify-center mb-6 lg:mb-0 items-center">
-                    <Carousel
-                        className="w-full max-w-xs relative"
-                        onMouseEnter={() => setIsHovered(true)}
-                        onMouseLeave={() => setIsHovered(false)}
-                    >
-                        <CarouselContent>
-                            {product.image.map((image, index) => (
-                                <CarouselItem key={index}>
-                                    <div className="p-1">
-                                        <Card>
-                                            {/* TODO when we set the loading state on catalog page set a spinner in the middle of the image */}
-                                            <CardContent className="flex aspect-square items-center justify-center p-6">
-                                                <Image
-                                                    src={image}
-                                                    fallbackSrc={'/images/product-placeholder.jpeg'}
-                                                    className="h-[400px] object-contain"
-                                                    alt={product.title}
-                                                    width="100%"
-                                                />
-                                            </CardContent>
-                                        </Card>
-                                    </div>
-                                </CarouselItem>
-                            ))}
-                        </CarouselContent>
-                        <div
-                            className={`absolute top-1/2 -translate-y-1/2 left-2 transition-opacity duration-300 ${isHovered ? 'opacity-100' : 'opacity-0'}`}>
-                            <CarouselPrevious/>
-                        </div>
-                        <div
-                            className={`absolute top-1/2 -translate-y-1/2 right-2 transition-opacity duration-300 ${isHovered ? 'opacity-100' : 'opacity-0'}`}>
-                            <CarouselNext/>
-                        </div>
-                    </Carousel>
+                    <Image
+                        width="100%"
+                        alt={product.title}
+                        src={product.image || '/images/product-placeholder.jpeg'}
+                    />
                 </div>
             ) : (
                 <></>
@@ -195,18 +129,6 @@ export default function InventoryProductIdPage() {
                                             type: 'number',
                                         }
                                     },
-                                    category_id: {
-                                        fieldType: 'select',
-                                        inputProps: {
-                                            placeholder: 'Select category',
-                                        }
-                                    },
-                                    brand_id: {
-                                        fieldType: 'select',
-                                        inputProps: {
-                                            placeholder: 'Select brand',
-                                        }
-                                    },
                                 }}
                             >
                                 <div className="flex justify-center">
@@ -219,7 +141,10 @@ export default function InventoryProductIdPage() {
                     </motion.div>
                 </div>
             </div>)
-            : (<></>)}
+            : (<div className="h-[30rem] w-full flex justify-center">
+                    <Spinner label="Loading..." color="success" labelColor="success" size="lg"/>
+                </div>
+               )}
         </div>
     );
 }

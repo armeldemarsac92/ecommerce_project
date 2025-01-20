@@ -2,61 +2,35 @@
 
 import {Card, CardBody, CardFooter, Image, Pagination} from "@nextui-org/react"
 import { Chip } from "@nextui-org/chip";
-import {useRouter} from "next/navigation";
 import {SearchBar} from "@/components/ui/search-bar";
-import React, {useEffect} from "react";
+import React, {useEffect, useState} from "react";
 import {Button} from "@/components/shadcn/button";
 import {ChevronLeft, ChevronRight} from "lucide-react";
 import {Spinner} from "@nextui-org/react";
 import {Link} from "@nextui-org/link";
+import {getProducts} from "@/actions/products/products";
+import {useToast} from "@/hooks/use-toast";
+import Product from "@/types/product";
 
 export default function ProductsPage() {
-    const [filterValue, setFilterValue] = React.useState("");
-    const [loading, isLoading] = React.useState(true);
-    const [page, setPage] = React.useState(1);
-    const [rowsPerPage] = React.useState(10);
-    const router = useRouter();
+    const [filterValue, setFilterValue] = useState("");
+    const [loading, isLoading] = useState(true);
+    const [page, setPage] = useState(1);
+    const [rowsPerPage] = useState(10);
+    const [products, setProducts] = useState<Product[]>([]);
+    const { toast } = useToast()
 
     useEffect(() => {
-        isLoading(false);
+        getProducts().then((response) => {
+            setProducts(response.data);
+            console.log(response);
+            isLoading(false);
+        }).catch(() => {
+            toast({ variant: "destructive", title: "Error", description: "An error occurred"})
+        })
+
+
     }, []);
-    const products = [
-    {
-        id: 1,
-        title: 'Coca Cola',
-        price: '1.50€',
-        stock: 10,
-        image: '/images/coca-cola.jpg'
-    },
-    {
-        id: 2,
-        title: 'Fanta',
-        price: '1.50€',
-        stock: 0,
-        image: '/images/fanta.jpeg'
-    },
-    {
-        id: 3,
-        title: 'Banana',
-        price: '1.50€',
-        stock: 1,
-        image: '/images/banana.jpeg'
-    },
-    {
-        id: 4,
-        title: 'Saucisson',
-        price: '1.50€',
-        stock: 0,
-        image: '/images/saucisson.jpeg'
-    },
-    {
-        id: 5,
-        title: 'Pain',
-        price: '200€',
-        stock: 10,
-        image: '/images/pain.jpeg'
-    }
-    ];
 
     const hasSearchFilter = Boolean(filterValue);
 
@@ -107,7 +81,7 @@ export default function ProductsPage() {
                   <SearchBar onClear={onClear} onValueChange={onSearchChange} value={filterValue}/>
               </div>
               {loading ? (
-                  <div className="h-[40rem] w-full flex justify-center">
+                  <div className="h-[30rem] w-full flex justify-center">
                     <Spinner label="Loading..." color="success" labelColor="success" size="lg" />
                   </div>
               ) : (
@@ -118,9 +92,6 @@ export default function ProductsPage() {
                               key={index}
                               as={Link}
                               href={`/dashboard/catalog/inventory/products/${product.id}`}
-                              onPress={() => {
-                                  // TODO handle loading state
-                              }}
                           >
                               <CardBody className="overflow-visible p-0">
                                   <Image
@@ -129,7 +100,7 @@ export default function ProductsPage() {
                                       width="100%"
                                       alt={product.title}
                                       className="h-[250px] object-contain"
-                                      src={product.image}
+                                      src={product.image || '/images/product-placeholder.jpeg'}
                                   />
                               </CardBody>
                               <CardFooter className="text-small justify-between">
@@ -143,7 +114,7 @@ export default function ProductsPage() {
                                   </Chip>
                               </CardFooter>
                               <p className="text-default-500 p-3">
-                                  {product.price}
+                                  {product.price}€
                               </p>
                           </Card>
                       ))}
