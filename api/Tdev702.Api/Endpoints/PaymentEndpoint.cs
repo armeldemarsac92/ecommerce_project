@@ -5,6 +5,7 @@ using Tdev702.Contracts.Database;
 using Tdev702.Contracts.Exceptions;
 using Tdev702.Contracts.Mapping;
 using Tdev702.Contracts.Request.Shop.Payment;
+using Tdev702.Contracts.Response.Shop;
 using Tdev702.Stripe.SDK.Services;
 
 namespace Tdev702.Api.Endpoints;
@@ -22,8 +23,6 @@ public static class PaymentEndpoint
             .Accepts<CreatePaymentRequest>(ContentType)
             .Produces<PaymentIntent>(200)
             .Produces(400);
-
-        app.MapGet(ShopRoutes.)
         
         return app;
     }

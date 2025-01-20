@@ -55,8 +55,9 @@ public static class ShopRoutes
 
     public static class PaymentMethods
     {
-        public const string Get = $"{Base}/payment_methods/{{customerId}}";
-        public const string Create = $"{Base}/payment_methods";
+        public const string Get = $"{Base}/payment_methods";
+        public const string Attach = $"{Base}/payment_methods/{{paymentMethodId}}/attach";
+        public const string Detach = $"{Base}/payment_methods/{{paymentMethodId}}/detach";
     }
 
     public static class Webhooks

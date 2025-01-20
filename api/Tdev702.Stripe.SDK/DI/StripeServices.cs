@@ -14,6 +14,7 @@ public static class StripeServices
         services.AddScoped<CustomerService>();
         services.AddScoped<SetupIntentService>();
         services.AddScoped<PaymentMethodService>();
+        services.AddScoped<CustomerPaymentMethodService>();
         services.AddScoped<PaymentIntentService>();
         
         //Configure Stripe.net library implementations
@@ -21,6 +22,7 @@ public static class StripeServices
         services.AddScoped<IStripeCustomerService, StripeCustomerService>();
         services.AddScoped<IStripeSetupIntentService, StripeSetupIntentService>();
         services.AddScoped<IStripePaymentMethodService, StripePaymentMethodService>();
+        services.AddScoped<IStripeCustomerPaymentMethodService, StripeCustomerPaymentMethodService>();
         services.AddScoped<IStripePaymentIntentService, StripePaymentIntentService>();
         
         return services;
