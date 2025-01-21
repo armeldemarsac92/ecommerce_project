@@ -9,7 +9,7 @@ namespace Tdev702.Api.Services;
 public interface IOrderService
 {
     Task<OrderResponse> GetByIdAsync(long orderId, CancellationToken cancellationToken = default);
-    Task<long> GetOrderIdByPaymentIntentIdAsync(string stripePaymentIntentId, CancellationToken cancellationToken = default);
+    Task<OrderResponse> GetOrderByPaymentIntentIdAsync(string stripePaymentIntentId, CancellationToken cancellationToken = default);
     
     Task<List<OrderResponse>> GetAllAsync(CancellationToken cancellationToken = default);
     
@@ -51,11 +51,16 @@ public class OrderService : IOrderService
         return mappedOrder; //to refactor, too much code duplication
     }
 
-    public async Task<long> GetOrderIdByPaymentIntentIdAsync(string stripePaymentIntentId, CancellationToken cancellationToken = default)
+    public async Task<OrderResponse> GetOrderByPaymentIntentIdAsync(string stripePaymentIntentId, CancellationToken cancellationToken = default)
     {
         var order = await _orderRepository.GetByPaymentIntentIdAsync(stripePaymentIntentId, cancellationToken);
         if(order is null) throw new NotFoundException($"Order with payment intent {stripePaymentIntentId} not found");
-        return order.Id;
+        var orderProducts = await _orderProductRepository.GetAllByOrderId(order.Id, cancellationToken);
+        var productIds = orderProducts.Select(op => op.ProductId).ToList();
+        var products = await _productRepository.GetByIdsAsync(productIds, cancellationToken);
+        var mappedOrderProducts = orderProducts.MapToOrderProducts(products);
+        var mappedOrder = order.MapToOrder(mappedOrderProducts);
+        return mappedOrder;
     }
 
     public async Task<List<OrderResponse>> GetAllAsync(CancellationToken cancellationToken = default)

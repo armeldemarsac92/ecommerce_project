@@ -39,30 +39,29 @@ public static class WebhookEndpoint
 
         if (stripeEvent.Data.Object is PaymentIntent paymentIntent)
         {
-            var orderId = await orderService.GetOrderIdByPaymentIntentIdAsync(paymentIntent.Id, cancellationToken);
+            var order = await orderService.GetOrderByPaymentIntentIdAsync(paymentIntent.Id, cancellationToken);
 
             switch (stripeEvent.Type)
             {
                 case("payment_intent.created"):
-                    await orderService.UpdateAsync(new UpdateOrderRequest { Id = orderId, PaymentStatus = "created" }, cancellationToken);
+                    await orderService.UpdateAsync(new UpdateOrderRequest { Id = order.Id, PaymentStatus = "created" }, cancellationToken);
                     break;
+                
                 case("payment_intent.succeeded"):
-                    await orderService.UpdateAsync(new UpdateOrderRequest { Id = orderId, PaymentStatus = "succeded" }, cancellationToken);
+                    await orderService.UpdateAsync(new UpdateOrderRequest { Id = order.Id, PaymentStatus = "succeded" }, cancellationToken);
                     break;
                 
                 case("payment_intent.processing"):
-                    await orderService.UpdateAsync(new UpdateOrderRequest { Id = orderId, PaymentStatus = "processing" }, cancellationToken);
+                    await orderService.UpdateAsync(new UpdateOrderRequest { Id = order.Id, PaymentStatus = "processing" }, cancellationToken);
                     break;
 
                 case("payment_intent.payment_failed"):
-                    await orderService.UpdateAsync(new UpdateOrderRequest { Id = orderId, PaymentStatus = "failed" }, cancellationToken);
+                    await orderService.UpdateAsync(new UpdateOrderRequest { Id = order.Id, PaymentStatus = "failed" }, cancellationToken);
                     break;
 
                 case("payment_intent.canceled"):
-                    await orderService.UpdateAsync(new UpdateOrderRequest { Id = orderId, PaymentStatus = "canceled" }, cancellationToken);
+                    await orderService.UpdateAsync(new UpdateOrderRequest { Id = order.Id, PaymentStatus = "canceled" }, cancellationToken);
                     break;
-
-                
             }
         }
 
