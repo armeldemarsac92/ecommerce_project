@@ -11,6 +11,7 @@ public static class EndpointExtensions
         app.MapBrandEndpoints();
         app.MapCategoryEndpoints();
         app.MapInvoiceEndpoints();
+        app.MapInventoryEndpoints();
         app.MapOrderEndpoints();
         app.MapPaymentEndpoints();
         app.MapPaymentMethodEndpoints();
@@ -24,6 +25,7 @@ public static class EndpointExtensions
         services.AddScoped<IProductsService, ProductsService>();
         services.AddScoped<IBrandsService, BrandsService>();
         services.AddScoped<ICategoriesService, CategoriesService>();
+        services.AddScoped<IInventoriesService, InventoriesService>();
         services.AddScoped<IOrderService, OrderService>();
         services.AddScoped<IUserService, UserService>();
         return services;

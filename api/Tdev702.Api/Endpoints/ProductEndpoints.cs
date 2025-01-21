@@ -20,25 +20,25 @@ public static class ProductEndpoints
         
         app.MapGet(ShopRoutes.Products.GetById, GetProduct)
             .WithTags(Tags)
-            .WithDescription("Get one product")
+            .WithDescription("Get a product")
             .Produces<ShopProductResponse>(200)
             .Produces(404);
         
         app.MapPost(ShopRoutes.Products.Create, CreateProduct)
             .WithTags(Tags)
-            .WithDescription("Create one product")
+            .WithDescription("Create a product")
             .Produces<ShopProductResponse>(200)
             .Produces(404);
         
         app.MapPut(ShopRoutes.Products.Update, UpdateProduct)
             .WithTags(Tags)
-            .WithDescription("Create one product")
+            .WithDescription("Update a product")
             .Produces<ShopProductResponse>(200)
             .Produces(404);
         
         app.MapDelete(ShopRoutes.Products.Delete, DeleteProduct)
             .WithTags(Tags)
-            .WithDescription("Delete one product by Id")
+            .WithDescription("Delete a product")
             .Produces<ShopProductResponse>(200)
             .Produces(404);
         
