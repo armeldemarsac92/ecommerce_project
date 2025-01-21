@@ -1,6 +1,5 @@
 using Tdev702.Contracts.API.Request.Inventory;
 using Tdev702.Contracts.SQL.Request.Inventory;
-using Tdev702.Contracts.SQL.Request.Shop.Inventory;
 using Tdev702.Contracts.SQL.Response;
 using Tdev702.Repository.SQL;
 

@@ -1,7 +1,6 @@
 using Tdev702.Api.Routes;
 using Tdev702.Api.Services;
 using Tdev702.Contracts.API.Request.Inventory;
-using Tdev702.Contracts.SQL.Request.Shop.Inventory;
 using Tdev702.Contracts.SQL.Response;
 
 namespace Tdev702.Api.Endpoints;
