@@ -4,26 +4,29 @@ public class ProductTagQueries
 {
     public static string GetProductTagById = @"
     SELECT *
-    FROM shop.product_tags
+    FROM shop.link_products_tags
     WHERE id = @ProductTagId;"; 
+    
+    public static string GetAllProductTagsByProductId = @"
+    SELECT *
+    FROM shop.link_products_tags
+    WHERE product_id = @ProductId;";
+    
+    public static string GetAllProductTagsByTagId = @"
+    SELECT *
+    FROM shop.link_products_tags
+    WHERE tag_id = @TagId;";
 
     public static string GetAllProductTags = @"
     SELECT *
-    FROM shop.product_tags;";
+    FROM shop.link_products_tags;";
 
     public static string CreateProductTag = @"
-    INSERT INTO shop.product_tags (title, description)
-    VALUES (@title, @description)
+    INSERT INTO shop.link_products_tags (product_id, tag_id)
+    VALUES (@ProductId, @TagId)
     RETURNING *;";
 
-    public static string UpdateProductTag = @"
-    UPDATE shop.product_tags
-    SET 
-    title = COALESCE(@Title, title),
-    description = COALESCE(@Description, description)
-    WHERE id = @ProductTagId;";
-
     public static string DeleteProductTag = @"
-    DELETE FROM shop.product_tags
-    WHERE id = @ProductTagId;";
+    DELETE FROM shop.link_products_tags
+    WHERE id = @TagId;";
 }

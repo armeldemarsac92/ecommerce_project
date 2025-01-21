@@ -3,7 +3,7 @@ using Tdev702.Contracts.API.Response;
 using Tdev702.Contracts.SQL.Request.Inventory;
 using Tdev702.Contracts.SQL.Response;
 
-namespace Tdev702.Contracts.SQL.Mapping;
+namespace Tdev702.Contracts.Mapping;
 
 public static class InventoryMapping
 {
@@ -25,15 +25,13 @@ public static class InventoryMapping
         return inventorySqlResponses.Select(MapToInventory).ToList();
     }
 
-    public static UpdateInventorySQLRequest MapToInventoryRequest(this UpdateInventoryRequest updateInventoryRequest)
+    public static UpdateInventorySQLRequest MapToInventoryRequest(this UpdateInventoryRequest updateInventoryRequest, long inventoryId)
     {
         return new UpdateInventorySQLRequest()
         {
-            Id = updateInventoryRequest.Id,
+            Id = inventoryId,
             Quantity = updateInventoryRequest.Quantity,
             Sku = updateInventoryRequest.Sku,
-            CreatedAt = updateInventoryRequest.CreatedAt,
-            UpdatedAt = updateInventoryRequest.UpdatedAt,
         };
     }
 }

@@ -24,7 +24,7 @@ public interface IOrderService
     Task UpdateOrderPaymentStatus(UpdateOrderSQLRequest updateOrderRequest,
         CancellationToken cancellationToken = default);
     
-    Task<OrderResponse> UpdateAsync(UpdateOrderRequest updateOrderRequest, CancellationToken cancellationToken = default);
+    Task<OrderResponse> UpdateAsync(long orderId, UpdateOrderRequest updateOrderRequest, CancellationToken cancellationToken = default);
 }
 public class OrderService : IOrderService
 {
@@ -120,12 +120,12 @@ public class OrderService : IOrderService
         await _orderRepository.UpdateAsync(updateOrderRequest, cancellationToken);
     }
 
-    public async Task<OrderResponse> UpdateAsync(UpdateOrderRequest updateOrderRequest,
+    public async Task<OrderResponse> UpdateAsync(long orderId, UpdateOrderRequest updateOrderRequest,
         CancellationToken cancellationToken = default)
     {
         //first we retrieve the order
-        var order = await _orderRepository.GetByIdAsync(updateOrderRequest.Id, cancellationToken);
-        if (order is null) throw new NotFoundException($"Order {updateOrderRequest.Id} not found");
+        var order = await _orderRepository.GetByIdAsync(orderId, cancellationToken);
+        if (order is null) throw new NotFoundException($"Order {orderId} not found");
         if (order.PaymentStatus is "succeeded") throw new BadRequestException("Cannot update an order with a succeeded payment status");
         
         //then we retrieve the products linked to the order request to ensure the prices are up to date
@@ -145,15 +145,15 @@ public class OrderService : IOrderService
 
         //we update the link between the order and the products with the new prices and quantities
         var updateOrderProductsSqlRequest =
-            updateOrderRequest.Products.MapToUpdateOrderProductRequests(newProducts, updateOrderRequest.Id);
+            updateOrderRequest.Products.MapToUpdateOrderProductRequests(newProducts, orderId);
         await _orderProductRepository.UpdateManyAsync(updateOrderProductsSqlRequest,
             cancellationToken);
         
         //then we update the order itself with the new total amount that we calculated earlier
-        var updateOrderSqlRequest = updateOrderRequest.MapToUpdateOrderRequest(updateOrderRequest.Id, totalAmount);
+        var updateOrderSqlRequest = updateOrderRequest.MapToUpdateOrderRequest(orderId, totalAmount);
         var affectedOrderRows = await _orderRepository.UpdateAsync(updateOrderSqlRequest, cancellationToken);
         if (affectedOrderRows == 0) throw new InvalidOperationException("Update failed");
-        return await GetByIdAsync(updateOrderRequest.Id, cancellationToken);
+        return await GetByIdAsync(orderId, cancellationToken);
     }
 
     private async Task RemoveDeatchedProducts(CancellationToken cancellationToken, OrderSQLResponse order, List<ProductSQLResponse> newProducts)

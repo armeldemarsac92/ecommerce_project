@@ -1,7 +1,7 @@
 using Tdev702.Contracts.API.Request.Inventory;
 using Tdev702.Contracts.API.Response;
 using Tdev702.Contracts.Exceptions;
-using Tdev702.Contracts.SQL.Mapping;
+using Tdev702.Contracts.Mapping;
 using Tdev702.Contracts.SQL.Request.Inventory;
 using Tdev702.Repository.Repository;
 
@@ -57,15 +57,14 @@ public class InventoriesService : IInventoriesService
         return response.MapToInventory();
     }
 
-    public async Task<InventoryResponse> UpdateAsync(long id, UpdateInventoryRequest updateInventoryRequest, CancellationToken cancellationToken = default)
+    public async Task<InventoryResponse> UpdateAsync(long inventoryId, UpdateInventoryRequest updateInventoryRequest, CancellationToken cancellationToken = default)
     {
-        updateInventoryRequest.Id = id;
-        var sqlRequest = updateInventoryRequest.MapToInventoryRequest();
+        var sqlRequest = updateInventoryRequest.MapToInventoryRequest(inventoryId);
         var affectedRows = await _inventoryRepository.UpdateAsync(sqlRequest, cancellationToken);
 
-        if (affectedRows == 0) throw new NotFoundException($"Inventory {id} not found");
+        if (affectedRows == 0) throw new NotFoundException($"Inventory {inventoryId} not found");
         
-        var updatedProduct = await _inventoryRepository.GetByIdAsync(id, cancellationToken);
+        var updatedProduct = await _inventoryRepository.GetByIdAsync(inventoryId, cancellationToken);
         return updatedProduct.MapToInventory();
     }
 

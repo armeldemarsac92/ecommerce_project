@@ -12,6 +12,11 @@ public class DapperMappingConfiguration
         SetupDapperMapping<ProductSQLResponse>();
         SetupDapperMapping<BrandSQLResponse>();
         SetupDapperMapping<CategorySQLResponse>();
+        SetupDapperMapping<InventorySQLResponse>();
+        SetupDapperMapping<TagSQLResponse>();
+        SetupDapperMapping<ProductTagSQLResponse>();
+        SetupDapperMapping<OrderSQLResponse>();
+        SetupDapperMapping<OrderProductSQLResponse>();
     }
 
     private static void SetupDapperMapping<TModel>()

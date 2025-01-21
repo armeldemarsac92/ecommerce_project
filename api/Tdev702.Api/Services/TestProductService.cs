@@ -79,7 +79,7 @@ public class TestProductService : IProductsService
         throw new NotImplementedException();
     }
 
-    public async Task<ShopProductResponse> UpdateAsync(long id, UpdateProductRequest updateProductRequest,
+    public async Task<ShopProductResponse> UpdateAsync(long productId, UpdateProductRequest updateProductRequest,
         CancellationToken cancellationToken = default)
     {
         return new ShopProductResponse()

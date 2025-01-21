@@ -24,10 +24,7 @@ public class CreateProductRequest
    
     [JsonPropertyName("open_food_fact_id")]
     public long? OpenFoodFactId { get; set; }
-   
-    [JsonPropertyName("updated_at")]
-    public DateTimeOffset? UpdatedAt { get; set; }
-   
-    [JsonPropertyName("created_at")]
-    public required DateTimeOffset? CreatedAt { get; set; }
+    
+    [JsonPropertyName("tag_ids")]
+    public List<long>? TagIds { get; set; }
 }

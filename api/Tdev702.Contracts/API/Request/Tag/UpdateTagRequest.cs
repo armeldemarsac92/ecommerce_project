@@ -1,12 +1,9 @@
 using System.Text.Json.Serialization;
 
-namespace Tdev702.Contracts.API.Request.ProductTag;
+namespace Tdev702.Contracts.API.Request.Tag;
 
-public class UpdateProductTagRequest
+public class UpdateTagRequest
 {
-    [JsonPropertyName("product_tag_id")]
-    public long ProductTagId { get; set; }
-
     [JsonPropertyName("title")]
     public string? Title { get; set; }
 

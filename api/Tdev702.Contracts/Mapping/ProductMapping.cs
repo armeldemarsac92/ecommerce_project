@@ -42,4 +42,19 @@ public static class ProductMapping
             OpenFoodFactId = createProductRequest.OpenFoodFactId
         };
     }
+
+    public static UpdateProductSQLRequest MapToUpdateProductRequest(this UpdateProductRequest updateProductRequest,
+        long productId)
+    {
+        return new UpdateProductSQLRequest
+        {
+            Id = productId,
+            Title = updateProductRequest.Title,
+            Description = updateProductRequest.Description,
+            Price = updateProductRequest.Price,
+            BrandId = updateProductRequest.BrandId,
+            CategoryId = updateProductRequest.CategoryId,
+            OpenFoodFactId = updateProductRequest.OpenFoodFactId
+        };
+    }
 }

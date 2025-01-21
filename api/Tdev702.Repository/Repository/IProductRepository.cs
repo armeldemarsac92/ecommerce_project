@@ -1,5 +1,6 @@
 using Tdev702.Contracts.API.Request.Product;
 using Tdev702.Contracts.SQL;
+using Tdev702.Contracts.SQL.Request.Product;
 using Tdev702.Contracts.SQL.Response;
 using Tdev702.Repository.SQL;
 
@@ -10,8 +11,8 @@ public interface IProductRepository
     public Task<ProductSQLResponse?> GetByIdAsync(long id, CancellationToken cancellationToken = default);
     public Task<List<ProductSQLResponse>> GetAllAsync(CancellationToken cancellationToken = default);
     public Task<List<ProductSQLResponse>> GetByIdsAsync(List<long> productIds, CancellationToken cancellationToken = default);
-    public Task<ProductSQLResponse> CreateAsync(CreateProductRequest request, CancellationToken cancellationToken = default);
-    public Task<int> UpdateAsync(UpdateProductRequest request, CancellationToken cancellationToken = default);
+    public Task<ProductSQLResponse> CreateAsync(CreateProductSQLRequest request, CancellationToken cancellationToken = default);
+    public Task<int> UpdateAsync(UpdateProductSQLRequest request, CancellationToken cancellationToken = default);
     public Task DeleteAsync(long id, CancellationToken cancellationToken = default);
 }
 
@@ -45,12 +46,12 @@ public class ProductRepository : IProductRepository
         return response.Any() ? response.ToList() : new List<ProductSQLResponse>();
     }
 
-    public async Task<ProductSQLResponse> CreateAsync(CreateProductRequest request, CancellationToken cancellationToken = default)
+    public async Task<ProductSQLResponse> CreateAsync(CreateProductSQLRequest request, CancellationToken cancellationToken = default)
     {
         return await _dbCommand.QuerySingleAsync<ProductSQLResponse>(ProductQueries.CreateProduct, request, cancellationToken);
     }
 
-    public async Task<int> UpdateAsync(UpdateProductRequest request, CancellationToken cancellationToken = default)
+    public async Task<int> UpdateAsync(UpdateProductSQLRequest request, CancellationToken cancellationToken = default)
     {
         return await _dbCommand.ExecuteAsync(ProductQueries.UpdateProduct, request, cancellationToken);
     }

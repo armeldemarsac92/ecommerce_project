@@ -1,11 +1,11 @@
 using System.Text.Json.Serialization;
 
-namespace Tdev702.Contracts.API.Request.Category;
+namespace Tdev702.Contracts.API.Request.Tag;
 
-public class UpdateCategoryRequest
+public class CreateTagRequest
 {
     [JsonPropertyName("title")]
-    public string? Title { get; set; }
+    public required string Title { get; set; }
 
     [JsonPropertyName("description")]
     public string? Description { get; set; }
