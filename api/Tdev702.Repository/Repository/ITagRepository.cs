@@ -9,6 +9,7 @@ namespace Tdev702.Repository.Repository;
 public interface ITagRepository
 {
     public Task<TagSQLResponse?> GetByIdAsync(long id, CancellationToken cancellationToken = default);
+    public Task<List<TagSQLResponse>> GetByIdsAsync(List<long> tagIds, CancellationToken cancellationToken = default);
     public Task<List<TagSQLResponse>> GetAllAsync(CancellationToken cancellationToken = default);
     public Task<TagSQLResponse> CreateAsync(CreateTagSQLRequest createTagRequest, CancellationToken cancellationToken = default);
     public Task<int> UpdateAsync(UpdateTagSQLRequest updateTagRequest, CancellationToken cancellationToken = default);
@@ -27,6 +28,12 @@ public class TagRepository : ITagRepository
     public async Task<TagSQLResponse?> GetByIdAsync(long id, CancellationToken cancellationToken = default)
     {
         return await _dbCommand.QueryFirstOrDefaultAsync<TagSQLResponse>(TagQueries.GetTagById, new { TagId = id }, cancellationToken);
+    }
+
+    public async Task<List<TagSQLResponse>> GetByIdsAsync(List<long> tagIds, CancellationToken cancellationToken = default)
+    {
+        var response = await _dbCommand.QueryAsync<TagSQLResponse>(TagQueries.GetByIds, new { TagIds = tagIds, cancellationToken});
+        return response.Any() ? response.ToList() : new List<TagSQLResponse>();
     }
 
     public async Task<List<TagSQLResponse>> GetAllAsync(CancellationToken cancellationToken = default)

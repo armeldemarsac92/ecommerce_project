@@ -30,6 +30,12 @@ public class ShopProductResponse
     
     [JsonPropertyName("open_food_fact_id")]
     public long? OpenFoodFactId { get; init; }
+        
+    [JsonPropertyName("image_url")]
+    public string? ImageUrl { get; set; }
+    
+    [JsonPropertyName("tags")]
+    public List<TagResponse>? Tags { get; set; }
     
     [JsonPropertyName("updated_at")]
     public DateTimeOffset? UpdatedAt { get; init; }

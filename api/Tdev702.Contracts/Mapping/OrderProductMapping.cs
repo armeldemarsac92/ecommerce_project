@@ -9,13 +9,13 @@ namespace Tdev702.Contracts.Mapping;
 public static class OrderProductMapping
 {
     public static OrderProductResponse MapToOrderProduct(this OrderProductSQLResponse orderProductSqlResponse,
-        ProductSQLResponse productSqlResponse)
+        ProductSQLResponse productSqlResponse, List<TagSQLResponse>? tagSqlResponse)
     {
         return new OrderProductResponse
         {
             Id = orderProductSqlResponse.Id,
             OrderId = orderProductSqlResponse.OrderId,
-            Product = productSqlResponse.MapToProduct(),
+            Product = productSqlResponse.MapToProduct(tagSqlResponse?.MapToTags()),
             Quantity = orderProductSqlResponse.Quantity,
             UnitPrice = orderProductSqlResponse.UnitPrice,
             Subtotal = orderProductSqlResponse.Subtotal

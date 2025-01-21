@@ -10,6 +10,11 @@ public class TagQueries
     public static string GetAllTags = @"
     SELECT *
     FROM shop.tags;";
+    
+    public static string GetByIds = @"
+    SELECT *
+    FROM shop.tags
+    WHERE id = ANY(@TagIds);";
 
     public static string CreateTag = @"
     INSERT INTO shop.tags (title, description)

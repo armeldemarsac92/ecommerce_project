@@ -7,7 +7,7 @@ namespace Tdev702.Contracts.Mapping;
 
 public static class ProductMapping
 {
-    public static ShopProductResponse MapToProduct(this ProductSQLResponse productSqlResponse)
+    public static ShopProductResponse MapToProduct(this ProductSQLResponse productSqlResponse, List<TagResponse>? tags)
     {
         return new ShopProductResponse
         {
@@ -20,6 +20,8 @@ public static class ProductMapping
             BrandId = productSqlResponse.BrandId,
             CategoryId = productSqlResponse.CategoryId,
             OpenFoodFactId = productSqlResponse.OpenFoodFactId,
+            ImageUrl = productSqlResponse.ImageUrl,
+            Tags = tags,
             UpdatedAt = productSqlResponse.UpdatedAt,
             CreatedAt = productSqlResponse.CreatedAt
         };
@@ -39,7 +41,8 @@ public static class ProductMapping
             Price = createProductRequest.Price,
             BrandId = createProductRequest.BrandId,
             CategoryId = createProductRequest.CategoryId,
-            OpenFoodFactId = createProductRequest.OpenFoodFactId
+            OpenFoodFactId = createProductRequest.OpenFoodFactId,
+            ImageUrl = createProductRequest.ImageUrl
         };
     }
 
@@ -54,7 +57,8 @@ public static class ProductMapping
             Price = updateProductRequest.Price,
             BrandId = updateProductRequest.BrandId,
             CategoryId = updateProductRequest.CategoryId,
-            OpenFoodFactId = updateProductRequest.OpenFoodFactId
+            OpenFoodFactId = updateProductRequest.OpenFoodFactId,
+            ImageUrl = updateProductRequest.ImageUrl
         };
     }
 }

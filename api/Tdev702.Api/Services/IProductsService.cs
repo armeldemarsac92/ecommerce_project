@@ -4,6 +4,7 @@ using Tdev702.Contracts.API.Response;
 using Tdev702.Contracts.Exceptions;
 using Tdev702.Contracts.Mapping;
 using Tdev702.Contracts.SQL.Request.ProductTag;
+using Tdev702.Contracts.SQL.Response;
 using Tdev702.Repository.Repository;
 
 namespace Tdev702.Api.Services;
@@ -21,13 +22,15 @@ public class ProductsService : IProductsService
 {
     private readonly IProductRepository _productRepository;
     private readonly IProductTagRepository _productTagRepository;
+    private readonly ITagRepository _tagRepository;
     private readonly ILogger<ProductsService> _logger;
 
-    public ProductsService(IProductRepository productRepository, IProductTagRepository productTagRepository, ILogger<ProductsService> logger)
+    public ProductsService(IProductRepository productRepository, IProductTagRepository productTagRepository, ILogger<ProductsService> logger, ITagRepository tagRepository)
     {
         _productRepository = productRepository;
         _productTagRepository = productTagRepository;
         _logger = logger;
+        _tagRepository = tagRepository;
     }
 
 
@@ -37,7 +40,8 @@ public class ProductsService : IProductsService
         var response = await _productRepository.GetByIdAsync(id, cancellationToken);
         if(response is null) throw new NotFoundException($"Product {id} not found");
         
-        return response.MapToProduct();
+        return await MapToProductResponse(response, cancellationToken);
+
     }
 
     public async Task<List<ShopProductResponse>> GetAllAsync(CancellationToken cancellationToken = default)
@@ -63,7 +67,7 @@ public class ProductsService : IProductsService
             }
             _logger.LogInformation("Product tags created successfully for product {productId}", productResponse.Id);
         }
-        return productResponse.MapToProduct();
+        return await MapToProductResponse(productResponse, cancellationToken);
     }
 
     public async Task<ShopProductResponse> UpdateAsync(long productId, UpdateProductRequest updateProductRequest, CancellationToken cancellationToken = default)
@@ -76,7 +80,8 @@ public class ProductsService : IProductsService
         
         var updatedProduct = await _productRepository.GetByIdAsync(productId, cancellationToken);
         _logger.LogInformation("Product {productId} updated successfully.", productId);
-        return updatedProduct.MapToProduct();
+        
+        return await MapToProductResponse(updatedProduct, cancellationToken);
     }
 
     public async Task DeleteAsync(long id, CancellationToken cancellationToken = default)
@@ -84,5 +89,14 @@ public class ProductsService : IProductsService
         _logger.LogInformation("Deleting product {productId}", id);
         await _productRepository.DeleteAsync(id, cancellationToken);
         _logger.LogInformation("Product {productId} deleted successfully.", id);
+    }
+    
+    private async Task<ShopProductResponse> MapToProductResponse(
+        ProductSQLResponse updatedProduct, CancellationToken cancellationToken)
+    {
+        var productTags = await _productTagRepository.GetAllByProductIdAsync(updatedProduct.Id, cancellationToken);
+        var tags = await _tagRepository.GetByIdsAsync(productTags.Select(pt => pt.TagId).ToList(), cancellationToken);
+        var mappedTags = tags.MapToTags();
+        return updatedProduct.MapToProduct(mappedTags);
     }
 }

@@ -28,6 +28,9 @@ public class ProductSQLResponse
     [Column("open_food_fact_id")]
     public long? OpenFoodFactId { get; init; }
     
+    [Column("image_url")]
+    public string? ImageUrl { get; set; }
+    
     [Column("updated_at")]
     public DateTimeOffset? UpdatedAt { get; init; }
     

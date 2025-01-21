@@ -30,4 +30,7 @@ public class UpdateProductRequest
     
     [JsonPropertyName("tag_ids")]
     public List<long>? TagIds { get; set; }
+        
+    [JsonPropertyName("image_url")]
+    public string? ImageUrl { get; set; }
 }
