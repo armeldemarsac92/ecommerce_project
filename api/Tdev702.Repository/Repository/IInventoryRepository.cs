@@ -6,13 +6,13 @@ namespace Tdev702.Repository.Repository;
 
 public interface IInventoryRepository
 {
-    public Task<InventoryResponse?> GetByIdAsync(long id, CancellationToken cancellationToken = default);
-    public Task<List<InventoryResponse>> GetAllAsync(CancellationToken cancellationToken = default);
+    public Task<InventorySQLResponse?> GetByIdAsync(long id, CancellationToken cancellationToken = default);
+    public Task<List<InventorySQLResponse>> GetAllAsync(CancellationToken cancellationToken = default);
 
-    public Task<InventoryResponse> GetInventoryByProductIdAsync(long productId,
+    public Task<InventorySQLResponse> GetInventoryByProductIdAsync(long productId,
         CancellationToken cancellationToken = default);
 
-    public Task<InventoryResponse> CreateAsync(CreateInventoryRequest createInventoryRequest,
+    public Task<InventorySQLResponse> CreateAsync(CreateInventoryRequest createInventoryRequest,
         CancellationToken cancellationToken = default);
 
     public Task<int> UpdateAsync(UpdateInventoryRequest updateInventoryRequest,
@@ -30,30 +30,30 @@ public class InventoryRepository : IInventoryRepository
         _dbCommand = dbCommand;
     }
 
-    public async Task<InventoryResponse?> GetByIdAsync(long id, CancellationToken cancellationToken = default)
+    public async Task<InventorySQLResponse?> GetByIdAsync(long id, CancellationToken cancellationToken = default)
     {
-        return await _dbCommand.QueryFirstOrDefaultAsync<InventoryResponse>(InventoryQuerries.GetInventoryById,
+        return await _dbCommand.QueryFirstOrDefaultAsync<InventorySQLResponse>(InventoryQuerries.GetInventoryById,
             new { Id = id }, cancellationToken);
     }
 
-    public async Task<List<InventoryResponse>> GetAllAsync(CancellationToken cancellationToken = default)
+    public async Task<List<InventorySQLResponse>> GetAllAsync(CancellationToken cancellationToken = default)
     {
         var response =
-            await _dbCommand.QueryAsync<InventoryResponse>(InventoryQuerries.GetAllInventory, cancellationToken);
-        return response.Any() ? response.ToList() : new List<InventoryResponse>();
+            await _dbCommand.QueryAsync<InventorySQLResponse>(InventoryQuerries.GetAllInventory, cancellationToken);
+        return response.Any() ? response.ToList() : new List<InventorySQLResponse>();
     }
 
-    public async Task<InventoryResponse> GetInventoryByProductIdAsync(long productId,
+    public async Task<InventorySQLResponse> GetInventoryByProductIdAsync(long productId,
         CancellationToken cancellationToken = default)
     {
-        return await _dbCommand.QueryFirstOrDefaultAsync<InventoryResponse>(InventoryQuerries.GetInventoryByProductId,
+        return await _dbCommand.QueryFirstOrDefaultAsync<InventorySQLResponse>(InventoryQuerries.GetInventoryByProductId,
             new { ProductId = productId }, cancellationToken);
     }
 
-    public async Task<InventoryResponse> CreateAsync(CreateInventoryRequest createInventoryRequest,
+    public async Task<InventorySQLResponse> CreateAsync(CreateInventoryRequest createInventoryRequest,
         CancellationToken cancellationToken = default)
     {
-        return await _dbCommand.QuerySingleAsync<InventoryResponse>(InventoryQuerries.CreateInventory,
+        return await _dbCommand.QuerySingleAsync<InventorySQLResponse>(InventoryQuerries.CreateInventory,
             createInventoryRequest, cancellationToken);
     }
 

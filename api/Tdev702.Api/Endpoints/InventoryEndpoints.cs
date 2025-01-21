@@ -8,44 +8,44 @@ namespace Tdev702.Api.Endpoints;
 public static class InventoryEndpoints
 {
     private const string ContentType = "application/json";
-    private const string Tags = "Invoices";
+    private const string Tags = "Inventories";
 
     public static IEndpointRouteBuilder MapInventoryEndpoints(this IEndpointRouteBuilder app)
     {
         app.MapGet(ShopRoutes.Inventories.GetById, GetInventory)
             .WithTags(Tags)
             .WithDescription("Get Inventory by id")
-            .Produces<List<InventoryResponse>>(200)
+            .Produces<InventorySQLResponse>(200)
             .Produces(404);
         
         app.MapGet(ShopRoutes.Inventories.GetInventoryByProductId, GetInventoryByProductId)
             .WithTags(Tags)
             .WithDescription("Get Inventory by product id")
-            .Produces<List<InventoryResponse>>(200)
+            .Produces<InventorySQLResponse>(200)
             .Produces(404);
         
         app.MapGet(ShopRoutes.Inventories.GetAll, GetAllInventory)
             .WithTags(Tags)
             .WithDescription("Get all inventories")
-            .Produces<List<InventoryResponse>>(200)
+            .Produces<List<InventorySQLResponse>>(200)
             .Produces(404);
         
-        app.MapGet(ShopRoutes.Inventories.Create, CreateInventory)
+        app.MapPost(ShopRoutes.Inventories.Create, CreateInventory)
             .WithTags(Tags)
             .WithDescription("Create new inventory")
-            .Produces<List<InventoryResponse>>(200)
+            .Produces<InventorySQLResponse>(200)
             .Produces(404);
         
-        app.MapGet(ShopRoutes.Inventories.Update, UpdateInventory)
+        app.MapPut(ShopRoutes.Inventories.Update, UpdateInventory)
             .WithTags(Tags)
             .WithDescription("Update new inventory")
-            .Produces<List<InventoryResponse>>(200)
+            .Produces<InventorySQLResponse>(200)
             .Produces(404);
         
-        app.MapGet(ShopRoutes.Inventories.Delete, DeleteInventory)
+        app.MapDelete(ShopRoutes.Inventories.Delete, DeleteInventory)
             .WithTags(Tags)
             .WithDescription("Update new inventory")
-            .Produces<List<InventoryResponse>>(200)
+            .Produces<InventorySQLResponse>(200)
             .Produces(404);
 
         return app;

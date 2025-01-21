@@ -2,7 +2,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Tdev702.Contracts.SQL.Response.Shop;
 
-public class InventoryResponse
+public class InventorySQLResponse
 {
     [Column("Id")]
     public required long Id { get; init; }

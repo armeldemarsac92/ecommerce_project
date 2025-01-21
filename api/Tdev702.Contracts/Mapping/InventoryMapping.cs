@@ -1,14 +1,13 @@
-using Tdev702.Contracts.API.Shop;
+using Tdev702.Contracts.API.Response;
 using Tdev702.Contracts.SQL.Response.Shop;
-using InventoryResponse = Tdev702.Contracts.API.Shop.InventoryResponse;
 
 namespace Tdev702.Contracts.SQL.Mapping;
 
 public static class InventoryMapping
 {
-    public static InventoryResponse MapToProductInventory(this Response.Shop.InventoryResponse inventoryResponse)
+    public static InventoryResponse MapToProductInventory(this InventorySQLResponse inventoryResponse)
     {
-        return new InventoryResponse
+        return new InventoryResponse()
         {
             Id = inventoryResponse.Id,
             Quantity = inventoryResponse.Quantity,
@@ -19,8 +18,8 @@ public static class InventoryMapping
         };
     }
     
-    public static List<InventoryResponse> MapToProductInventories(this List<Response.Shop.InventoryResponse> productResponses)
+    public static List<InventoryResponse> MapToProductInventories(this List<InventorySQLResponse> inventorySqlResponses)
     {
-        return productResponses.Select(MapToProductInventory).ToList();
+        return inventorySqlResponses.Select(MapToProductInventory).ToList();
     }
 }
