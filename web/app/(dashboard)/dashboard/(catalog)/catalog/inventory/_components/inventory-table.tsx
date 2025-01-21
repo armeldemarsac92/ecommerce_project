@@ -10,8 +10,8 @@ import {
     TableHeader,
     TableRow,
 } from "@nextui-org/react";
-import React from "react";
-import {columns, products} from "@/app/(dashboard)/dashboard/(catalog)/catalog/inventory/_data/data";
+import React, {useEffect, useMemo, useState, useCallback} from "react";
+import {columns} from "@/app/(dashboard)/dashboard/(catalog)/catalog/inventory/_data/data";
 import {SearchBar} from "@/components/ui/search-bar";
 import {AddButton} from "@/components/ui/add-button";
 import {Button} from "@/components/shadcn/button";
@@ -22,27 +22,40 @@ import {
     DropdownMenuItem, DropdownMenuSeparator,
     DropdownMenuTrigger
 } from "@/components/shadcn/dropdown-menu";
+import {useProducts} from "@/hooks/swr/products/use-products";
+import {useToast} from "@/hooks/use-toast";
 
-type Product = typeof products[0];
 
 export const InventoryTable = () => {
-    const [filterValue, setFilterValue] = React.useState("");
-    const [rowsPerPage] = React.useState(10);
-    const [sortDescriptor, setSortDescriptor] = React.useState<SortDescriptor>({
-        column: "name",
+    const [filterValue, setFilterValue] = useState("");
+    const [rowsPerPage] = useState(10);
+    const { toast } = useToast();
+    const [sortDescriptor, setSortDescriptor] = useState<SortDescriptor>({
+        column: "title",
         direction: "ascending",
     });
 
-    const [page, setPage] = React.useState(1);
+    const [page, setPage] = useState(1);
+
+    const { products, errorSWRProducts, loadingSWRProducts } = useProducts();
+
+    useEffect(() => {
+      if (errorSWRProducts) {
+          toast({ variant: "destructive", title: "Error", description: "An error occurred"})
+      }
+
+    }, []);
+
+    type Product = typeof products[0];
 
     const hasSearchFilter = Boolean(filterValue);
 
-    const filteredItems = React.useMemo(() => {
+    const filteredItems = useMemo(() => {
         let filteredUsers = [...products];
 
         if (hasSearchFilter) {
             filteredUsers = filteredUsers.filter((product) =>
-                product.name.toLowerCase().includes(filterValue.toLowerCase()),
+                product.title.toLowerCase().includes(filterValue.toLowerCase()),
             );
         }
 
@@ -51,14 +64,14 @@ export const InventoryTable = () => {
 
     const pages = Math.ceil(filteredItems.length / rowsPerPage);
 
-    const items = React.useMemo(() => {
+    const items = useMemo(() => {
         const start = (page - 1) * rowsPerPage;
         const end = start + rowsPerPage;
 
         return filteredItems.slice(start, end);
     }, [page, filteredItems, rowsPerPage]);
 
-    const sortedItems = React.useMemo(() => {
+    const sortedItems = useMemo(() => {
         return [...items].sort((a: Product, b: Product) => {
             const first = a[sortDescriptor.column as keyof Product] as number;
             const second = b[sortDescriptor.column as keyof Product] as number;
@@ -68,14 +81,10 @@ export const InventoryTable = () => {
         });
     }, [sortDescriptor, items]);
 
-    const renderCell = React.useCallback((product: Product, columnKey: React.Key) => {
+    const renderCell = useCallback((product: Product, columnKey: React.Key) => {
         const cellValue = product[columnKey as keyof Product];
 
         switch (columnKey) {
-            /*case "logo":
-                return (
-                    <Avatar/>
-                );*/
             case "stock":
                 return (
                     <Chip size="sm" className={"rounded-sm"} color={`${product.stock > 0 ? 'success' : 'danger'}`} variant="flat">
@@ -110,19 +119,19 @@ export const InventoryTable = () => {
         }
     }, []);
 
-    const onNextPage = React.useCallback(() => {
+    const onNextPage = useCallback(() => {
         if (page < pages) {
             setPage(page + 1);
         }
     }, [page, pages]);
 
-    const onPreviousPage = React.useCallback(() => {
+    const onPreviousPage = useCallback(() => {
         if (page > 1) {
             setPage(page - 1);
         }
     }, [page]);
 
-    const onSearchChange = React.useCallback((value?: string) => {
+    const onSearchChange = useCallback((value?: string) => {
         if (value) {
             setFilterValue(value);
             setPage(1);
@@ -131,12 +140,12 @@ export const InventoryTable = () => {
         }
     }, []);
 
-    const onClear = React.useCallback(()=>{
+    const onClear = useCallback(()=>{
         setFilterValue("")
         setPage(1)
     },[])
 
-    const topContent = React.useMemo(() => {
+    const topContent = useMemo(() => {
         return (
             <div className="flex flex-col gap-4">
                 <div className="flex justify-between gap-3 items-end">
@@ -192,40 +201,44 @@ export const InventoryTable = () => {
     }, [items.length, page, pages, hasSearchFilter]);
 
     return (
-        <Table
-            aria-label="Table of products"
-            isHeaderSticky
-            bottomContent={bottomContent}
-            bottomContentPlacement="outside"
-            classNames={{
-                thead: "[&>tr]:first:rounded-sm",
-                wrapper: "p-0 max-h-[600px]",
-            }}
-            sortDescriptor={sortDescriptor}
-            topContent={topContent}
-            topContentPlacement="outside"
-            onSortChange={setSortDescriptor}
-            radius={"sm"}
-            shadow={"none"}
-        >
-            <TableHeader columns={columns}>
-                {(column) => (
-                    <TableColumn
-                        key={column.uid}
-                        align={column.uid === "actions" ? "center" : "start"}
-                        allowsSorting={column.sortable}
-                    >
-                        {column.name}
-                    </TableColumn>
-                )}
-            </TableHeader>
-            <TableBody emptyContent={"No products found"} items={sortedItems}>
-                {(item) => (
-                    <TableRow key={item.id}>
-                        {(columnKey) => <TableCell>{renderCell(item, columnKey)}</TableCell>}
-                    </TableRow>
-                )}
-            </TableBody>
-        </Table>
+        <>
+            {!loadingSWRProducts ? (
+            <Table
+                aria-label="Table of products"
+                isHeaderSticky
+                bottomContent={bottomContent}
+                bottomContentPlacement="outside"
+                classNames={{
+                    thead: "[&>tr]:first:rounded-sm",
+                    wrapper: "p-0 max-h-[600px]",
+                }}
+                sortDescriptor={sortDescriptor}
+                topContent={topContent}
+                topContentPlacement="outside"
+                onSortChange={setSortDescriptor}
+                radius={"sm"}
+                shadow={"none"}
+            >
+                <TableHeader columns={columns}>
+                    {(column) => (
+                        <TableColumn
+                            key={column.uid}
+                            align={column.uid === "actions" ? "center" : "start"}
+                            allowsSorting={column.sortable}
+                        >
+                            {column.name}
+                        </TableColumn>
+                    )}
+                </TableHeader>
+                <TableBody emptyContent={"No products found"} items={sortedItems}>
+                    {(item) => (
+                        <TableRow key={item.id}>
+                            {(columnKey) => <TableCell>{renderCell(item, columnKey)}</TableCell>}
+                        </TableRow>
+                    )}
+                </TableBody>
+            </Table>
+            ) : (<></>)}
+        </>
     );
 }
