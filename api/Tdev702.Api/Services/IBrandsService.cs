@@ -1,7 +1,7 @@
+using Tdev702.Contracts.API.Request.Brand;
+using Tdev702.Contracts.API.Response;
 using Tdev702.Contracts.Exceptions;
 using Tdev702.Contracts.Mapping;
-using Tdev702.Contracts.Request.Shop.Brand;
-using Tdev702.Contracts.Response.Shop;
 using Tdev702.Repository.Brands;
 
 namespace Tdev702.Api.Services;
@@ -40,14 +40,15 @@ public class BrandsService : IBrandsService
 
     public async Task<BrandResponse> CreateAsync(CreateBrandRequest createBrandRequest, CancellationToken cancellationToken = default)
     {
-        var response = await _brandRepository.CreateAsync(createBrandRequest, cancellationToken);
+        var sqlRequest = createBrandRequest.MapToCreateBrandRequest();
+        var response = await _brandRepository.CreateAsync(sqlRequest, cancellationToken);
         return response.MapToBrand();
     }
 
     public async Task<BrandResponse> UpdateAsync(long brandId, UpdateBrandRequest updateBrandRequest, CancellationToken cancellationToken = default)
     {
-        updateBrandRequest.BrandId = brandId;
-        var affectedRows = await _brandRepository.UpdateAsync(updateBrandRequest, cancellationToken);
+        var sqlRequest = updateBrandRequest.MapToUpdateBrandRequest(brandId);
+        var affectedRows = await _brandRepository.UpdateAsync(sqlRequest, cancellationToken);
 
         if (affectedRows == 0) throw new NotFoundException($"Product {brandId} not found");
         

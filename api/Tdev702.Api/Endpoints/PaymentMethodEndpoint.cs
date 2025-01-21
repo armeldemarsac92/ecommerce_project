@@ -1,11 +1,11 @@
 using Microsoft.AspNetCore.Identity;
 using Stripe;
 using Tdev702.Api.Routes;
+using Tdev702.Api.Utils;
+using Tdev702.Contracts.API.Response;
 using Tdev702.Contracts.Database;
 using Tdev702.Contracts.Exceptions;
 using Tdev702.Contracts.Mapping;
-using Tdev702.Contracts.Request.Shop.Payment;
-using Tdev702.Contracts.Response.Shop;
 using Tdev702.Stripe.SDK.Services;
 
 namespace Tdev702.Api.Endpoints;
@@ -31,7 +31,7 @@ public static class PaymentMethodEndpoint
             .Produces(204)
             .Produces(400);
         
-        app.MapPost(ShopRoutes.PaymentMethods.Attach, DetachPaymentMethod)
+        app.MapPost(ShopRoutes.PaymentMethods.Detach, DetachPaymentMethod)
             .WithTags(Tags)
             .WithDescription("Detach a payment method from a customer")
             .RequireAuthorization("Authenticated")
@@ -44,7 +44,6 @@ public static class PaymentMethodEndpoint
     private static async Task<IResult> DetachPaymentMethod(
         HttpContext context,
         IStripePaymentMethodService stripePaymentMethodService,
-        UserManager<User> userManager,
         string paymentMethodId,
         CancellationToken cancellationToken)
     {
@@ -55,27 +54,21 @@ public static class PaymentMethodEndpoint
     private static async Task<IResult> AttachPaymentMethod(
         HttpContext context,
         IStripePaymentMethodService stripePaymentMethodService,
-        UserManager<User> userManager,
         string paymentMethodId,
         CancellationToken cancellationToken)
     {
-        var user = await userManager.GetUserAsync(context.User);
-        if (user == null) throw new BadRequestException("Unknown user");
-        if (user.StripeCustomerId == null) throw new BadRequestException("User does not have a Stripe customer ID");
-        await stripePaymentMethodService.AttachAsync(paymentMethodId, new PaymentMethodAttachOptions { Customer = user.StripeCustomerId }, null, cancellationToken);
+        var userId = context.GetUserStripeIdFromClaims();
+        await stripePaymentMethodService.AttachAsync(paymentMethodId, new PaymentMethodAttachOptions { Customer = userId }, null, cancellationToken);
         return Results.NoContent();
     }
 
     private static async Task<IResult> GetPaymentMethods(
         HttpContext context,
         IStripeCustomerPaymentMethodService stripePaymentMethodService,
-        UserManager<User> userManager,
         CancellationToken cancellationToken)
     {
-        var user = await userManager.GetUserAsync(context.User);
-        if (user == null) throw new BadRequestException("Unknown user");
-        if (user.StripeCustomerId == null) throw new BadRequestException("User does not have a Stripe customer ID");
-        var paymentMethods = await stripePaymentMethodService.ListAsync(user.StripeCustomerId, null, null, cancellationToken);
+        var userId = context.GetUserStripeIdFromClaims();
+        var paymentMethods = await stripePaymentMethodService.ListAsync(userId, null, null, cancellationToken);
         return Results.Ok(paymentMethods.MapToPaymentMethods());
     }
 }

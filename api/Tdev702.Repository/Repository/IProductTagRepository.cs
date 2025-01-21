@@ -1,14 +1,15 @@
-using Tdev702.Contracts.Request.Shop.ProductTag;
+using Tdev702.Contracts.API.Request.ProductTag;
 using Tdev702.Contracts.SQL;
+using Tdev702.Contracts.SQL.Response;
 using Tdev702.Repository.SQL;
 
 namespace Tdev702.Repository.Repository;
 
 public interface IProductTagRepository
 {
-    public Task<ProductTagResponse?> GetByIdAsync(long id, CancellationToken cancellationToken = default);
-    public Task<List<ProductTagResponse>> GetAllAsync(CancellationToken cancellationToken = default);
-    public Task<ProductTagResponse> CreateAsync(CreateProductTagRequest createProductTagRequest, CancellationToken cancellationToken = default);
+    public Task<ProductTagSQLResponse?> GetByIdAsync(long id, CancellationToken cancellationToken = default);
+    public Task<List<ProductTagSQLResponse>> GetAllAsync(CancellationToken cancellationToken = default);
+    public Task<ProductTagSQLResponse> CreateAsync(CreateProductTagRequest createProductTagRequest, CancellationToken cancellationToken = default);
     public Task<int> UpdateAsync(UpdateProductTagRequest updateProductTagRequest, CancellationToken cancellationToken = default);
     public Task<int> DeleteAsync(long id, CancellationToken cancellationToken = default);
 }
@@ -22,20 +23,20 @@ public class ProductTagRepository : IProductTagRepository
         _dbCommand = dbCommand;
     }
     
-    public async Task<ProductTagResponse?> GetByIdAsync(long id, CancellationToken cancellationToken = default)
+    public async Task<ProductTagSQLResponse?> GetByIdAsync(long id, CancellationToken cancellationToken = default)
     {
-        return await _dbCommand.QueryFirstOrDefaultAsync<ProductTagResponse>(ProductTagQueries.GetProductTagById, new { ProductTagId = id }, cancellationToken);
+        return await _dbCommand.QueryFirstOrDefaultAsync<ProductTagSQLResponse>(ProductTagQueries.GetProductTagById, new { ProductTagId = id }, cancellationToken);
     }
 
-    public async Task<List<ProductTagResponse>> GetAllAsync(CancellationToken cancellationToken = default)
+    public async Task<List<ProductTagSQLResponse>> GetAllAsync(CancellationToken cancellationToken = default)
     {
-        var response = await _dbCommand.QueryAsync<ProductTagResponse>(ProductTagQueries.GetAllProductTags, cancellationToken);
-        return response.Any() ? response.ToList() : new List<ProductTagResponse>();
+        var response = await _dbCommand.QueryAsync<ProductTagSQLResponse>(ProductTagQueries.GetAllProductTags, cancellationToken);
+        return response.Any() ? response.ToList() : new List<ProductTagSQLResponse>();
     }
 
-    public async Task<ProductTagResponse> CreateAsync(CreateProductTagRequest createProductTagRequest, CancellationToken cancellationToken = default)
+    public async Task<ProductTagSQLResponse> CreateAsync(CreateProductTagRequest createProductTagRequest, CancellationToken cancellationToken = default)
     {
-        return await _dbCommand.QuerySingleAsync<ProductTagResponse>(ProductTagQueries.CreateProductTag, createProductTagRequest, cancellationToken);
+        return await _dbCommand.QuerySingleAsync<ProductTagSQLResponse>(ProductTagQueries.CreateProductTag, createProductTagRequest, cancellationToken);
     }
 
     public async Task<int> UpdateAsync(UpdateProductTagRequest updateProductTagRequest, CancellationToken cancellationToken = default)

@@ -19,8 +19,8 @@ public class ProductTagQueries
     public static string UpdateProductTag = @"
     UPDATE shop.product_tags
     SET 
-    title = @Title,
-    description = @Description
+    title = COALESCE(@Title, title),
+    description = COALESCE(@Description, description)
     WHERE id = @ProductTagId;";
 
     public static string DeleteProductTag = @"

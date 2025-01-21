@@ -1,7 +1,7 @@
+using Tdev702.Contracts.API.Request.Category;
+using Tdev702.Contracts.API.Response;
 using Tdev702.Contracts.Exceptions;
 using Tdev702.Contracts.Mapping;
-using Tdev702.Contracts.Request.Shop.Category;
-using Tdev702.Contracts.Response.Shop;
 using Tdev702.Repository.Repository;
 
 namespace Tdev702.Api.Services;
@@ -40,14 +40,15 @@ public class CategoriesService : ICategoriesService
 
     public async Task<CategoryResponse> CreateAsync(CreateCategoryRequest createCategoryRequest, CancellationToken cancellationToken = default)
     {
-        var response = await _categoryRepository.CreateAsync(createCategoryRequest, cancellationToken);
+        var sqlRequest = createCategoryRequest.MapToCreateCategoryRequest();
+        var response = await _categoryRepository.CreateAsync(sqlRequest, cancellationToken);
         return response.MapToCategory();
     }
 
     public async Task<CategoryResponse> UpdateAsync(long id, UpdateCategoryRequest updateCategoryRequest, CancellationToken cancellationToken = default)
     {
-        updateCategoryRequest.Id = id;
-        var affectedRows = await _categoryRepository.UpdateAsync(updateCategoryRequest, cancellationToken);
+        var sqlRequest = updateCategoryRequest.MapToUpdateCategoryRequest(id);
+        var affectedRows = await _categoryRepository.UpdateAsync(sqlRequest, cancellationToken);
 
         if (affectedRows == 0) throw new NotFoundException($"Category {id} not found");
         

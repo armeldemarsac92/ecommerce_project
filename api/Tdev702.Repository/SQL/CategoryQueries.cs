@@ -18,8 +18,8 @@ public static class CategoryQueries
 
     public static string UpdateCategory = @"
     UPDATE shop.categories
-    SET title = @title,
-    description = @description
+    SET title = COALESCE(@title, title),
+    description = COALESCE(@description, description)
     WHERE id = @id;";
 
     public static string DeleteCategory = @"

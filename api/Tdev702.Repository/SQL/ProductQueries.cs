@@ -4,32 +4,19 @@ public static class ProductQueries
 {
     public static string GetProductById = @"
     SELECT 
-        id,
-        stripe_id,
-        title,
-        description,
-        price,
-        brand_id,
-        category_id,
-        open_food_fact_id,
-        updated_at,
-        created_at
+        *
     FROM shop.products
     WHERE id = @Id;";
     
     public static string GetAllProducts = @"
     SELECT 
-        id,
-        stripe_id,
-        title,
-        description,
-        price,
-        brand_id,
-        category_id,
-        open_food_fact_id,
-        updated_at,
-        created_at
+        *
     FROM shop.products;";
+    
+    public static string GetProductsByIds = @"
+    SELECT *
+    FROM shop.products
+    WHERE id = ANY(@ProductIds);";
 
     public static string CreateProduct = @"
     INSERT INTO shop.products (
@@ -48,9 +35,9 @@ public static class ProductQueries
         @Title,
         @Description,
         @Price,
-        NULLIF(@BrandId, 0),
-        NULLIF(@CategoryId, 0),
-        NULLIF(@OpenFoodFactId, 0),
+        @BrandId,
+        @CategoryId,
+        @OpenFoodFactId,
         CURRENT_TIMESTAMP,
         CURRENT_TIMESTAMP
     )
@@ -59,13 +46,13 @@ public static class ProductQueries
     public static string UpdateProduct = @"
     UPDATE shop.products
     SET 
-        stripe_id = @StripeId,
-        title = @Title,
-        description = @Description,
-        price = @Price,
-        brand_id = NULLIF(@BrandId, 0),
-        category_id = NULLIF(@CategoryId, 0),
-        open_food_fact_id = NULLIF(@OpenFoodFactId, 0),
+        stripe_id = COALESCE(@StripeId, stripe_id),
+        title = COALESCE(@Title, title),
+        description = COALESCE(@Description, description),
+        price = COALESCE(@Price, price),
+        brand_id = COALESCE(@BrandId, brand_id),
+        category_id = COALESCE(@CategoryId, category_id),
+        open_food_fact_id = COALESCE(@OpenFoodFactId, open_food_fact_id),
         updated_at = CURRENT_TIMESTAMP
     WHERE id = @Id;";
 

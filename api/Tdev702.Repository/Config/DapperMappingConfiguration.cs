@@ -1,7 +1,7 @@
 using System.ComponentModel.DataAnnotations.Schema;
 using Dapper;
 using Tdev702.Contracts.SQL;
-using Tdev702.Contracts.SQL.Response.Shop;
+using Tdev702.Contracts.SQL.Response;
 
 namespace Tdev702.Repository.Config;
 
@@ -9,10 +9,9 @@ public class DapperMappingConfiguration
 {
     public static void ConfigureMappings()
     {
-        SetupDapperMapping<ProductResponse>();
-        SetupDapperMapping<BrandResponse>();
-        SetupDapperMapping<CategoryResponse>();
-        SetupDapperMapping<InventoryResponse>();
+        SetupDapperMapping<ProductSQLResponse>();
+        SetupDapperMapping<BrandSQLResponse>();
+        SetupDapperMapping<CategorySQLResponse>();
     }
 
     private static void SetupDapperMapping<TModel>()

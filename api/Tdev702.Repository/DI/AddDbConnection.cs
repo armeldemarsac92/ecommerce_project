@@ -31,6 +31,9 @@ public static class DbExtensions
         services.AddScoped<IBrandRepository, BrandRepository>();
         services.AddScoped<IInventoryRepository, InventoryRepository>();
         services.AddScoped<IProductTagRepository, ProductTagRepository>();
+        services.AddScoped<IOrderRepository, OrderRepository>();
+        services.AddScoped<IOrderProductRepository, OrderProductRepository>();
+        services.AddScoped<IUserRepository, UserRepository>();
 
         return services;
     }
