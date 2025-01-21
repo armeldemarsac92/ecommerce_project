@@ -39,6 +39,16 @@ public static class ShopRoutes
         public const string Delete = $"{Base}/categories/{{id}}";
     }
     
+    public static class Inventories
+    {
+        public const string GetById = $"{Base}/inventories/{{id}}";
+        public const string GetAll = $"{Base}/inventories";
+        public const string GetInventoryByProductId = $"{Base}/inventories/{{productId}}";
+        public const string Create = $"{Base}/inventories";
+        public const string Update = $"{Base}/inventories/{{id}}";
+        public const string Delete = $"{Base}/inventories/{{id}}";
+    }
+    
     public static class Invoices
     {
         public const string GetById = $"{Base}/invoices/{{Id}}";
