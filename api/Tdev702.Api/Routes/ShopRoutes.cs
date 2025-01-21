@@ -74,6 +74,13 @@ public static class ShopRoutes
         public const string Create = $"{Base}/payments";
     }
 
+    public static class Users
+    {
+        public const string GetById = $"{Base}/users/{{userUsername}}";
+        public const string GetAll = $"{Base}/users";
+        public const string GetUserByEmail = $"{Base}/users/{{userEmail}}";
+    }
+
     public static class PaymentMethods
     {
         public const string Get = $"{Base}/payment_methods";

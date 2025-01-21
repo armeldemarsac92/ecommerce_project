@@ -18,19 +18,29 @@ public interface IProductsService
 public class ProductsService : IProductsService
 {
     private readonly IProductRepository _productRepository;
+    private readonly ILogger<IProductsService> _logger;
 
-    public ProductsService(IProductRepository productRepository)
+    public ProductsService(IProductRepository productRepository, ILogger<IProductsService> logger)
     {
         _productRepository = productRepository;
+        _logger = logger;
     }
 
 
     public async Task<ShopProductResponse> GetByIdAsync(long id, CancellationToken cancellationToken = default)
     {
-        var response = await _productRepository.GetByIdAsync(id, cancellationToken);
-        if(response is null) throw new NotFoundException($"Product {id} not found");
+        try
+        {
+            var response = await _productRepository.GetByIdAsync(id, cancellationToken);
+            if(response is null) throw new NotFoundException($"Product {id} not found");
         
-        return response.MapToProduct();
+            return response.MapToProduct();
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            throw;
+        }
     }
 
     public async Task<List<ShopProductResponse>> GetAllAsync(CancellationToken cancellationToken = default)
