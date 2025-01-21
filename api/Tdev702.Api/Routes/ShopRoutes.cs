@@ -47,6 +47,8 @@ public static class ShopRoutes
         public const string Create = $"{Base}/inventories";
         public const string Update = $"{Base}/inventories/{{id}}";
         public const string Delete = $"{Base}/inventories/{{id}}";
+        public const string IncreamentStockInventory = $"{Base}/inventories/{{productId}}/increament";
+        public const string SubstractStockInventory = $"{Base}/inventories/{{productId}}/substract";
     }
     
     public static class Invoices

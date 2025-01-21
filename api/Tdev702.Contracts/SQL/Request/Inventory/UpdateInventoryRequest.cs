@@ -1,6 +1,6 @@
-namespace Tdev702.Contracts.API.Request.Inventory;
+namespace Tdev702.Contracts.SQL.Request.Inventory;
 
-public class UpdateInventoryRequest
+public class UpdateInventorySQLRequest
 {
     public long Id { get; set; }
     public long? Quantity { get; set; }

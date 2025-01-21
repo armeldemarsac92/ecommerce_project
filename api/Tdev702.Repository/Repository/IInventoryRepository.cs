@@ -1,5 +1,7 @@
+using Tdev702.Contracts.API.Request.Inventory;
+using Tdev702.Contracts.SQL.Request.Inventory;
 using Tdev702.Contracts.SQL.Request.Shop.Inventory;
-using Tdev702.Contracts.SQL.Response.Shop;
+using Tdev702.Contracts.SQL.Response;
 using Tdev702.Repository.SQL;
 
 namespace Tdev702.Repository.Repository;
@@ -15,7 +17,7 @@ public interface IInventoryRepository
     public Task<InventorySQLResponse> CreateAsync(CreateInventoryRequest createInventoryRequest,
         CancellationToken cancellationToken = default);
 
-    public Task<int> UpdateAsync(UpdateInventoryRequest updateInventoryRequest,
+    public Task<int> UpdateAsync(UpdateInventorySQLRequest updateInventoryRequest,
         CancellationToken cancellationToken = default);
 
     public Task DeleteAsync(long id, CancellationToken cancellationToken = default);
@@ -57,7 +59,7 @@ public class InventoryRepository : IInventoryRepository
             createInventoryRequest, cancellationToken);
     }
 
-    public async Task<int> UpdateAsync(UpdateInventoryRequest updateInventoryRequest,
+    public async Task<int> UpdateAsync(UpdateInventorySQLRequest updateInventoryRequest,
         CancellationToken cancellationToken = default)
     {
         return await _dbCommand.ExecuteAsync(InventoryQuerries.UpdateInventory, updateInventoryRequest,

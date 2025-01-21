@@ -1,7 +1,8 @@
 using Tdev702.Api.Routes;
 using Tdev702.Api.Services;
+using Tdev702.Contracts.API.Request.Inventory;
 using Tdev702.Contracts.SQL.Request.Shop.Inventory;
-using Tdev702.Contracts.SQL.Response.Shop;
+using Tdev702.Contracts.SQL.Response;
 
 namespace Tdev702.Api.Endpoints;
 
@@ -48,6 +49,20 @@ public static class InventoryEndpoints
             .Produces<InventorySQLResponse>(200)
             .Produces(404);
 
+        app.MapPut(ShopRoutes.Inventories.IncreamentStockInventory, IncreamentStockInventory)
+            .WithTags(Tags)
+            .WithDescription("Increament stock inventory")
+            .Accepts<UpdateQuantityRequest>(ContentType)
+            .Produces<InventorySQLResponse>(200)
+            .Produces(404);
+        
+        app.MapPut(ShopRoutes.Inventories.SubstractStockInventory, SubstractStockInventory)
+            .WithTags(Tags)
+            .WithDescription("Substract stock inventory")
+            .Accepts<UpdateQuantityRequest>(ContentType)
+            .Produces<InventorySQLResponse>(200)
+            .Produces(404);
+        
         return app;
     }
     
@@ -108,6 +123,28 @@ public static class InventoryEndpoints
         CancellationToken cancellationToken)
     {   
         await inventoriesService.DeleteAsync(id, cancellationToken);
+        return Results.NoContent();
+    }
+
+    private static async Task<IResult> IncreamentStockInventory(
+        HttpContext context,
+        IInventoriesService inventoriesService,
+        UpdateQuantityRequest updateQuantityRequest,
+        long productId,
+        CancellationToken cancellationToken)
+    {
+        await inventoriesService.IncreamentAsync(updateQuantityRequest.Quantity, productId, cancellationToken);
+        return Results.NoContent();
+    }
+    
+    private static async Task<IResult> SubstractStockInventory(
+        HttpContext context,
+        IInventoriesService inventoriesService,
+        UpdateQuantityRequest updateQuantityRequest,
+        long productId,
+        CancellationToken cancellationToken)
+    {
+        await inventoriesService.SubstractAsync(updateQuantityRequest.Quantity, productId, cancellationToken);
         return Results.NoContent();
     }
 }

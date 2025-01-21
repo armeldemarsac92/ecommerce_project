@@ -24,8 +24,8 @@ public class InventoryQuerries
     public static string UpdateInventory = @"
     UPDATE backoffice.inventory
     SET 
-    sku = @sku,
-    quantity = @quantity,
+    sku = COALESCE(@sku, sku),
+    quantity = COALESCE (@quantity, quantity),
     updated_at = CURRENT_TIMESTAMP
     WHERE id = @id;";
 
