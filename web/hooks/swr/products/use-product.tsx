@@ -1,27 +1,32 @@
+import useSWR from 'swr'
 import { axiosSWRFetcher } from "@/utils/fetcher";
 import { useEffect, useState } from "react";
-import useSWR from "swr";
+import {Product} from "@/types/product";
 
-export const useProducts = (id: number) => {
-    const { data, mutate, isLoading: loadingSWRFood, error: errorSWRFood } = useSWR(id ? `/food/${id}` : null, axiosSWRFetcher, {
+export const useProduct = (id: number) => {
+    const { data, mutate, isLoading: loadingSWRProduct, error: errorSWRProduct } = useSWR(id ? `/products/${id}` : null, axiosSWRFetcher, {
         revalidateOnFocus: true,
         revalidateOnReconnect: true,
         refreshInterval: 60000
     });
 
-    const [food, setFood] = useState<FoodType | null>(null);
+    const [product, setProduct] = useState<Product | null>(null);
+
+    useEffect(() => {
+        console.log(data);
+    }, [data]);
 
     useEffect(() => {
         if (data) {
-            setFood(data.data);
+            setProduct(data);
         }
     }, [data]);
 
     return {
-        food,
-        refreshUser: () => mutate(`/user/${id}`),
-        loadingSWRFood,
-        errorSWRFood,
-        isError: !!errorSWRFood
+        product,
+        refreshProduct: () => mutate(`/product/${id}`),
+        loadingSWRProduct,
+        errorSWRProduct,
+        isError: !!errorSWRProduct
     };
 }
