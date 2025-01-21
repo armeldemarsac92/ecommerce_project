@@ -42,13 +42,13 @@ public static class OrderMapping
         };
     }
 
-    public static UpdateOrderSQLRequest MapToUpdateOrderRequest(this UpdateOrderRequest updateOrderRequest, long orderId, double totalAmount)
+    public static UpdateOrderSQLRequest MapToUpdateOrderRequest(this UpdateOrderRequest updateOrderRequest, long orderId, double? totalAmount)
     {
         return new UpdateOrderSQLRequest
         {
             Id = orderId,
             PaymentStatus = updateOrderRequest.PaymentStatus,
-            TotalAmount = totalAmount,
+            TotalAmount = totalAmount, //the total amount should be calculated based on the updated products, not be passed as a parameter, hence the syntax
             StripeInvoiceId = updateOrderRequest.StripeInvoiceId
         };
     }

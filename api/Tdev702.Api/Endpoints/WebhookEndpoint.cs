@@ -2,6 +2,7 @@ using Stripe;
 using Tdev702.Api.Routes;
 using Tdev702.Api.Services;
 using Tdev702.Contracts.API.Request.Order;
+using Tdev702.Contracts.SQL.Request.Order;
 using StripeConfiguration = Tdev702.Contracts.Config.StripeConfiguration;
 
 namespace Tdev702.Api.Endpoints;
@@ -44,23 +45,23 @@ public static class WebhookEndpoint
             switch (stripeEvent.Type)
             {
                 case("payment_intent.created"):
-                    await orderService.UpdateAsync(new UpdateOrderRequest { Id = order.Id, PaymentStatus = "created" }, cancellationToken);
+                    await orderService.UpdateOrderPaymentStatus(new UpdateOrderSQLRequest { Id = order.Id, PaymentStatus = "created" }, cancellationToken);
                     break;
                 
                 case("payment_intent.succeeded"):
-                    await orderService.UpdateAsync(new UpdateOrderRequest { Id = order.Id, PaymentStatus = "succeded" }, cancellationToken);
+                    await orderService.UpdateOrderPaymentStatus(new UpdateOrderSQLRequest { Id = order.Id, PaymentStatus = "succeeded" }, cancellationToken);
                     break;
                 
                 case("payment_intent.processing"):
-                    await orderService.UpdateAsync(new UpdateOrderRequest { Id = order.Id, PaymentStatus = "processing" }, cancellationToken);
+                    await orderService.UpdateOrderPaymentStatus(new UpdateOrderSQLRequest { Id = order.Id, PaymentStatus = "processing" }, cancellationToken);
                     break;
 
                 case("payment_intent.payment_failed"):
-                    await orderService.UpdateAsync(new UpdateOrderRequest { Id = order.Id, PaymentStatus = "failed" }, cancellationToken);
+                    await orderService.UpdateOrderPaymentStatus(new UpdateOrderSQLRequest { Id = order.Id, PaymentStatus = "payment_failed" }, cancellationToken);
                     break;
 
                 case("payment_intent.canceled"):
-                    await orderService.UpdateAsync(new UpdateOrderRequest { Id = order.Id, PaymentStatus = "canceled" }, cancellationToken);
+                    await orderService.UpdateOrderPaymentStatus(new UpdateOrderSQLRequest { Id = order.Id, PaymentStatus = "canceled" }, cancellationToken);
                     break;
             }
         }

@@ -21,11 +21,13 @@ public static class OrderProductQueries
        product_id,
        order_id,
        quantity,
+       unit_price,
        subtotal)
    VALUES (
        @ProductId,
        @OrderId,
        @Quantity,
+       @UnitPrice,
        @Subtotal)
    RETURNING *;";
     
@@ -34,11 +36,13 @@ public static class OrderProductQueries
         product_id,
         order_id,
         quantity,
+        unit_price,
         subtotal)
     SELECT 
         unnest(@ProductIds),
         unnest(@OrderIds),
         unnest(@Quantities),
+        unnest(@UnitPrices),
         unnest(@Subtotals)
     RETURNING *;";
     
@@ -47,6 +51,7 @@ public static class OrderProductQueries
     SET 
         product_id = COALESCE(u.product_id, op.product_id),
         order_id = COALESCE(u.order_id, op.order_id),
+        unit_price = COALESCE(u.unit_price, op.unit_price),
         quantity = COALESCE(u.quantity, op.quantity),
         subtotal = COALESCE(u.subtotal, op.subtotal)
     FROM (
@@ -54,6 +59,7 @@ public static class OrderProductQueries
             unnest(@ProductIds) as product_id,
             unnest(@OrderIds) as order_id,
             unnest(@Quantities) as quantity,
+            unnest(@UnitPrices) as unit_price,
             unnest(@Subtotals) as subtotal
     ) AS u
     WHERE op.order_id = u.order_id AND op.product_id = u.product_id

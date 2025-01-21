@@ -85,6 +85,7 @@ public static class OrderEndpoints
        CreateOrderRequest orderRequest,
        CancellationToken cancellationToken)
    {
+       orderRequest.PaymentStatus = "draft";
        var order = await orderService.CreateAsync(orderRequest, cancellationToken);
        return Results.Created($"/api/orders/{order.Id}", order);
    }
@@ -96,7 +97,7 @@ public static class OrderEndpoints
        UpdateOrderRequest orderRequest,
        CancellationToken cancellationToken)
    {
-       orderRequest.Id = id; 
+       orderRequest.Id = id;
        var order = await orderService.UpdateAsync(orderRequest, cancellationToken);
        return Results.Ok(order);
    }
