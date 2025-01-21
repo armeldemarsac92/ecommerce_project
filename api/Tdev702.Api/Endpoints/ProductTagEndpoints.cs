@@ -1,7 +1,7 @@
 using Tdev702.Api.Routes;
 using Tdev702.Api.Services;
-using Tdev702.Contracts.Request.Shop.ProductTag;
-using Tdev702.Contracts.Response.Shop;
+using Tdev702.Contracts.API.Request.ProductTag;
+using Tdev702.Contracts.API.Response;
 
 namespace Tdev702.Api.Endpoints;
 

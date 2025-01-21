@@ -1,5 +1,5 @@
 using Stripe;
-using Tdev702.Contracts.Response.Shop;
+using Tdev702.Contracts.API.Response;
 
 namespace Tdev702.Contracts.Mapping;
 

@@ -1,15 +1,17 @@
-using Tdev702.Contracts.Request.Shop.Category;
+using Tdev702.Contracts.API.Request.Category;
 using Tdev702.Contracts.SQL;
+using Tdev702.Contracts.SQL.Request.Category;
+using Tdev702.Contracts.SQL.Response;
 using Tdev702.Repository.SQL;
 
 namespace Tdev702.Repository.Repository;
 
 public interface ICategoryRepository
 {
-    public Task<CategoryResponse?> GetByIdAsync(long id, CancellationToken cancellationToken = default);
-    public Task<List<CategoryResponse>> GetAllAsync(CancellationToken cancellationToken = default);
-    public Task<CategoryResponse> CreateAsync(CreateCategoryRequest createCategoryRequest, CancellationToken cancellationToken = default);
-    public Task<int> UpdateAsync(UpdateCategoryRequest updateCategoryRequest, CancellationToken cancellationToken = default);
+    public Task<CategorySQLResponse?> GetByIdAsync(long id, CancellationToken cancellationToken = default);
+    public Task<List<CategorySQLResponse>> GetAllAsync(CancellationToken cancellationToken = default);
+    public Task<CategorySQLResponse> CreateAsync(CreateCategorySQLRequest createCategoryRequest, CancellationToken cancellationToken = default);
+    public Task<int> UpdateAsync(UpdateCategorySQLRequest updateCategoryRequest, CancellationToken cancellationToken = default);
     public Task DeleteAsync(long id, CancellationToken cancellationToken = default);
 }
 
@@ -22,23 +24,23 @@ public class CategoryRepository : ICategoryRepository
         _dbCommand = dbCommand;
     }
     
-    public async Task<CategoryResponse?> GetByIdAsync(long id, CancellationToken cancellationToken = default)
+    public async Task<CategorySQLResponse?> GetByIdAsync(long id, CancellationToken cancellationToken = default)
     {
-        return await _dbCommand.QueryFirstOrDefaultAsync<CategoryResponse>(CategoryQueries.GetCategoryById, new { Id = id }, cancellationToken);
+        return await _dbCommand.QueryFirstOrDefaultAsync<CategorySQLResponse>(CategoryQueries.GetCategoryById, new { Id = id }, cancellationToken);
     }
 
-    public async Task<List<CategoryResponse>> GetAllAsync(CancellationToken cancellationToken = default)
+    public async Task<List<CategorySQLResponse>> GetAllAsync(CancellationToken cancellationToken = default)
     {
-        var response = await _dbCommand.QueryAsync<CategoryResponse>(CategoryQueries.GetAllCategories, cancellationToken);
-        return response.Any() ? response.ToList() : new List<CategoryResponse>();
+        var response = await _dbCommand.QueryAsync<CategorySQLResponse>(CategoryQueries.GetAllCategories, cancellationToken);
+        return response.Any() ? response.ToList() : new List<CategorySQLResponse>();
     }
 
-    public async Task<CategoryResponse> CreateAsync(CreateCategoryRequest createCategoryRequest, CancellationToken cancellationToken = default)
+    public async Task<CategorySQLResponse> CreateAsync(CreateCategorySQLRequest createCategoryRequest, CancellationToken cancellationToken = default)
     {
-        return await _dbCommand.QuerySingleAsync<CategoryResponse>(CategoryQueries.CreateCategory, createCategoryRequest, cancellationToken);
+        return await _dbCommand.QuerySingleAsync<CategorySQLResponse>(CategoryQueries.CreateCategory, createCategoryRequest, cancellationToken);
     }
 
-    public async Task<int> UpdateAsync(UpdateCategoryRequest updateCategoryRequest, CancellationToken cancellationToken = default)
+    public async Task<int> UpdateAsync(UpdateCategorySQLRequest updateCategoryRequest, CancellationToken cancellationToken = default)
     { 
         return await _dbCommand.ExecuteAsync(CategoryQueries.UpdateCategory, updateCategoryRequest, cancellationToken);
     }

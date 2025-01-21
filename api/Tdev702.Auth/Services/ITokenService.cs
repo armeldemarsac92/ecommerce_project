@@ -91,7 +91,8 @@ public class TokenService : ITokenService
             new(ClaimTypes.Name, user.UserName),
             new(JwtRegisteredClaimNames.GivenName, user.FirstName ?? string.Empty),
             new(JwtRegisteredClaimNames.FamilyName, user.LastName ?? string.Empty),
-            new("email_verified", user.EmailConfirmed.ToString().ToLower())
+            new("email_verified", user.EmailConfirmed.ToString().ToLower()),
+            new("stripe_id", user.StripeCustomerId ?? string.Empty)
         };
 
         claims.AddRange(roles.Select(role => new Claim(ClaimTypes.Role, role)));

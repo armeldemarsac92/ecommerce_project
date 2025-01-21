@@ -1,5 +1,5 @@
 using Stripe;
-using Tdev702.Contracts.Request.Shop.Payment;
+using Tdev702.Contracts.API.Request.Payment;
 
 namespace Tdev702.Contracts.Mapping;
 

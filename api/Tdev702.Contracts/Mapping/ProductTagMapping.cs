@@ -1,20 +1,21 @@
-using ProductTagResponse = Tdev702.Contracts.Response.Shop.ProductTagResponse;
+using Tdev702.Contracts.SQL.Response;
+using ProductTagResponse = Tdev702.Contracts.API.Response.ProductTagResponse;
 
 namespace Tdev702.Contracts.Mapping;
 
 public static class ProductTagMapping
 {
-    public static ProductTagResponse MapToProductTag(this SQL.ProductTagResponse productTagResponse)
+    public static ProductTagResponse MapToProductTag(this ProductTagSQLResponse productTagSqlResponse)
     {
         return new ProductTagResponse()
         {
-            ProductTagId = productTagResponse.ProductTagId,
-            Title = productTagResponse.Title,
-            Description = productTagResponse.Description,
+            ProductTagId = productTagSqlResponse.ProductTagId,
+            Title = productTagSqlResponse.Title,
+            Description = productTagSqlResponse.Description,
         };
     }
 
-    public static List<ProductTagResponse> MapToProductTags(this List<SQL.ProductTagResponse> productTagResponses)
+    public static List<ProductTagResponse> MapToProductTags(this List<ProductTagSQLResponse> productTagResponses)
     {
         return productTagResponses.Select(MapToProductTag).ToList();
     }
