@@ -3,7 +3,6 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Npgsql;
 using Tdev702.Contracts.Config;
-using Tdev702.Repository.Brands;
 using Tdev702.Repository.Config;
 using Tdev702.Repository.Repository;
 using Tdev702.Repository.SQL;
@@ -25,7 +24,7 @@ public static class DbExtensions
             dataSourceBuilder.UseVector();
            // dataSourceBuilder.UseClientCertificate(cert);
         });
-        services.AddTransient<IDBSQLCommand, DbsqlCommand>();
+        services.AddScoped<IUnitOfWork, UnitOfWork>();
         services.AddScoped<IProductRepository, ProductRepository>();
         services.AddScoped<ICategoryRepository, CategoryRepository>();
         services.AddScoped<IBrandRepository, BrandRepository>();

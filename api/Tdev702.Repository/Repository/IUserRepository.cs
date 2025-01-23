@@ -9,16 +9,16 @@ public interface IUserRepository
 
 public class UserRepository : IUserRepository
 {
-    private readonly IDBSQLCommand _dbCommand;
+    private readonly IUnitOfWork _unitOfWork;
 
-    public UserRepository(IDBSQLCommand dbCommand)
+    public UserRepository(IUnitOfWork unitOfWork)
     {
-        _dbCommand = dbCommand;
+        _unitOfWork = unitOfWork;
     }
 
     public async Task<bool> UserExistsAsync(string userId, CancellationToken cancellationToken = default)
     {
-        var response = await _dbCommand.QueryFirstOrDefaultAsync<string>(UserQueries.GetUserById, new { UserId = userId }, cancellationToken);
+        var response = await _unitOfWork.QueryFirstOrDefaultAsync<string>(UserQueries.GetUserById, new { UserId = userId }, cancellationToken);
         return response != null;
     }
 }

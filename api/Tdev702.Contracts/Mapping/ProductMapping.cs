@@ -7,31 +7,6 @@ namespace Tdev702.Contracts.Mapping;
 
 public static class ProductMapping
 {
-    public static ShopProductResponse MapToProduct(this ProductSQLResponse productSqlResponse, List<TagResponse>? tags)
-    {
-        return new ShopProductResponse
-        {
-            Id = productSqlResponse.Id,
-            StripeId = productSqlResponse.StripeId,
-            Title = productSqlResponse.Title,
-            Description = productSqlResponse.Description,
-            Price = productSqlResponse.Price,
-            PriceHt = productSqlResponse.Price / 1.2,
-            BrandId = productSqlResponse.BrandId,
-            CategoryId = productSqlResponse.CategoryId,
-            OpenFoodFactId = productSqlResponse.OpenFoodFactId,
-            ImageUrl = productSqlResponse.ImageUrl,
-            Tags = tags,
-            UpdatedAt = productSqlResponse.UpdatedAt,
-            CreatedAt = productSqlResponse.CreatedAt
-        };
-    }
-
-    public static List<ShopProductResponse> MapToProducts(this List<ProductSQLResponse> productResponses)
-    {
-        return productResponses.Select(MapToProduct).ToList();
-    }
-
     public static CreateProductSQLRequest MapToCreateProductRequest(this CreateProductRequest createProductRequest)
     {
         return new CreateProductSQLRequest
@@ -60,5 +35,29 @@ public static class ProductMapping
             OpenFoodFactId = updateProductRequest.OpenFoodFactId,
             ImageUrl = updateProductRequest.ImageUrl
         };
+    }
+
+    public static ShopProductResponse MapToProduct(this ProductSQLResponse productSqlResponse)
+    {
+        return new ShopProductResponse
+        {
+            Id = productSqlResponse.Id,
+            Title = productSqlResponse.Title,
+            Description = productSqlResponse.Description,
+            Price = productSqlResponse.Price,
+            PriceHt = productSqlResponse.Price / 1.2,
+            BrandTitle = productSqlResponse.BrandTitle,
+            CategoryTitle = productSqlResponse.CategoryTitle,
+            OpenFoodFactId = productSqlResponse.OpenFoodFactId,
+            ImageUrl = productSqlResponse.ImageUrl,
+            Tags = productSqlResponse.Tags,
+            UpdatedAt = productSqlResponse.UpdatedAt,
+            CreatedAt = productSqlResponse.CreatedAt,
+        };
+    }
+    
+    public static List<ShopProductResponse> MapToProducts(this List<ProductSQLResponse> productResponses)
+    {
+        return productResponses.Select(MapToProduct).ToList();
     }
 }

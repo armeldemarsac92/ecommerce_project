@@ -2,7 +2,7 @@ using Tdev702.Contracts.API.Request.Brand;
 using Tdev702.Contracts.API.Response;
 using Tdev702.Contracts.Exceptions;
 using Tdev702.Contracts.Mapping;
-using Tdev702.Repository.Brands;
+using Tdev702.Repository.Repository;
 
 namespace Tdev702.Api.Services;
 

@@ -24,49 +24,49 @@ public interface IInventoryRepository
 
 public class InventoryRepository : IInventoryRepository
 {
-    private readonly IDBSQLCommand _dbCommand;
+    private readonly IUnitOfWork _unitOfWork;
 
-    public InventoryRepository(IDBSQLCommand dbCommand)
+    public InventoryRepository(IUnitOfWork unitOfWork)
     {
-        _dbCommand = dbCommand;
+        _unitOfWork = unitOfWork;
     }
 
     public async Task<InventorySQLResponse?> GetByIdAsync(long id, CancellationToken cancellationToken = default)
     {
-        return await _dbCommand.QueryFirstOrDefaultAsync<InventorySQLResponse>(InventoryQuerries.GetInventoryById,
+        return await _unitOfWork.QueryFirstOrDefaultAsync<InventorySQLResponse>(InventoryQuerries.GetInventoryById,
             new { Id = id }, cancellationToken);
     }
 
     public async Task<List<InventorySQLResponse>> GetAllAsync(CancellationToken cancellationToken = default)
     {
         var response =
-            await _dbCommand.QueryAsync<InventorySQLResponse>(InventoryQuerries.GetAllInventory, cancellationToken);
+            await _unitOfWork.QueryAsync<InventorySQLResponse>(InventoryQuerries.GetAllInventory, cancellationToken);
         return response.Any() ? response.ToList() : new List<InventorySQLResponse>();
     }
 
     public async Task<InventorySQLResponse> GetInventoryByProductIdAsync(long productId,
         CancellationToken cancellationToken = default)
     {
-        return await _dbCommand.QueryFirstOrDefaultAsync<InventorySQLResponse>(InventoryQuerries.GetInventoryByProductId,
+        return await _unitOfWork.QueryFirstOrDefaultAsync<InventorySQLResponse>(InventoryQuerries.GetInventoryByProductId,
             new { ProductId = productId }, cancellationToken);
     }
 
     public async Task<InventorySQLResponse> CreateAsync(CreateInventoryRequest createInventoryRequest,
         CancellationToken cancellationToken = default)
     {
-        return await _dbCommand.QuerySingleAsync<InventorySQLResponse>(InventoryQuerries.CreateInventory,
+        return await _unitOfWork.QuerySingleAsync<InventorySQLResponse>(InventoryQuerries.CreateInventory,
             createInventoryRequest, cancellationToken);
     }
 
     public async Task<int> UpdateAsync(UpdateInventorySQLRequest updateInventoryRequest,
         CancellationToken cancellationToken = default)
     {
-        return await _dbCommand.ExecuteAsync(InventoryQuerries.UpdateInventory, updateInventoryRequest,
+        return await _unitOfWork.ExecuteAsync(InventoryQuerries.UpdateInventory, updateInventoryRequest,
             cancellationToken);
     }
 
     public async Task DeleteAsync(long id, CancellationToken cancellationToken = default)
     {
-        await _dbCommand.ExecuteAsync(InventoryQuerries.DeleteInventory, new { Id = id }, cancellationToken);
+        await _unitOfWork.ExecuteAsync(InventoryQuerries.DeleteInventory, new { Id = id }, cancellationToken);
     }
 }
