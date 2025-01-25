@@ -1,24 +1,25 @@
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json.Serialization;
 
 namespace Tdev702.Contracts.SQL.Response;
 
 public class OrderProductSQLResponse
 {
-    [JsonPropertyName("id")]
+    [Column("id")]
     public required long Id { get; set; }
 
-    [JsonPropertyName("product_id")]
+    [Column("product_id")]
     public required long ProductId { get; set; }
 
-    [JsonPropertyName("order_id")]
+    [Column("order_id")]
     public required long OrderId { get; set; }
 
-    [JsonPropertyName("quantity")]
+    [Column("quantity")]
     public required int Quantity { get; set; }
     
-    [JsonPropertyName("unit_price")]
+    [Column("unit_price")]
     public required double UnitPrice { get; set; }
 
-    [JsonPropertyName("subtotal")]
+    [Column("subtotal")]
     public required double Subtotal { get; set; }
 }

@@ -8,32 +8,6 @@ namespace Tdev702.Contracts.Mapping;
 
 public static class OrderProductMapping
 {
-    public static OrderProductResponse MapToOrderProduct(this OrderProductSQLResponse orderProductSqlResponse,
-        ProductSQLResponse productSqlResponse)
-    {
-        return new OrderProductResponse
-        {
-            Id = orderProductSqlResponse.Id,
-            OrderId = orderProductSqlResponse.OrderId,
-            Product = productSqlResponse.MapToProduct(),
-            Quantity = orderProductSqlResponse.Quantity,
-            UnitPrice = orderProductSqlResponse.UnitPrice,
-            Subtotal = orderProductSqlResponse.Subtotal
-        };
-    }
-
-    public static List<OrderProductResponse> MapToOrderProducts(this List<OrderProductSQLResponse> orderProductResponses,
-        List<ProductSQLResponse> productResponses)
-    {
-        return orderProductResponses
-            .Where(orderProduct => productResponses.Any(p => p.Id == orderProduct.ProductId))
-            .Select(orderProduct => {
-                var product = productResponses.First(p => p.Id == orderProduct.ProductId);
-                return orderProduct.MapToOrderProduct(product);
-            })
-            .ToList();
-    }
-
     public static CreateOrderProductSQLRequest MapToCreateOrderProductRequest(
         this CreateOrderProductRequest createOrderProductRequest, long orderId, double unitPrice, double subtotal)
     {

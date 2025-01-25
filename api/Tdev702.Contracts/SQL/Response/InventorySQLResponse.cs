@@ -4,22 +4,22 @@ namespace Tdev702.Contracts.SQL.Response;
 
 public class InventorySQLResponse
 {
-    [Column("Id")]
+    [Column("id")]
     public required long Id { get; init; }
     
-    [Column("Product_id")]
+    [Column("product_id")]
     public required long ProductId { get; init; }
     
-    [Column("Quantity")]
+    [Column("quantity")]
     public required long Quantity { get; init; }
     
-    [Column("Sku")]
+    [Column("sku")]
     public required string Sku { get; init; }
     
-    [Column("Created_at")]
+    [Column("created_at")]
     public required DateTimeOffset  CreatedAt { get; init; }
     
-    [Column("Update_at")]
+    [Column("update_at")]
     public DateTimeOffset  UpdatedAt { get; init; }
     
 }

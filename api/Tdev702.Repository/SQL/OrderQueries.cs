@@ -4,21 +4,21 @@ public static class OrderQueries
 {
     public static string GetOrderById = @"
    SELECT *
-   FROM backoffice.orders
+   FROM backoffice.vw_orders_summary
    WHERE id = @OrderId;";
     
     public static string GetOrderByIntentId = @"
    SELECT *
-   FROM backoffice.orders
+   FROM backoffice.vw_orders_summary
    WHERE stripe_payment_intent_id = @StripePaymentIntentId;";
 
     public static string GetAllOrders = @"
    SELECT *
-   FROM backoffice.orders;";
+   FROM backoffice.vw_orders_summary;";
     
     public static string GetAllOrdersByUserId = @"
    SELECT *
-   FROM backoffice.orders
+   FROM backoffice.vw_orders_summary
    WHERE user_id = @UserId;";
 
     public static string CreateOrder = @"
@@ -38,7 +38,7 @@ public static class OrderQueries
        @StripePaymentIntentId, 
        @PaymentStatus,
        @TotalAmount)
-   RETURNING *;";
+   RETURNING id;";
 
     public static string UpdateOrder = @"
    UPDATE backoffice.orders
