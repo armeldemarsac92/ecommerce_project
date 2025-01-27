@@ -1,6 +1,7 @@
 using Tdev702.Api.Routes;
 using Tdev702.Api.Services;
 using Tdev702.Contracts.API.Request.Inventory;
+using Tdev702.Contracts.SQL.Request.All;
 using Tdev702.Contracts.SQL.Response;
 
 namespace Tdev702.Api.Endpoints;
@@ -88,9 +89,18 @@ public static class InventoryEndpoints
     private static async Task<IResult> GetAllInventory(
         HttpContext context,
         IInventoriesService inventoriesService,
-        CancellationToken cancellationToken)
-    {   
-        var inventory = await inventoriesService.GetAllAsync(cancellationToken);
+        CancellationToken cancellationToken,
+        string? pageSize,
+        string? pageNumber,
+        string? sortBy)
+    {
+        var queryOptions = new QueryOptions
+        {
+            PageSize = int.TryParse(pageSize, out int size) ? size : 30,
+            PageNumber = int.TryParse(pageNumber, out int page) ? page : 1,
+            SortBy = Enum.TryParse<QueryOptions.Order>(sortBy, true, out var order) ? order : QueryOptions.Order.ASC
+        };
+        var inventory = await inventoriesService.GetAllAsync(queryOptions, cancellationToken);
         return Results.Ok(inventory);
     }
     

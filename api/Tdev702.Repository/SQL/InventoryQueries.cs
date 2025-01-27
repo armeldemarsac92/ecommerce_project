@@ -1,6 +1,6 @@
 namespace Tdev702.Repository.SQL;
 
-public class InventoryQuerries
+public class InventoryQueries
 {
     public static string GetInventoryById = @"
     SELECT *
@@ -12,14 +12,19 @@ public class InventoryQuerries
     FROM backoffice.inventory
     WHERE product_id = @product_id";
 
-    public static string GetAllInventory = @"
+    public static string GetAllInventories = @"
     SELECT *
-    From backoffice.inventory;";
+    From backoffice.inventory
+    ORDER BY 
+        CASE WHEN @orderBy = 'DESC' THEN id END DESC,
+        CASE WHEN @orderBy = 'ASC' THEN id END ASC
+    LIMIT @pageSize 
+    OFFSET @offset;";
 
     public static string CreateInventory = @"
     insert into backoffice.inventory(sku,quantity,product_id, created_at, updated_at)
     VALUES (@sku, @quantity, @product_id, current_timestamp, current_timestamp)
-    RETURNING * ;";
+    RETURNING id;";
 
     public static string UpdateInventory = @"
     UPDATE backoffice.inventory

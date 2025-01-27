@@ -24,6 +24,16 @@ public static class InventoryMapping
     {
         return inventorySqlResponses.Select(MapToInventory).ToList();
     }
+    
+    public static CreateInventorySQLRequest MapToInventoryRequest(this CreateInventoryRequest createInventoryRequest)
+    {
+        return new CreateInventorySQLRequest()
+        {
+            ProductId = createInventoryRequest.ProductId,
+            Quantity = createInventoryRequest.Quantity,
+            Sku = createInventoryRequest.Sku,
+        };
+    }
 
     public static UpdateInventorySQLRequest MapToInventoryRequest(this UpdateInventoryRequest updateInventoryRequest, long inventoryId)
     {

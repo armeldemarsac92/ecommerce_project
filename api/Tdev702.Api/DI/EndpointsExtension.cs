@@ -16,6 +16,7 @@ public static class EndpointExtensions
         app.MapPaymentEndpoints();
         app.MapPaymentMethodEndpoints();
         app.MapWebhookEndpoint();
+        app.MapCustomerEndpoints();
         return app;
     }
 
@@ -27,7 +28,7 @@ public static class EndpointExtensions
         services.AddScoped<ICategoriesService, CategoriesService>();
         services.AddScoped<IInventoriesService, InventoriesService>();
         services.AddScoped<IOrderService, OrderService>();
-        services.AddScoped<IUserService, UserService>();
+        services.AddScoped<ICustomerService, CustomerService>();
         return services;
     }
 }

@@ -14,12 +14,22 @@ public static class OrderQueries
 
     public static string GetAllOrders = @"
    SELECT *
-   FROM backoffice.vw_orders_summary;";
+   FROM backoffice.vw_orders_summary        
+   ORDER BY 
+        CASE WHEN @orderBy = 'DESC' THEN id END DESC,
+        CASE WHEN @orderBy = 'ASC' THEN id END ASC
+    LIMIT @pageSize 
+    OFFSET @offset;";
     
     public static string GetAllOrdersByUserId = @"
    SELECT *
    FROM backoffice.vw_orders_summary
-   WHERE user_id = @UserId;";
+   WHERE user_id = @UserId        
+   ORDER BY 
+        CASE WHEN @orderBy = 'DESC' THEN id END DESC,
+        CASE WHEN @orderBy = 'ASC' THEN id END ASC
+    LIMIT @pageSize 
+    OFFSET @offset;";
 
     public static string CreateOrder = @"
    INSERT INTO backoffice.orders (

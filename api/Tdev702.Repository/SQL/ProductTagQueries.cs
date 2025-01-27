@@ -26,7 +26,11 @@ public class ProductTagQueries
     VALUES (@ProductId, @TagId)
     RETURNING *;";
 
-    public static string DeleteProductTag = @"
+    public static string DeleteProductTagByProductId = @"
     DELETE FROM shop.link_products_tags
-    WHERE id = @TagId;";
+    WHERE product_id = @ProductId;";
+    
+    public static string DeleteProductTagByTagId = @"
+    DELETE FROM shop.link_products_tags
+    WHERE tag_id = @TagId;";
 }

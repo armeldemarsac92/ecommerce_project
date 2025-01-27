@@ -2,6 +2,7 @@ using Tdev702.Api.Routes;
 using Tdev702.Api.Services;
 using Tdev702.Contracts.API.Request.Brand;
 using Tdev702.Contracts.API.Response;
+using Tdev702.Contracts.SQL.Request.All;
 
 namespace Tdev702.Api.Endpoints;
 
@@ -27,12 +28,14 @@ public static class BrandEndpoints
         app.MapPost(ShopRoutes.Brands.Create, CreateBrand)
             .WithTags(Tags)
             .WithDescription("Create one brand")
+            .Accepts<CreateBrandRequest>(ContentType)
             .Produces<BrandResponse>(200)
             .Produces(404);
         
         app.MapPut(ShopRoutes.Brands.Update, UpdateBrand)
             .WithTags(Tags)
             .WithDescription("Create one brand")
+            .Accepts<UpdateBrandRequest>(ContentType)
             .Produces<BrandResponse>(200)
             .Produces(404);
         
@@ -46,7 +49,6 @@ public static class BrandEndpoints
     }
     
     private static async Task<IResult> GetBrand(
-        HttpContext context,
         IBrandsService brandsService,
         long brandId,
         CancellationToken cancellationToken)
@@ -55,16 +57,24 @@ public static class BrandEndpoints
         return Results.Ok(brand);
     }
     private static async Task<IResult> GetAllBrands(
-        HttpContext context,
         IBrandsService brandsService,
-        CancellationToken cancellationToken)
+        CancellationToken cancellationToken,
+        string? pageSize,
+        string? pageNumber,
+        string? sortBy)
     {
-        var brands = await brandsService.GetAllAsync(cancellationToken);
+        var queryOptions = new QueryOptions
+        {
+            PageSize = int.TryParse(pageSize, out int size) ? size : 30,
+            PageNumber = int.TryParse(pageNumber, out int page) ? page : 1,
+            SortBy = Enum.TryParse<QueryOptions.Order>(sortBy, true, out var order) ? order : QueryOptions.Order.ASC
+        };
+        
+        var brands = await brandsService.GetAllAsync(queryOptions, cancellationToken);
         return Results.Ok(brands);
     }
 
     private static async Task<IResult> CreateBrand(
-        HttpContext context,
         IBrandsService brandsService,
         CreateBrandRequest brandRequest,
         CancellationToken cancellationToken)
@@ -73,7 +83,6 @@ public static class BrandEndpoints
         return Results.Ok(brand);
     }
     private static async Task<IResult> UpdateBrand(
-        HttpContext context,
         IBrandsService brandsService,
         long brandId,
         UpdateBrandRequest brandRequest,
@@ -83,7 +92,6 @@ public static class BrandEndpoints
         return Results.Ok(brand);
     }
     private static async Task<IResult> DeleteBrand(
-        HttpContext context,
         IBrandsService brandsService,
         long brandId,
         CancellationToken cancellationToken)

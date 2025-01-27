@@ -18,6 +18,7 @@ public class DapperMappingConfiguration
         SetupDapperMapping<OrderSQLResponse>();
         SetupDapperMapping<OrderProductSQLResponse>();
         SetupDapperMapping<OrderSummarySQLResponse>();
+        SetupDapperMapping<CustomerSQLResponse>();
     }
 
     private static void SetupDapperMapping<TModel>()

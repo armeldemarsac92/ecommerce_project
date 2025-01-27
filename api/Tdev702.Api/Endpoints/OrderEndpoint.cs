@@ -7,6 +7,7 @@ using Tdev702.Contracts.API.Request.Order;
 using Tdev702.Contracts.API.Response;
 using Tdev702.Contracts.Database;
 using Tdev702.Contracts.Exceptions;
+using Tdev702.Contracts.SQL.Request.All;
 
 namespace Tdev702.Api.Endpoints;
 
@@ -24,12 +25,19 @@ public static class OrderEndpoints
            .Produces<OrderResponse>(200)
            .Produces(404);
 
-       app.MapGet(ShopRoutes.Orders.GetAll, GetOrdersByUserId)
+       app.MapGet(ShopRoutes.Orders.GetUserOrders, GetUserOrders)
            .WithTags(Tags)
            .WithDescription("Get all Orders for a User")
            .RequireAuthorization("Authenticated")
            .Produces<List<OrderResponse>>(200)
            .Produces(404);
+       
+       app.MapGet(ShopRoutes.Orders.GetAll, GetAllOrders)
+           .WithTags(Tags)
+           .WithDescription("Get all Orders by Status")
+           .RequireAuthorization("Admin")
+           .Produces<List<OrderResponse>>(200)
+           .Produces(204);
 
        app.MapPost(ShopRoutes.Orders.Create, CreateOrder)
            .WithTags(Tags)
@@ -61,21 +69,39 @@ public static class OrderEndpoints
    }
 
    private static async Task<IResult> GetAllOrders(
-       HttpContext context,
        IOrderService orderService,
-       CancellationToken cancellationToken)
+       CancellationToken cancellationToken,
+       string? pageSize,
+       string? pageNumber,
+       string? sortBy)
    {
-       var orders = await orderService.GetAllAsync(cancellationToken);
+       var queryOptions = new QueryOptions
+       {
+           PageSize = int.TryParse(pageSize, out int size) ? size : 30,
+           PageNumber = int.TryParse(pageNumber, out int page) ? page : 1,
+           SortBy = Enum.TryParse<QueryOptions.Order>(sortBy, true, out var order) ? order : QueryOptions.Order.ASC
+       };
+       var orders = await orderService.GetAllAsync(queryOptions, cancellationToken);
        return Results.Ok(orders);
    }
 
-   private static async Task<IResult> GetOrdersByUserId(
+   private static async Task<IResult> GetUserOrders(
        HttpContext context,
        IOrderService orderService,
-       CancellationToken cancellationToken)
+       CancellationToken cancellationToken,
+       string? pageSize,
+       string? pageNumber,
+       string? sortBy)
    {
+       var queryOptions = new QueryOptions
+       {
+           PageSize = int.TryParse(pageSize, out int size) ? size : 30,
+           PageNumber = int.TryParse(pageNumber, out int page) ? page : 1,
+           SortBy = Enum.TryParse<QueryOptions.Order>(sortBy, true, out var order) ? order : QueryOptions.Order.ASC
+       };
+       
        var userId = context.GetUserIdFromClaims();
-       var orders = await orderService.GetAllByUserIdAsync(userId, cancellationToken);
+       var orders = await orderService.GetAllByUserIdAsync(userId, queryOptions, cancellationToken);
        return Results.Ok(orders);
    }
 

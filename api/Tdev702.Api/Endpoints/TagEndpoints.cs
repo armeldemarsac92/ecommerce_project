@@ -3,41 +3,44 @@ using Tdev702.Api.Services;
 using Tdev702.Contracts.API.Request.ProductTag;
 using Tdev702.Contracts.API.Request.Tag;
 using Tdev702.Contracts.API.Response;
+using Tdev702.Contracts.SQL.Request.All;
 
 namespace Tdev702.Api.Endpoints;
 
-public static class ProductTagEndpoints
+public static class TagEndpoints
 {
     private const string ContentType = "application/json";
     private const string Tags = "ProductTags";
     
-    public static IEndpointRouteBuilder MapProductTagEndpoints(this IEndpointRouteBuilder app)
+    public static IEndpointRouteBuilder MapTagEndpoints(this IEndpointRouteBuilder app)
     {
-        app.MapGet(ShopRoutes.ProductsTags.GetAll, GetAllProductTags)
+        app.MapGet(ShopRoutes.ProductsTags.GetAll, GetAllTags)
             .WithTags(Tags)
             .WithDescription("Get all products tags")
             .Produces<List<TagResponse>>(200)
             .Produces(404);
         
-        app.MapGet(ShopRoutes.ProductsTags.GetById, GetProductTags)
+        app.MapGet(ShopRoutes.ProductsTags.GetById, GetTags)
             .WithTags(Tags)
             .WithDescription("Get one product tag")
             .Produces<TagResponse>(200)
             .Produces(404);
         
-        app.MapPost(ShopRoutes.ProductsTags.Create, CreateProductTag)
+        app.MapPost(ShopRoutes.ProductsTags.Create, CreateTag)
             .WithTags(Tags)
             .WithDescription("Create one product tag")
+            .Accepts<CreateTagRequest>(ContentType)
             .Produces<TagResponse>(200)
             .Produces(404);
         
-        app.MapPut(ShopRoutes.ProductsTags.Update, UpdateProductTag)
+        app.MapPut(ShopRoutes.ProductsTags.Update, UpdateTag)
             .WithTags(Tags)
             .WithDescription("Create one product tag")
+            .Accepts<UpdateTagRequest>(ContentType)
             .Produces<TagResponse>(200)
             .Produces(404);
         
-        app.MapDelete(ShopRoutes.ProductsTags.Delete, DeleteProductTag)
+        app.MapDelete(ShopRoutes.ProductsTags.Delete, DeleteTag)
             .WithTags(Tags)
             .WithDescription("Delete one product tag by Id")
             .Produces<TagResponse>(200)
@@ -46,7 +49,7 @@ public static class ProductTagEndpoints
         return app;
     }
     
-    private static async Task<IResult> GetProductTags(
+    private static async Task<IResult> GetTags(
         HttpContext context,
         ITagsService tagsService,
         long productTagId,
@@ -55,16 +58,25 @@ public static class ProductTagEndpoints
         var productTag = await tagsService.GetByIdAsync(productTagId ,cancellationToken);
         return Results.Ok(productTag);
     }
-    private static async Task<IResult> GetAllProductTags(
+    private static async Task<IResult> GetAllTags(
         HttpContext context,
         ITagsService tagsService,
-        CancellationToken cancellationToken)
+        CancellationToken cancellationToken,
+        string? pageSize,
+        string? pageNumber,
+        string? sortBy)
     {
-        var productTags = await tagsService.GetAllAsync(cancellationToken);
+        var queryOptions = new QueryOptions
+        {
+            PageSize = int.TryParse(pageSize, out int size) ? size : 30,
+            PageNumber = int.TryParse(pageNumber, out int page) ? page : 1,
+            SortBy = Enum.TryParse<QueryOptions.Order>(sortBy, true, out var order) ? order : QueryOptions.Order.ASC
+        };
+        var productTags = await tagsService.GetAllAsync(queryOptions, cancellationToken);
         return Results.Ok(productTags);
     }
 
-    private static async Task<IResult> CreateProductTag(
+    private static async Task<IResult> CreateTag(
         HttpContext context,
         ITagsService tagsService,
         CreateTagRequest tagRequest,
@@ -73,7 +85,7 @@ public static class ProductTagEndpoints
         var productTag = await tagsService.CreateAsync(tagRequest,cancellationToken);
         return Results.Ok(productTag);
     }
-    private static async Task<IResult> UpdateProductTag(
+    private static async Task<IResult> UpdateTag(
         HttpContext context,
         ITagsService tagsService,
         long productTagId,
@@ -83,7 +95,7 @@ public static class ProductTagEndpoints
         var productTag = await tagsService.UpdateAsync(productTagId, tagRequest, cancellationToken);
         return Results.Ok(productTag);
     }
-    private static async Task<IResult> DeleteProductTag(
+    private static async Task<IResult> DeleteTag(
         HttpContext context,
         ITagsService tagsService,
         long productTagId,

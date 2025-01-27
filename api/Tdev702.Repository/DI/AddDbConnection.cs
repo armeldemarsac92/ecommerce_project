@@ -4,6 +4,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Npgsql;
 using Tdev702.Contracts.Config;
 using Tdev702.Repository.Config;
+using Tdev702.Repository.Context;
 using Tdev702.Repository.Repository;
 using Tdev702.Repository.SQL;
 using Tdev702.Repository.Utils;
@@ -24,7 +25,8 @@ public static class DbExtensions
             dataSourceBuilder.UseVector();
            // dataSourceBuilder.UseClientCertificate(cert);
         });
-        services.AddScoped<IUnitOfWork, UnitOfWork>();
+        services.AddScoped<IDbContext, DapperContext>();
+        services.AddScoped<IUnitOfWork, DapperContext>();
         services.AddScoped<IProductRepository, ProductRepository>();
         services.AddScoped<ICategoryRepository, CategoryRepository>();
         services.AddScoped<IBrandRepository, BrandRepository>();
@@ -33,7 +35,7 @@ public static class DbExtensions
         services.AddScoped<IProductTagRepository, ProductTagRepository>();
         services.AddScoped<IOrderRepository, OrderRepository>();
         services.AddScoped<IOrderProductRepository, OrderProductRepository>();
-        services.AddScoped<IUserRepository, UserRepository>();
+        services.AddScoped<ICustomerRepository, CustomerRepository>();
 
         return services;
     }
