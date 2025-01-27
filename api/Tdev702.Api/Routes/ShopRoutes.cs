@@ -72,8 +72,8 @@ public static class ShopRoutes
         public const string GetUserOrders = $"{Base}/orders/me";
         public const string GetAll = $"{Base}/orders";
         public const string GetById = $"{Base}/orders/{{orderId}}";
-        public const string Create = Base;
-        public const string Update = $"{Base}orders/{{orderId}}";
+        public const string Create = $"{Base}/orders";
+        public const string Update = $"{Base}/orders/{{orderId}}";
     }
 
     public static class Payments
