@@ -11,7 +11,7 @@ public interface ICategoriesService
     public Task<CategoryResponse> GetByIdAsync(long id, CancellationToken cancellationToken = default);
     public Task<List<CategoryResponse>> GetAllAsync(CancellationToken cancellationToken = default);
     public Task<CategoryResponse> CreateAsync(CreateCategoryRequest createCategoryRequest, CancellationToken cancellationToken = default);
-    public Task<CategoryResponse> UpdateAsync(long id, UpdateCategoryRequest updateCategoryRequest, CancellationToken cancellationToken = default);
+    public Task<CategoryResponse> UpdateAsync(long categoryId, UpdateCategoryRequest updateCategoryRequest, CancellationToken cancellationToken = default);
     public Task DeleteAsync(long id ,CancellationToken cancellationToken = default);
 }
 
@@ -45,14 +45,14 @@ public class CategoriesService : ICategoriesService
         return response.MapToCategory();
     }
 
-    public async Task<CategoryResponse> UpdateAsync(long id, UpdateCategoryRequest updateCategoryRequest, CancellationToken cancellationToken = default)
+    public async Task<CategoryResponse> UpdateAsync(long categoryId, UpdateCategoryRequest updateCategoryRequest, CancellationToken cancellationToken = default)
     {
-        var sqlRequest = updateCategoryRequest.MapToUpdateCategoryRequest(id);
+        var sqlRequest = updateCategoryRequest.MapToUpdateCategoryRequest(categoryId);
         var affectedRows = await _categoryRepository.UpdateAsync(sqlRequest, cancellationToken);
 
-        if (affectedRows == 0) throw new NotFoundException($"Category {id} not found");
+        if (affectedRows == 0) throw new NotFoundException($"Category {categoryId} not found");
         
-        var updatedCategory = await _categoryRepository.GetByIdAsync(id, cancellationToken);
+        var updatedCategory = await _categoryRepository.GetByIdAsync(categoryId, cancellationToken);
         return updatedCategory.MapToCategory();
         
     }

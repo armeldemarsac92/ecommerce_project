@@ -17,36 +17,36 @@ public interface ICategoryRepository
 
 public class CategoryRepository : ICategoryRepository
 {
-    private readonly IDBSQLCommand _dbCommand;
+    private readonly IUnitOfWork _unitOfWork;
 
-    public CategoryRepository(IDBSQLCommand dbCommand)
+    public CategoryRepository(IUnitOfWork unitOfWork)
     {
-        _dbCommand = dbCommand;
+        _unitOfWork = unitOfWork;
     }
     
     public async Task<CategorySQLResponse?> GetByIdAsync(long id, CancellationToken cancellationToken = default)
     {
-        return await _dbCommand.QueryFirstOrDefaultAsync<CategorySQLResponse>(CategoryQueries.GetCategoryById, new { Id = id }, cancellationToken);
+        return await _unitOfWork.QueryFirstOrDefaultAsync<CategorySQLResponse>(CategoryQueries.GetCategoryById, new { Id = id }, cancellationToken);
     }
 
     public async Task<List<CategorySQLResponse>> GetAllAsync(CancellationToken cancellationToken = default)
     {
-        var response = await _dbCommand.QueryAsync<CategorySQLResponse>(CategoryQueries.GetAllCategories, cancellationToken);
+        var response = await _unitOfWork.QueryAsync<CategorySQLResponse>(CategoryQueries.GetAllCategories, cancellationToken);
         return response.Any() ? response.ToList() : new List<CategorySQLResponse>();
     }
 
     public async Task<CategorySQLResponse> CreateAsync(CreateCategorySQLRequest createCategoryRequest, CancellationToken cancellationToken = default)
     {
-        return await _dbCommand.QuerySingleAsync<CategorySQLResponse>(CategoryQueries.CreateCategory, createCategoryRequest, cancellationToken);
+        return await _unitOfWork.QuerySingleAsync<CategorySQLResponse>(CategoryQueries.CreateCategory, createCategoryRequest, cancellationToken);
     }
 
     public async Task<int> UpdateAsync(UpdateCategorySQLRequest updateCategoryRequest, CancellationToken cancellationToken = default)
     { 
-        return await _dbCommand.ExecuteAsync(CategoryQueries.UpdateCategory, updateCategoryRequest, cancellationToken);
+        return await _unitOfWork.ExecuteAsync(CategoryQueries.UpdateCategory, updateCategoryRequest, cancellationToken);
     }
 
     public async Task DeleteAsync(long id, CancellationToken cancellationToken = default)
     {
-        await _dbCommand.ExecuteAsync(CategoryQueries.DeleteCategory, new { Id = id }, cancellationToken);
+        await _unitOfWork.ExecuteAsync(CategoryQueries.DeleteCategory, new { Id = id }, cancellationToken);
     }
 }

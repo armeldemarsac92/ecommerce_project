@@ -5,11 +5,11 @@ namespace Tdev702.Contracts.SQL.Response;
 public class ProductTagSQLResponse
 {
     [Column("id")]
-    public required long ProductTagId { get; init; }
+    public long Id { get; set; }
     
-    [Column("title")]
-    public required string Title { get; init; }
+    [Column("product_id")]
+    public long ProductId { get; set; }
     
-    [Column("description")]
-    public string? Description { get; init; }
+    [Column("tag_id")]
+    public long TagId { get; set; }
 }

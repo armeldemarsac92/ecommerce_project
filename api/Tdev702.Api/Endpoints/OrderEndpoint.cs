@@ -93,12 +93,11 @@ public static class OrderEndpoints
    private static async Task<IResult> UpdateOrder(
        HttpContext context,
        IOrderService orderService,
-       long id,
+       long orderId,
        UpdateOrderRequest orderRequest,
        CancellationToken cancellationToken)
    {
-       orderRequest.Id = id;
-       var order = await orderService.UpdateAsync(orderRequest, cancellationToken);
+       var order = await orderService.UpdateAsync(orderId, orderRequest, cancellationToken);
        return Results.Ok(order);
    }
 }

@@ -29,6 +29,36 @@ public static class OrderMapping
         return orderResponses.Select(order => order.MapToOrder(productSqlResponse)).ToList();
     }
     
+    
+    public static OrderSummaryResponse MapToOrderSummary(this OrderSummarySQLResponse orderSql)
+    {
+        return new OrderSummaryResponse
+        {
+            Id = orderSql.Id,
+            UserId = orderSql.UserId,
+            PaymentStatus = orderSql.PaymentStatus,
+            TotalAmount = orderSql.TotalAmount,
+            StripeInvoiceId = orderSql.StripeInvoiceId,
+            StripePaymentIntentId = orderSql.StripePaymentIntentId,
+            CreatedAt = orderSql.CreatedAt,
+            OrderItems = orderSql.OrderItems.Select(item => new OrderItemResponse
+            {
+                ProductId = item.ProductId,
+                Title = item.Title,
+                Quantity = item.Quantity,
+                UnitPrice = item.UnitPrice,
+                Subtotal = item.Subtotal,
+                Brand = item.Brand,
+                Category = item.Category
+            }).ToArray()
+        };
+    }
+
+    public static List<OrderSummaryResponse> MapToOrderSummaries(this List<OrderSummarySQLResponse> orders)
+    {
+        return orders.Select(MapToOrderSummary).ToList();
+    }
+
 
     public static CreateOrderSQLRequest MapToCreateOrderRequest(this CreateOrderRequest createOrderRequest, double totalAmount)
     {

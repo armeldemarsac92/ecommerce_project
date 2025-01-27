@@ -76,11 +76,11 @@ public static class ProductEndpoints
     private static async Task<IResult> UpdateProduct(
         HttpContext context,
         IProductsService productsService,
-        long id,
+        long productId,
         UpdateProductRequest productRequest,
         CancellationToken cancellationToken)
     {
-        var product = await productsService.UpdateAsync(id, productRequest, cancellationToken);
+        var product = await productsService.UpdateAsync(productId, productRequest, cancellationToken);
         return Results.Ok(product);
     }
     private static async Task<IResult> DeleteProduct(

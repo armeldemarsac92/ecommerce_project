@@ -16,7 +16,6 @@ public class CreateProductSQLRequest
     
     public long? OpenFoodFactId { get; set; }
     
-    public DateTimeOffset UpdatedAt { get; set; }
+    public string? ImageUrl { get; set; }
     
-    public DateTimeOffset CreatedAt { get; set; }
 }

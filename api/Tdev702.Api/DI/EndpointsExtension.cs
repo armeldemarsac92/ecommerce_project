@@ -21,7 +21,7 @@ public static class EndpointExtensions
 
     public static IServiceCollection AddApiServices(this IServiceCollection services, IConfiguration _)
     {
-        services.AddScoped<IProductTagsService, ProductTagsService>();
+        services.AddScoped<ITagsService, TagsService>();
         services.AddScoped<IProductsService, ProductsService>();
         services.AddScoped<IBrandsService, BrandsService>();
         services.AddScoped<ICategoriesService, CategoriesService>();

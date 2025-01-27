@@ -21,33 +21,33 @@ public interface IOrderProductRepository
 
 public class OrderProductRepository : IOrderProductRepository
 {
-   private readonly IDBSQLCommand _dbCommand;
+   private readonly IUnitOfWork _unitOfWork;
 
-   public OrderProductRepository(IDBSQLCommand dbCommand)
+   public OrderProductRepository(IUnitOfWork unitOfWork)
    {
-       _dbCommand = dbCommand;
+       _unitOfWork = unitOfWork;
    }
 
    public async Task<OrderProductSQLResponse?> GetByIdAsync(long id, CancellationToken cancellationToken = default)
    {
-       return await _dbCommand.QueryFirstOrDefaultAsync<OrderProductSQLResponse>(OrderProductQueries.GetOrderProductById, new { OrderProductId = id }, cancellationToken);
+       return await _unitOfWork.QueryFirstOrDefaultAsync<OrderProductSQLResponse>(OrderProductQueries.GetOrderProductById, new { OrderProductId = id }, cancellationToken);
    }
 
    public async Task<List<OrderProductSQLResponse>> GetAllByOrderId(long orderId, CancellationToken cancellationToken = default)
    {
-       var response = await _dbCommand.QueryAsync<OrderProductSQLResponse>(OrderProductQueries.GetAllOrderProductsByOrderId, orderId, cancellationToken);
+       var response = await _unitOfWork.QueryAsync<OrderProductSQLResponse>(OrderProductQueries.GetAllOrderProductsByOrderId, orderId, cancellationToken);
        return response.Any() ? response.ToList() : new List<OrderProductSQLResponse>();
    }
 
    public async Task<List<OrderProductSQLResponse>> GetAllAsync(CancellationToken cancellationToken = default)
    {
-       var response = await _dbCommand.QueryAsync<OrderProductSQLResponse>(OrderProductQueries.GetAllOrderProducts, cancellationToken);
+       var response = await _unitOfWork.QueryAsync<OrderProductSQLResponse>(OrderProductQueries.GetAllOrderProducts, cancellationToken);
        return response.Any() ? response.ToList() : new List<OrderProductSQLResponse>();
    }
 
    public async Task<OrderProductSQLResponse> CreateAsync(CreateOrderProductSQLRequest createOrderProductRequest, CancellationToken cancellationToken = default)
    {
-       return await _dbCommand.QuerySingleAsync<OrderProductSQLResponse>(OrderProductQueries.CreateOrderProduct, createOrderProductRequest, cancellationToken);
+       return await _unitOfWork.QuerySingleAsync<OrderProductSQLResponse>(OrderProductQueries.CreateOrderProduct, createOrderProductRequest, cancellationToken);
    }
    
    public async Task<List<OrderProductSQLResponse>> CreateManyAsync(List<CreateOrderProductSQLRequest> orderProducts, CancellationToken cancellationToken = default)
@@ -61,7 +61,7 @@ public class OrderProductRepository : IOrderProductRepository
            Subtotals = orderProducts.Select(op => op.Subtotal).ToArray()
        };
 
-       var response = await _dbCommand.QueryAsync<OrderProductSQLResponse>(
+       var response = await _unitOfWork.QueryAsync<OrderProductSQLResponse>(
            OrderProductQueries.CreateManyOrderProducts,
            parameters,
            cancellationToken);
@@ -79,7 +79,7 @@ public class OrderProductRepository : IOrderProductRepository
            Subtotals = orderProducts.Select(op => op.Subtotal).ToArray()
        };
        
-       return await _dbCommand.ExecuteAsync(
+       return await _unitOfWork.ExecuteAsync(
            OrderProductQueries.UpdateManyOrderProducts,
            parameters,
            cancellationToken);
@@ -88,11 +88,11 @@ public class OrderProductRepository : IOrderProductRepository
 
    public async Task<int> UpdateAsync(UpdateOrderProductSQLRequest updateOrderProductRequest, CancellationToken cancellationToken = default)
    {
-       return await _dbCommand.ExecuteAsync(OrderProductQueries.UpdateOrderProduct, updateOrderProductRequest, cancellationToken);
+       return await _unitOfWork.ExecuteAsync(OrderProductQueries.UpdateOrderProduct, updateOrderProductRequest, cancellationToken);
    }
 
    public async Task DeleteAsync(long id, CancellationToken cancellationToken = default)
    {
-       await _dbCommand.ExecuteAsync(OrderProductQueries.DeleteOrderProduct, new { OrderProductId = id }, cancellationToken);
+       await _unitOfWork.ExecuteAsync(OrderProductQueries.DeleteOrderProduct, new { OrderProductId = id }, cancellationToken);
    }
 }

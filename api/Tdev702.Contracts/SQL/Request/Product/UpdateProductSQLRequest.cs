@@ -10,6 +10,5 @@ public class UpdateProductSQLRequest
     public long? BrandId { get; init; }
     public long? CategoryId { get; init; }
     public long? OpenFoodFactId { get; init; }
-    public DateTimeOffset? UpdatedAt { get; init; }
-    public DateTimeOffset? CreatedAt { get; init; }
+    public string? ImageUrl { get; set; }
 }

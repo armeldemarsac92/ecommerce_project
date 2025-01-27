@@ -4,9 +4,9 @@ namespace Tdev702.Contracts.API.Request.ProductTag;
 
 public class CreateProductTagRequest
 {
-    [JsonPropertyName("title")]
-    public required string Title { get; set; }
-
-    [JsonPropertyName("description")]
-    public string? Description { get; set; }
+    [JsonPropertyName("product_id")]
+    public required long ProductId { get; set; }
+    
+    [JsonPropertyName("tag_id")]
+    public required long TagId { get; set; }
 }

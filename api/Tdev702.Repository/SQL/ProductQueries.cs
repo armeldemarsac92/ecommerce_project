@@ -5,17 +5,17 @@ public static class ProductQueries
     public static string GetProductById = @"
     SELECT 
         *
-    FROM shop.products
+    FROM shop.vw_products
     WHERE id = @Id;";
     
     public static string GetAllProducts = @"
     SELECT 
         *
-    FROM shop.products;";
+    FROM shop.vw_products;";
     
     public static string GetProductsByIds = @"
     SELECT *
-    FROM shop.products
+    FROM shop.vw_products
     WHERE id = ANY(@ProductIds);";
 
     public static string CreateProduct = @"
