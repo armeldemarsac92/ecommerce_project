@@ -11,8 +11,8 @@ public class CustomerQueries
     SELECT *
     FROM backoffice.vw_customers
     ORDER BY 
-        CASE WHEN @orderBy = 'DESC' THEN ""Id"" END DESC,
-        CASE WHEN @orderBy = 'ASC' THEN ""Id"" END ASC
+        CASE WHEN @orderBy = 2 THEN ""Id"" END DESC,
+        CASE WHEN @orderBy = 1 THEN ""Id"" END ASC
     LIMIT @pageSize 
     OFFSET @offset;";
 }

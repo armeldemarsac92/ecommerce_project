@@ -17,6 +17,7 @@ public static class EndpointExtensions
         app.MapPaymentMethodEndpoints();
         app.MapWebhookEndpoint();
         app.MapCustomerEndpoints();
+        app.MapTagEndpoints();
         return app;
     }
 

@@ -11,8 +11,8 @@ public class TagQueries
     SELECT *
     FROM shop.tags        
     ORDER BY 
-        CASE WHEN @orderBy = 'DESC' THEN id END DESC,
-        CASE WHEN @orderBy = 'ASC' THEN id END ASC
+        CASE WHEN @orderBy = 2 THEN id END DESC,
+        CASE WHEN @orderBy = 1 THEN id END ASC
     LIMIT @pageSize 
     OFFSET @offset;";
     
