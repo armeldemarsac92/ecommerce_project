@@ -6,11 +6,11 @@ public static class ShopRoutes
 
     public static class Products
     {
-        public const string GetById = $"{Base}/products/{{Id}}";
+        public const string GetById = $"{Base}/products/{{id}}";
         public const string GetAll = $"{Base}/products";
         public const string Create = $"{Base}/products";
-        public const string Update = $"{Base}/products/{{Id}}";
-        public const string Delete = $"{Base}/products/{{Id}}";
+        public const string Update = $"{Base}/products/{{id}}";
+        public const string Delete = $"{Base}/products/{{id}}";
     }
     
     public static class ProductsTags
@@ -50,19 +50,26 @@ public static class ShopRoutes
         public const string IncreamentStockInventory = $"{Base}/inventories/{{productId}}/increament";
         public const string SubstractStockInventory = $"{Base}/inventories/{{productId}}/substract";
     }
+
+    public static class Customers
+    {
+        public const string GetById = $"{Base}/customers/{{id}}";
+        public const string GetAll = $"{Base}/customers";
+    }
     
     public static class Invoices
     {
-        public const string GetById = $"{Base}/invoices/{{Id}}";
+        public const string GetById = $"{Base}/invoices/{{id}}";
         public const string GetAll = $"{Base}/invoices";
         public const string Create = $"{Base}/invoices";
-        public const string Update = $"{Base}/invoices/{{Id}}";
-        public const string Delete = $"{Base}/invoices/{{Id}}";
+        public const string Update = $"{Base}/invoices/{{id}}";
+        public const string Delete = $"{Base}/invoices/{{id}}";
     }
 
     public static class Orders
     {
        
+        public const string GetUserOrders = $"{Base}/orders/me";
         public const string GetAll = $"{Base}/orders";
         public const string GetById = $"{Base}/orders/{{orderId}}";
         public const string Create = Base;

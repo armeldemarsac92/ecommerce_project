@@ -9,7 +9,12 @@ public class TagQueries
 
     public static string GetAllTags = @"
     SELECT *
-    FROM shop.tags;";
+    FROM shop.tags        
+    ORDER BY 
+        CASE WHEN @orderBy = 'DESC' THEN id END DESC,
+        CASE WHEN @orderBy = 'ASC' THEN id END ASC
+    LIMIT @pageSize 
+    OFFSET @offset;";
     
     public static string GetByIds = @"
     SELECT *
@@ -19,7 +24,7 @@ public class TagQueries
     public static string CreateTag = @"
     INSERT INTO shop.tags (title, description)
     VALUES (@title, @description)
-    RETURNING *;";
+    RETURNING id;";
 
     public static string UpdateTag = @"
     UPDATE shop.tags

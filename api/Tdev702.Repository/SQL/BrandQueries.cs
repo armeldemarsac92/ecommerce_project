@@ -9,12 +9,17 @@ public static class BrandQueries
 
     public static string GetAllBrands = @"
     SELECT *
-    FROM shop.brands;";
+    FROM shop.brands
+    ORDER BY 
+        CASE WHEN @orderBy = 'DESC' THEN id END DESC,
+        CASE WHEN @orderBy = 'ASC' THEN id END ASC
+    LIMIT @pageSize 
+    OFFSET @offset;";
 
     public static string CreateBrand = @"
     INSERT INTO shop.brands (title, description)
     VALUES (@title, @description)
-    RETURNING *;";
+    RETURNING id;";
 
     public static string UpdateBrand = @"
     UPDATE shop.brands

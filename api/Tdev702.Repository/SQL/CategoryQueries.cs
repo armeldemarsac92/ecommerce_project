@@ -9,12 +9,17 @@ public static class CategoryQueries
 
     public static string GetAllCategories = @"
     SELECT *
-    FROM shop.categories;";
+    FROM shop.categories
+    ORDER BY 
+        CASE WHEN @orderBy = 'DESC' THEN id END DESC,
+        CASE WHEN @orderBy = 'ASC' THEN id END ASC
+    LIMIT @pageSize 
+    OFFSET @offset;";
 
     public static string CreateCategory = @"
     INSERT INTO shop.categories (title, description)
     VALUES (@title, @description)
-    RETURNING *;";
+    RETURNING id;";
 
     public static string UpdateCategory = @"
     UPDATE shop.categories

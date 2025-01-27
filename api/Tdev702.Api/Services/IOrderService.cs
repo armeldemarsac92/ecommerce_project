@@ -3,8 +3,10 @@ using Tdev702.Contracts.API.Request.Order;
 using Tdev702.Contracts.API.Response;
 using Tdev702.Contracts.Exceptions;
 using Tdev702.Contracts.Mapping;
+using Tdev702.Contracts.SQL.Request.All;
 using Tdev702.Contracts.SQL.Request.Order;
 using Tdev702.Contracts.SQL.Response;
+using Tdev702.Repository.Context;
 using Tdev702.Repository.Repository;
 using Tdev702.Stripe.SDK.Services;
 
@@ -15,9 +17,9 @@ public interface IOrderService
     Task<OrderSummaryResponse> GetByIdAsync(long orderId, CancellationToken cancellationToken = default);
     Task<OrderSummaryResponse> GetOrderByPaymentIntentIdAsync(string stripePaymentIntentId, CancellationToken cancellationToken = default);
     
-    Task<List<OrderSummaryResponse>> GetAllAsync(CancellationToken cancellationToken = default);
+    Task<List<OrderSummaryResponse>> GetAllAsync(QueryOptions queryOptions, CancellationToken cancellationToken = default);
     
-    Task<List<OrderSummaryResponse>> GetAllByUserIdAsync(string userId, CancellationToken cancellationToken = default);
+    Task<List<OrderSummaryResponse>> GetAllByUserIdAsync(string userId, QueryOptions queryOptions, CancellationToken cancellationToken = default);
     
     Task<OrderSummaryResponse> CreateAsync(CreateOrderRequest createOrderRequest, CancellationToken cancellationToken = default);
 
@@ -33,6 +35,7 @@ public class OrderService : IOrderService
     private readonly IProductRepository _productRepository;
     private readonly IOrderProductRepository _orderProductRepository;
     private readonly IStripePaymentIntentService _stripePaymentIntentService;
+    private readonly IUnitOfWork _unitOfWork;
 
 
     public OrderService(
@@ -40,17 +43,20 @@ public class OrderService : IOrderService
         IOrderRepository orderRepository,
         IProductRepository productRepository, 
         IOrderProductRepository orderProductRepository, 
-        IStripePaymentIntentService stripePaymentIntentService)
+        IStripePaymentIntentService stripePaymentIntentService, 
+        IUnitOfWork unitOfWork)
     {
         _logger = logger;
         _orderRepository = orderRepository;
         _productRepository = productRepository;
         _orderProductRepository = orderProductRepository;
         _stripePaymentIntentService = stripePaymentIntentService;
+        _unitOfWork = unitOfWork;
     }
     
     public async Task<OrderSummaryResponse> GetByIdAsync(long orderId, CancellationToken cancellationToken = default)
     {
+        _logger.LogInformation("Getting order with id: {orderId}", orderId);
         var order = await _orderRepository.GetByIdAsync(orderId, cancellationToken);
         if(order is null) throw new NotFoundException($"Order {orderId} not found");
         return order.MapToOrderSummary();
@@ -58,6 +64,7 @@ public class OrderService : IOrderService
 
     public async Task<OrderSummaryResponse> GetOrderByPaymentIntentIdAsync(string stripePaymentIntentId, CancellationToken cancellationToken = default)
     {
+        _logger.LogInformation("Getting order with payment intent id: {stripePaymentIntentId}", stripePaymentIntentId);
         var order = await _orderRepository.GetByPaymentIntentIdAsync(stripePaymentIntentId, cancellationToken);
         if(order is null) throw new NotFoundException($"Order with payment intent {stripePaymentIntentId} not found");
         return order.MapToOrderSummary();
@@ -65,23 +72,26 @@ public class OrderService : IOrderService
 
 
 
-    public async Task<List<OrderSummaryResponse>> GetAllAsync(CancellationToken cancellationToken = default)
+    public async Task<List<OrderSummaryResponse>> GetAllAsync(QueryOptions queryOptions, CancellationToken cancellationToken = default)
     {
-        var orders = await _orderRepository.GetAllAsync(cancellationToken);
+        _logger.LogInformation("Getting all orders");
+        var orders = await _orderRepository.GetAllAsync(queryOptions, cancellationToken);
         return orders.MapToOrderSummaries();
     }
 
 
 
-    public async Task<List<OrderSummaryResponse>> GetAllByUserIdAsync(string userId, CancellationToken cancellationToken = default)
+    public async Task<List<OrderSummaryResponse>> GetAllByUserIdAsync(string userId, QueryOptions queryOptions, CancellationToken cancellationToken = default)
     {
-        var orders = await _orderRepository.GetAllByUserIdAsync(userId, cancellationToken);
+        _logger.LogInformation("Getting all orders for user with id: {userId}", userId);
+        var orders = await _orderRepository.GetAllByUserIdAsync(userId, queryOptions, cancellationToken);
         return orders.MapToOrderSummaries();
     }
 
     public async Task<OrderSummaryResponse> CreateAsync(CreateOrderRequest createOrderRequest,
         CancellationToken cancellationToken = default)
     {
+        _logger.LogInformation("Creating order");
         //first we retrieve the products linked to the order to be created
         var products =
             await _productRepository.GetByIdsAsync(createOrderRequest.Products.Select(p => p.ProductId).ToList(),
@@ -93,30 +103,57 @@ public class OrderService : IOrderService
         
         //we prepare the order data for insertion into the SQL database
         var createOrderSqlRequest = createOrderRequest.MapToCreateOrderRequest(totalAmount);
-        
-        //we create the order in the SQL database
-        var createOrderSqlResponse = await _orderRepository.CreateAsync(createOrderSqlRequest, cancellationToken);
-        
-        //we then use the id of the created order to create the corresponding links between the order and the products
-        var createOrderProductsSqlRequest =
-            createOrderRequest.Products.MapToCreateOrderProductRequests(products, createOrderSqlResponse.Id);
-        
-        //we create the corresponding links between the order and the products in the SQL database
-        await _orderProductRepository.CreateManyAsync(createOrderProductsSqlRequest, cancellationToken);
-        
-        //we map the created order products to their corresponding products and the order
-        var order = createOrderSqlResponse.MapToOrderSummary();
-        return order;
+
+        await _unitOfWork.BeginTransactionAsync(cancellationToken);
+        try
+        {
+            //we create the order in the SQL database
+            var createdOrderId = await _orderRepository.CreateAsync(createOrderSqlRequest, cancellationToken);
+
+            //we then use the id of the created order to create the corresponding links between the order and the products
+            var createOrderProductsSqlRequest =
+                createOrderRequest.Products.MapToCreateOrderProductRequests(products, createdOrderId);
+
+            //we create the corresponding links between the order and the products in the SQL database
+            await _orderProductRepository.CreateManyAsync(createOrderProductsSqlRequest, cancellationToken);
+
+            //we map the created order products to their corresponding products and the order
+            var orderResponse = await _orderRepository.GetByIdAsync(createdOrderId, cancellationToken);
+            await _unitOfWork.CommitAsync(cancellationToken);
+            _logger.LogInformation("Order created successfully with id: {orderId}", createdOrderId);
+            return orderResponse.MapToOrderSummary();
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError("Failed to create order: {message}", ex.Message);
+            await _unitOfWork.RollbackAsync(cancellationToken);
+            throw;
+        }
     }
     
     public async Task UpdateOrderPaymentStatus(UpdateOrderSQLRequest updateOrderRequest, CancellationToken cancellationToken)
     {
-        await _orderRepository.UpdateAsync(updateOrderRequest, cancellationToken);
+        _logger.LogInformation("Updating order payment status {paymentStatus} for order with id: {orderId}", updateOrderRequest.PaymentStatus, updateOrderRequest.Id);
+        await _unitOfWork.BeginTransactionAsync(cancellationToken);
+        try
+        {
+            await _orderRepository.UpdateAsync(updateOrderRequest, cancellationToken);
+            await _unitOfWork.CommitAsync(cancellationToken);
+            _logger.LogInformation("Order payment status updated successfully for order with id: {orderId}",
+                updateOrderRequest.Id);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError("Failed to update order payment status: {message}", ex.Message);
+            await _unitOfWork.RollbackAsync(cancellationToken);
+            throw;
+        }
     }
 
     public async Task<OrderSummaryResponse> UpdateAsync(long orderId, UpdateOrderRequest updateOrderRequest,
         CancellationToken cancellationToken = default)
     {
+        _logger.LogInformation("Updating order with id: {orderId}", orderId);
         //first we retrieve the order
         var order = await _orderRepository.GetByIdAsync(orderId, cancellationToken);
         if (order is null) throw new NotFoundException($"Order {orderId} not found");
@@ -131,30 +168,42 @@ public class OrderService : IOrderService
         var totalAmount = newProducts.Sum(p =>
             p.Price * updateOrderRequest.Products.First(op => op.ProductId == p.Id).Quantity);
 
-        //we update the order payment intent with the new total amount
-        await UpdateOrderPaymentIntent(cancellationToken, totalAmount, order);
+        await _unitOfWork.BeginTransactionAsync(cancellationToken);
+        try
+        {
+            //we update the order payment intent with the new total amount
+            await UpdateOrderPaymentIntent(cancellationToken, totalAmount, order);
 
-        //we remove any products that have been removed from the order request from the SQL database
-        await RemoveDeatchedProducts(cancellationToken, order, newProducts);
+            //we remove any products that have been removed from the order request from the SQL database
+            await RemoveDetachedProducts(cancellationToken, order, newProducts);
 
-        //we update the link between the order and the products with the new prices and quantities
-        var updateOrderProductsSqlRequest =
-            updateOrderRequest.Products.MapToUpdateOrderProductRequests(newProducts, orderId);
-        await _orderProductRepository.UpdateManyAsync(updateOrderProductsSqlRequest,
-            cancellationToken);
-        
-        //then we update the order itself with the new total amount that we calculated earlier
-        var updateOrderSqlRequest = updateOrderRequest.MapToUpdateOrderRequest(orderId, totalAmount);
-        var affectedOrderRows = await _orderRepository.UpdateAsync(updateOrderSqlRequest, cancellationToken);
-        if (affectedOrderRows == 0) throw new InvalidOperationException("Update failed");
-        var updatedRow = await _orderRepository.GetByIdAsync(orderId, cancellationToken);
-        return updatedRow.MapToOrderSummary();
+            //we update the link between the order and the products with the new prices and quantities
+            var updateOrderProductsSqlRequest =
+                updateOrderRequest.Products.MapToUpdateOrderProductRequests(newProducts, orderId);
+            await _orderProductRepository.UpdateManyAsync(updateOrderProductsSqlRequest,
+                cancellationToken);
+
+            //then we update the order itself with the new total amount that we calculated earlier
+            var updateOrderSqlRequest = updateOrderRequest.MapToUpdateOrderRequest(orderId, totalAmount);
+            var affectedOrderRows = await _orderRepository.UpdateAsync(updateOrderSqlRequest, cancellationToken);
+            if (affectedOrderRows == 0) throw new InvalidOperationException("Update failed");
+            var updatedRow = await _orderRepository.GetByIdAsync(orderId, cancellationToken);
+            await _unitOfWork.CommitAsync(cancellationToken);
+            _logger.LogInformation("Order updated successfully with id: {orderId}", orderId);
+            return updatedRow.MapToOrderSummary();
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError("Failed to update order: {message}", ex.Message);
+            await _unitOfWork.RollbackAsync(cancellationToken);
+            throw;
+        }
     }
 
-    private async Task RemoveDeatchedProducts(CancellationToken cancellationToken, OrderSummarySQLResponse order, List<ProductSQLResponse> newProducts)
+    private async Task RemoveDetachedProducts(CancellationToken cancellationToken, OrderSummarySQLResponse order, List<ProductSQLResponse> newProducts)
     {
         //then we retrieve the old products linked to the order to see if some products have been removed
-        var oldProductOrderList = await _orderProductRepository.GetAllByOrderId(order.Id, cancellationToken);
+        var oldProductOrderList = await _orderProductRepository.GetAllByOrderIdAsync(order.Id, cancellationToken);
         var oldProducts =
             await _productRepository.GetByIdsAsync(oldProductOrderList.Select(op => op.ProductId).ToList(),
                 cancellationToken);

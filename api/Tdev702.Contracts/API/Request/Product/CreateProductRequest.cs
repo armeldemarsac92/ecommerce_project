@@ -4,9 +4,6 @@ namespace Tdev702.Contracts.API.Request.Product;
 
 public class CreateProductRequest
 {
-    [JsonPropertyName("stripe_id")]
-    public string? StripeId { get; set; }
-   
     [JsonPropertyName("title")]
     public required string Title { get; set; }
    

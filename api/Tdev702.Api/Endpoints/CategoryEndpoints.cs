@@ -2,6 +2,7 @@ using Tdev702.Api.Routes;
 using Tdev702.Api.Services;
 using Tdev702.Contracts.API.Request.Category;
 using Tdev702.Contracts.API.Response;
+using Tdev702.Contracts.SQL.Request.All;
 
 namespace Tdev702.Api.Endpoints;
 
@@ -27,12 +28,14 @@ public static class CategoryEndpoints
         app.MapPost(ShopRoutes.Categories.Create, CreateCategory)
             .WithTags(Tags)
             .WithDescription("Create one Category")
+            .Accepts<CreateCategoryRequest>(ContentType)
             .Produces<CategoryResponse>(200)
             .Produces(404);
         
         app.MapPut(ShopRoutes.Categories.Update, UpdateCategory)
             .WithTags(Tags)
             .WithDescription("Update one Category")
+            .Accepts<UpdateCategoryRequest>(ContentType)
             .Produces<CategoryResponse>(200)
             .Produces(404);
         
@@ -57,9 +60,19 @@ public static class CategoryEndpoints
     private static async Task<IResult> GetAllCategories(
         HttpContext context,
         ICategoriesService categoriesService,
-        CancellationToken cancellationToken)
+        CancellationToken cancellationToken,
+        string? pageSize,
+        string? pageNumber,
+        string? sortBy)
     {
-        var categories = await categoriesService.GetAllAsync(cancellationToken);
+        var queryOptions = new QueryOptions
+        {
+            PageSize = int.TryParse(pageSize, out int size) ? size : 30,
+            PageNumber = int.TryParse(pageNumber, out int page) ? page : 1,
+            SortBy = Enum.TryParse<QueryOptions.Order>(sortBy, true, out var order) ? order : QueryOptions.Order.ASC
+        };
+        
+        var categories = await categoriesService.GetAllAsync(queryOptions, cancellationToken);
         return Results.Ok(categories);
     }
 

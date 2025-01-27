@@ -2,6 +2,7 @@ using Tdev702.Api.Routes;
 using Tdev702.Api.Services;
 using Tdev702.Contracts.API.Request.Product;
 using Tdev702.Contracts.API.Response;
+using Tdev702.Contracts.SQL.Request.All;
 
 namespace Tdev702.Api.Endpoints;
 
@@ -16,7 +17,7 @@ public static class ProductEndpoints
             .WithTags(Tags)
             .WithDescription("Get all products")
             .Produces<List<ShopProductResponse>>(200)
-            .Produces(404);
+            .Produces(204);
         
         app.MapGet(ShopRoutes.Products.GetById, GetProduct)
             .WithTags(Tags)
@@ -27,12 +28,14 @@ public static class ProductEndpoints
         app.MapPost(ShopRoutes.Products.Create, CreateProduct)
             .WithTags(Tags)
             .WithDescription("Create a product")
+            .Accepts<CreateProductRequest>(ContentType)
             .Produces<ShopProductResponse>(200)
             .Produces(404);
         
         app.MapPut(ShopRoutes.Products.Update, UpdateProduct)
             .WithTags(Tags)
             .WithDescription("Update a product")
+            .Accepts<UpdateProductRequest>(ContentType)
             .Produces<ShopProductResponse>(200)
             .Produces(404);
         
@@ -48,9 +51,18 @@ public static class ProductEndpoints
     private static async Task<IResult> GetAllProducts(
         HttpContext context,
         IProductsService productsService,
-        CancellationToken cancellationToken)
+        CancellationToken cancellationToken,
+        string? pageSize,
+        string? pageNumber,
+        string? sortBy)
     {
-        var products = await productsService.GetAllAsync(cancellationToken);
+        var queryOptions = new QueryOptions
+        {
+            PageSize = int.TryParse(pageSize, out int size) ? size : 30,
+            PageNumber = int.TryParse(pageNumber, out int page) ? page : 1,
+            SortBy = Enum.TryParse<QueryOptions.Order>(sortBy, true, out var order) ? order : QueryOptions.Order.ASC
+        };
+        var products = await productsService.GetAllAsync(queryOptions, cancellationToken);
         return Results.Ok(products);
     }
     

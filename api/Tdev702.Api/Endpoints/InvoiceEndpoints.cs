@@ -20,12 +20,14 @@ public static class InvoiceEndpoints
         app.MapPost(ShopRoutes.Invoices.Create, CreateInvoice)
             .WithTags(Tags)
             .WithDescription("Create a new invoice")
+            .Accepts<InvoiceCreateOptions>(ContentType)
             .Produces<Invoice>(200)
             .Produces(400);
         
         app.MapPut(ShopRoutes.Invoices.Update, UpdateInvoice)
             .WithTags(Tags)
             .WithDescription("Update an existing invoice")
+            .Accepts<InvoiceUpdateOptions>(ContentType)
             .Produces<Invoice>(200)
             .Produces(404);
         

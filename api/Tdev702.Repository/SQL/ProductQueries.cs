@@ -11,7 +11,12 @@ public static class ProductQueries
     public static string GetAllProducts = @"
     SELECT 
         *
-    FROM shop.vw_products;";
+    FROM shop.vw_products        
+    ORDER BY 
+        CASE WHEN @orderBy = 'DESC' THEN id END DESC,
+        CASE WHEN @orderBy = 'ASC' THEN id END ASC
+    LIMIT @pageSize 
+    OFFSET @offset;";
     
     public static string GetProductsByIds = @"
     SELECT *
