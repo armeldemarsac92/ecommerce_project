@@ -20,7 +20,7 @@ export const useProducts = () => {
 
     return {
         products,
-        refreshProducts: () => mutate('/products'),
+        refreshProducts: () => mutate(),
         loadingSWRProducts,
         errorSWRProducts,
         isError: !!errorSWRProducts

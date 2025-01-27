@@ -1,32 +1,21 @@
 "use client"
 
-import {
-    Chip, Pagination,
-    SortDescriptor,
-    Table,
-    TableBody,
-    TableCell,
-    TableColumn,
-    TableHeader,
-    TableRow,
-} from "@nextui-org/react";
+import {Chip, Pagination, SortDescriptor, Spinner, Table, TableBody, TableCell, TableColumn, TableHeader, TableRow, useDisclosure} from "@nextui-org/react";
 import React, {useEffect, useMemo, useState, useCallback} from "react";
 import {columns} from "@/app/(dashboard)/dashboard/(catalog)/catalog/inventory/_data/data";
 import {SearchBar} from "@/components/ui/search-bar";
 import {AddButton} from "@/components/ui/add-button";
 import {Button} from "@/components/shadcn/button";
 import {ChevronLeft, ChevronRight, Edit, Ellipsis, Trash} from "lucide-react";
-import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuItem, DropdownMenuSeparator,
-    DropdownMenuTrigger
-} from "@/components/shadcn/dropdown-menu";
+import {DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger} from "@/components/shadcn/dropdown-menu";
 import {useProducts} from "@/hooks/swr/products/use-products";
 import {useToast} from "@/hooks/use-toast";
+import {deleteProduct} from "@/actions/product";
+import {Modal, ModalBody, ModalContent, ModalFooter, ModalHeader} from "@nextui-org/modal";
+import {useRouter} from "next/navigation";
+import {useCategories} from "@/hooks/swr/categories/use-categories";
 
-
-export const InventoryTable = () => {
+export const InventoryTableClient = () => {
     const [filterValue, setFilterValue] = useState("");
     const [rowsPerPage] = useState(10);
     const { toast } = useToast();
@@ -34,16 +23,18 @@ export const InventoryTable = () => {
         column: "title",
         direction: "ascending",
     });
-
+    const {isOpen, onOpen, onClose} = useDisclosure();
+    const [productIdToDelete, setProductIdToDelete] = useState<number|null>(null);
     const [page, setPage] = useState(1);
+    const router = useRouter();
+    const { products, refreshProducts, errorSWRProducts, loadingSWRProducts } = useProducts();
+    const { categories, errorSWRCategories, loadingSWRCategories } = useCategories();
 
-    const { products, errorSWRProducts, loadingSWRProducts } = useProducts();
 
     useEffect(() => {
-      if (errorSWRProducts) {
+      if (errorSWRProducts || errorSWRCategories) {
           toast({ variant: "destructive", title: "Error", description: "An error occurred"})
       }
-
     }, []);
 
     type Product = typeof products[0];
@@ -81,6 +72,43 @@ export const InventoryTable = () => {
         });
     }, [sortDescriptor, items]);
 
+    const deleteInventoryProduct =  () => {
+        if (productIdToDelete === null) {
+            toast({
+                variant: "destructive",
+                title: "Error",
+                description: "Any products targeted"
+            });
+        } else {
+            deleteProduct(productIdToDelete).then((response) => {
+                if (response.status === 204) {
+                    toast({
+                        variant: "success",
+                        title: "Success",
+                        description: "Product successfully deleted"
+                    });
+                    refreshProducts().then(() => {
+                        onClose()
+                        setProductIdToDelete(null);
+                    }).catch(() => {
+                        toast({
+                            variant: "destructive",
+                            title: "Error",
+                            description: "An error occurred"
+                        });
+                    })
+                }
+            })
+            .catch(() => {
+            toast({
+                variant: "destructive",
+                title: "Error",
+                description: "An error occurred"
+            });
+            })
+        }
+    };
+
     const renderCell = useCallback((product: Product, columnKey: React.Key) => {
         const cellValue = product[columnKey as keyof Product];
 
@@ -91,6 +119,10 @@ export const InventoryTable = () => {
                         {product.stock > 0 ? 'In stock' : 'Out stock'}
                     </Chip>
                 );
+            case "category_id":
+                    const category = categories.find(cat => cat.id === product.category_id);
+
+                    return category?.title || 'Unknown category';
             case "actions":
                 return (
                     <div className="relative flex justify-center items-center gap-2">
@@ -101,12 +133,17 @@ export const InventoryTable = () => {
                                 </div>
                             </DropdownMenuTrigger>
                             <DropdownMenuContent side="right" align="start" className="w-56">
-                                <DropdownMenuItem className={"hover:cursor-pointer"}>
+                                <DropdownMenuItem className={"hover:cursor-pointer"} onClick={() => {
+                                    router.push(`/dashboard/catalog/inventory/products/${product.id}`);
+                                }}>
                                     <Edit className="mr-2 size-4" />
                                     <span>Modify</span>
                                 </DropdownMenuItem>
                                 <DropdownMenuSeparator />
-                                <DropdownMenuItem className={"hover:cursor-pointer"}>
+                                <DropdownMenuItem className={"hover:cursor-pointer"}  onClick={() => {
+                                    onOpen()
+                                    setProductIdToDelete(product.id)
+                                }}>
                                     <Trash className="mr-2 size-4" />
                                     <span>Delete</span>
                                 </DropdownMenuItem>
@@ -117,7 +154,7 @@ export const InventoryTable = () => {
             default:
                 return cellValue;
         }
-    }, []);
+    }, [categories]);
 
     const onNextPage = useCallback(() => {
         if (page < pages) {
@@ -202,43 +239,67 @@ export const InventoryTable = () => {
 
     return (
         <>
-            {!loadingSWRProducts ? (
-            <Table
-                aria-label="Table of products"
-                isHeaderSticky
-                bottomContent={bottomContent}
-                bottomContentPlacement="outside"
-                classNames={{
-                    thead: "[&>tr]:first:rounded-sm",
-                    wrapper: "p-0 max-h-[600px]",
-                }}
-                sortDescriptor={sortDescriptor}
-                topContent={topContent}
-                topContentPlacement="outside"
-                onSortChange={setSortDescriptor}
-                radius={"sm"}
-                shadow={"none"}
-            >
-                <TableHeader columns={columns}>
-                    {(column) => (
-                        <TableColumn
-                            key={column.uid}
-                            align={column.uid === "actions" ? "center" : "start"}
-                            allowsSorting={column.sortable}
-                        >
-                            {column.name}
-                        </TableColumn>
+            <div className="h-full">
+                {!loadingSWRProducts  && !loadingSWRCategories ? (
+                <Table
+                    aria-label="Table of products"
+                    isHeaderSticky
+                    bottomContent={bottomContent}
+                    bottomContentPlacement="outside"
+                    classNames={{
+                        thead: "[&>tr]:first:rounded-sm",
+                        wrapper: "p-0 max-h-[600px]",
+                    }}
+                    sortDescriptor={sortDescriptor}
+                    topContent={topContent}
+                    topContentPlacement="outside"
+                    onSortChange={setSortDescriptor}
+                    radius={"sm"}
+                    shadow={"none"}
+                >
+                    <TableHeader columns={columns}>
+                        {(column) => (
+                            <TableColumn
+                                key={column.uid}
+                                align={column.uid === "actions" ? "center" : "start"}
+                                allowsSorting={column.sortable}
+                            >
+                                {column.name}
+                            </TableColumn>
+                        )}
+                    </TableHeader>
+                    <TableBody emptyContent={"No products found"} items={sortedItems}>
+                        {(item) => (
+                            <TableRow key={item.id}>
+                                {(columnKey) => <TableCell>{renderCell(item, columnKey)}</TableCell>}
+                            </TableRow>
+                        )}
+                    </TableBody>
+                </Table>
+                ) : (
+                    <div className="w-full h-full flex justify-center items-center">
+                        <Spinner color="success" labelColor="success" />
+                    </div>
+                )}
+            </div>
+            <Modal isOpen={isOpen} onClose={onClose}>
+                <ModalContent>
+                    {(onClose) => (
+                        <div>
+                            <ModalHeader className="flex flex-col gap-1 text-left">Delete confirmation</ModalHeader>
+                            <ModalBody>Are you sure to delete this product ?</ModalBody>
+                            <ModalFooter>
+                                <Button onClick={onClose}>
+                                    Cancel
+                                </Button>
+                                <Button variant="destructive" onClick={deleteInventoryProduct}>
+                                    Delete
+                                </Button>
+                            </ModalFooter>
+                        </div>
                     )}
-                </TableHeader>
-                <TableBody emptyContent={"No products found"} items={sortedItems}>
-                    {(item) => (
-                        <TableRow key={item.id}>
-                            {(columnKey) => <TableCell>{renderCell(item, columnKey)}</TableCell>}
-                        </TableRow>
-                    )}
-                </TableBody>
-            </Table>
-            ) : (<></>)}
+                </ModalContent>
+            </Modal>
         </>
     );
 }

@@ -8,6 +8,6 @@ export const axiosInstance  = axios.create({
         'accept': 'application/json'
     },
     httpsAgent: new (require('https')).Agent({
-        rejectUnauthorized: false // Pour le développement local uniquement
+        rejectUnauthorized: false
     })
 });

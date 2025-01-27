@@ -11,9 +11,9 @@ import {useProduct} from "@/hooks/swr/products/use-product";
 import {useCategories} from "@/hooks/swr/categories/use-categories";
 import {useBrands} from "@/hooks/swr/brands/use-brands";
 import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue} from "@/components/shadcn/select";
-import {updateProduct} from "@/actions/product";
+import {updateProduct, createProduct} from "@/actions/product";
 import {UpdateProductForm} from "@/types/product/updateProduct"
-import {Product} from "@/types/product/product";
+import {useRouter} from "next/navigation";
 
 export default function ProductClient({params}: {params: {productId: string}}) {
     const [isNewProduct, setIsNewProduct] = useState(false);
@@ -21,6 +21,7 @@ export default function ProductClient({params}: {params: {productId: string}}) {
     const { product, loadingSWRProduct, errorSWRProduct } = useProduct(parseInt(params.productId));
     const { categories, loadingSWRCategories, errorSWRCategories } = useCategories();
     const { brands, loadingSWRBrands, errorSWRBrands } = useBrands();
+    const router = useRouter();
 
     useEffect(() => {
         if(params.productId === "new") {
@@ -53,21 +54,45 @@ export default function ProductClient({params}: {params: {productId: string}}) {
     });
 
     const onSubmit = (formData: UpdateProductForm) => {
-        const completedFormData = {
-            ...formData,
-            id: parseInt(params.productId),
-            brandId: parseInt(formData.brand),
-            categoryId: parseInt(formData.category),
+        if (isNewProduct) {
+            const now = new Date();
+            const completedFormData = {
+                title: formData.title,
+                description: formData.description,
+                price: formData.price,
+                brand_id: parseInt(formData.brand),
+                category_id: parseInt(formData.category),
+                stripe_id: "1",
+                open_food_fact_id: 1,
+                updated_at: now.toISOString(),
+                created_at: now.toISOString()
+            }
+
+            createProduct(completedFormData).then(() => {
+                toast({ variant: "success", title: "Success", description: "Product successfully created"})
+                router.push(`/dashboard/catalog/inventory`);
+            })
+            .catch(() => {
+                toast({ variant: "destructive", title: "Error", description: "An error occurred"})
+
+            })
+        } else {
+            const completedFormData = {
+                ...formData,
+                id: parseInt(params.productId),
+                brandId: parseInt(formData.brand),
+                categoryId: parseInt(formData.category),
+            }
+
+            updateProduct(completedFormData).then((response)=>  {
+                if (response.status === 200) {
+                    toast({ variant: "success", title: "Success", description: "Product successfully updated"})
+                    router.push(`/dashboard/catalog/inventory`);
+                }})
+                .catch(() => {
+                    toast({ variant: "destructive", title: "Error", description: "An error occurred"})
+                })
         }
-
-        updateProduct(completedFormData).then((response)=>  {
-        if (response.status === 200) {
-
-            toast({ variant: "success", title: "Success", description: "Product successfully updated"})
-        }})
-        .catch(() => {
-            toast({ variant: "destructive", title: "Error", description: "An error occurred"})
-         })
     }
 
     return (
@@ -102,8 +127,8 @@ export default function ProductClient({params}: {params: {productId: string}}) {
                                             title: product?.title ?? "",
                                             description: product?.description ?? "",
                                             price: product?.price ?? 0,
-                                            category: product?.category_id.toString() ?? "0",
-                                            brand: product?.brand_id.toString() ?? "0",
+                                            category: isNewProduct ? "" : (product?.category_id?.toString() ?? ""),
+                                            brand: isNewProduct ? "" : (product?.brand_id?.toString() ?? ""),
                                         }}
                                         className="w-full space-y-6"
                                         onSubmit={onSubmit}
@@ -132,8 +157,12 @@ export default function ProductClient({params}: {params: {productId: string}}) {
                                             category: {
                                                 fieldType: ({ field }) => (
                                                     <Select
-                                                        onValueChange={field.onChange}
-                                                        defaultValue={field.value}
+                                                        onValueChange={(newValue) => {
+                                                            if (newValue) {
+                                                                field.onChange(newValue);
+                                                            }
+                                                        }}
+                                                        value={field.value}
                                                     >
                                                         <SelectTrigger>
                                                             <SelectValue placeholder="Select a category" />
@@ -151,8 +180,12 @@ export default function ProductClient({params}: {params: {productId: string}}) {
                                             brand: {
                                                 fieldType: ({ field }) => (
                                                     <Select
-                                                        onValueChange={field.onChange}
-                                                        defaultValue={field.value}
+                                                        onValueChange={(newValue) => {
+                                                            if (newValue) {
+                                                                field.onChange(newValue);
+                                                            }
+                                                        }}
+                                                        value={field.value}
                                                     >
                                                         <SelectTrigger>
                                                             <SelectValue placeholder="Select a brand" />
