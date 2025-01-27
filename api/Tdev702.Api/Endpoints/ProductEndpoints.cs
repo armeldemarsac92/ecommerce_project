@@ -3,6 +3,7 @@ using Tdev702.Api.Services;
 using Tdev702.Contracts.API.Request.Product;
 using Tdev702.Contracts.API.Response;
 using Tdev702.Contracts.SQL.Request.All;
+using static Tdev702.Contracts.Mapping.QueryOptionsMapping;
 
 namespace Tdev702.Api.Endpoints;
 
@@ -56,12 +57,8 @@ public static class ProductEndpoints
         string? pageNumber,
         string? sortBy)
     {
-        var queryOptions = new QueryOptions
-        {
-            PageSize = int.TryParse(pageSize, out int size) ? size : 30,
-            PageNumber = int.TryParse(pageNumber, out int page) ? page : 1,
-            SortBy = Enum.TryParse<QueryOptions.Order>(sortBy, true, out var order) ? order : QueryOptions.Order.ASC
-        };
+        var queryOptions = MapToQueryOptions(pageSize, pageNumber, sortBy);
+
         var products = await productsService.GetAllAsync(queryOptions, cancellationToken);
         return Results.Ok(products);
     }

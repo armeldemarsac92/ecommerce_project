@@ -8,6 +8,7 @@ using Tdev702.Contracts.API.Response;
 using Tdev702.Contracts.Database;
 using Tdev702.Contracts.Exceptions;
 using Tdev702.Contracts.SQL.Request.All;
+using static Tdev702.Contracts.Mapping.QueryOptionsMapping;
 
 namespace Tdev702.Api.Endpoints;
 
@@ -75,12 +76,8 @@ public static class OrderEndpoints
        string? pageNumber,
        string? sortBy)
    {
-       var queryOptions = new QueryOptions
-       {
-           PageSize = int.TryParse(pageSize, out int size) ? size : 30,
-           PageNumber = int.TryParse(pageNumber, out int page) ? page : 1,
-           SortBy = Enum.TryParse<QueryOptions.Order>(sortBy, true, out var order) ? order : QueryOptions.Order.ASC
-       };
+       var queryOptions = MapToQueryOptions(pageSize, pageNumber, sortBy);
+
        var orders = await orderService.GetAllAsync(queryOptions, cancellationToken);
        return Results.Ok(orders);
    }
@@ -97,7 +94,7 @@ public static class OrderEndpoints
        {
            PageSize = int.TryParse(pageSize, out int size) ? size : 30,
            PageNumber = int.TryParse(pageNumber, out int page) ? page : 1,
-           SortBy = Enum.TryParse<QueryOptions.Order>(sortBy, true, out var order) ? order : QueryOptions.Order.ASC
+           OrderBy = Enum.TryParse<QueryOptions.Order>(sortBy, true, out var order) ? order : QueryOptions.Order.ASC
        };
        
        var userId = context.GetUserIdFromClaims();

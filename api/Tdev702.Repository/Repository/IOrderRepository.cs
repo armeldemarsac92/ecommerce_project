@@ -43,7 +43,7 @@ public class OrderRepository : IOrderRepository
 
    public async Task<List<OrderSummarySQLResponse>> GetAllByUserIdAsync(string userId, QueryOptions queryOptions, CancellationToken cancellationToken = default)
    {
-       var response = await _dbContext.QueryAsync<OrderSummarySQLResponse>(OrderQueries.GetAllOrdersByUserId, new { UserId = userId, PageSisze = queryOptions.PageSize, OffSet = queryOptions.Offset, OrderBy = queryOptions.SortBy },  cancellationToken);
+       var response = await _dbContext.QueryAsync<OrderSummarySQLResponse>(OrderQueries.GetAllOrdersByUserId, new { UserId = userId, PageSisze = queryOptions.PageSize, OffSet = queryOptions.Offset, OrderBy = queryOptions.OrderBy },  cancellationToken);
        return response.Any() ? response.ToList() : new List<OrderSummarySQLResponse>();
    }
    
