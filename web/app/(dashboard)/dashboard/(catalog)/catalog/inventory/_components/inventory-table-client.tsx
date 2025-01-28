@@ -13,7 +13,6 @@ import {useToast} from "@/hooks/use-toast";
 import {deleteProduct} from "@/actions/product";
 import {Modal, ModalBody, ModalContent, ModalFooter, ModalHeader} from "@nextui-org/modal";
 import {useRouter} from "next/navigation";
-import {useCategories} from "@/hooks/swr/categories/use-categories";
 
 export const InventoryTableClient = () => {
     const [filterValue, setFilterValue] = useState("");
@@ -28,11 +27,10 @@ export const InventoryTableClient = () => {
     const [page, setPage] = useState(1);
     const router = useRouter();
     const { products, refreshProducts, errorSWRProducts, loadingSWRProducts } = useProducts();
-    const { categories, errorSWRCategories, loadingSWRCategories } = useCategories();
 
 
     useEffect(() => {
-      if (errorSWRProducts || errorSWRCategories) {
+      if (errorSWRProducts) {
           toast({ variant: "destructive", title: "Error", description: "An error occurred"})
       }
     }, []);
@@ -119,10 +117,6 @@ export const InventoryTableClient = () => {
                         {product.stock > 0 ? 'In stock' : 'Out stock'}
                     </Chip>
                 );
-            case "category_id":
-                    const category = categories.find(cat => cat.id === product.category_id);
-
-                    return category?.title || 'Unknown category';
             case "actions":
                 return (
                     <div className="relative flex justify-center items-center gap-2">
@@ -154,7 +148,7 @@ export const InventoryTableClient = () => {
             default:
                 return cellValue;
         }
-    }, [categories]);
+    }, []);
 
     const onNextPage = useCallback(() => {
         if (page < pages) {
@@ -240,7 +234,7 @@ export const InventoryTableClient = () => {
     return (
         <>
             <div className="h-full">
-                {!loadingSWRProducts  && !loadingSWRCategories ? (
+                {!loadingSWRProducts ? (
                 <Table
                     aria-label="Table of products"
                     isHeaderSticky

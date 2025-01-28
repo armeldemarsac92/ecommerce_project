@@ -1,7 +1,7 @@
 import useSWR from "swr";
 import {axiosSWRFetcher} from "@/utils/fetcher";
 import {useEffect, useState} from "react";
-import {Category} from "@/types/category";
+import {Category} from "@/types/category/category";
 
 export const useCategories = ()=> {
     const { data, mutate, isLoading: loadingSWRCategories, error: errorSWRCategories } = useSWR('/categories', axiosSWRFetcher, {
@@ -20,7 +20,7 @@ export const useCategories = ()=> {
 
     return {
         categories,
-        refreshCategories: ()  => mutate('/categories'),
+        refreshCategories: ()  => mutate(),
         loadingSWRCategories,
         errorSWRCategories,
         isError: !!errorSWRCategories

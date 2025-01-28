@@ -91,12 +91,11 @@ export default function CatalogClient() {
                                 >
                                     <CardBody className="overflow-visible p-0">
                                         <Image
-                                            shadow="sm"
-                                            radius="lg"
+                                            radius="none"
                                             width="100%"
                                             alt={product.title}
                                             className="h-full object-contain"
-                                            src={product.image || 'https://placehold.co/300x300'}
+                                            src={product.image_url || 'https://placehold.co/300x300'}
                                         />
                                     </CardBody>
                                     <CardFooter className="text-small justify-between">

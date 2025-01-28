@@ -1,8 +1,8 @@
 import {axiosInstance} from "@/utils/instance/axios-instance";
+import {CompletedProductForm} from "@/types/product/completedProductForm";
 
-async function updateProduct(data: object)  {
-    return await axiosInstance.put(`/products/${data.id}`, data)
-}
+async function updateProduct(data: CompletedProductForm)  {
+    return await axiosInstance.put(`/products/${data.id}?productId=${data.id}`, data)}
 
 async function deleteProduct(id: number)  {
     return await axiosInstance.delete(`/products/${id}`);
