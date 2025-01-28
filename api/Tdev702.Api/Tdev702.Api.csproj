@@ -29,6 +29,7 @@
     <ItemGroup>
       <ProjectReference Include="..\Tdev702.AWS.SDK\Tdev702.AWS.SDK.csproj" />
       <ProjectReference Include="..\Tdev702.Contracts\Tdev702.Contracts.csproj" />
+      <ProjectReference Include="..\Tdev702.OpenFoodFact.SDK\Tdev702.OpenFoodFact.SDK.csproj" />
       <ProjectReference Include="..\Tdev702.Repository\Tdev702.Repository.csproj" />
       <ProjectReference Include="..\Tdev702.Stripe.SDK\Tdev702.Stripe.SDK.csproj" />
     </ItemGroup>
