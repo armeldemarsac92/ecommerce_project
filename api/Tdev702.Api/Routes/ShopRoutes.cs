@@ -12,6 +12,11 @@ public static class ShopRoutes
         public const string Update = $"{Base}/products/{{id}}";
         public const string Delete = $"{Base}/products/{{id}}";
     }
+
+    public static class OpenFoodFactProducts
+    {
+        public const string GetAll = $"{Base}/open_food_fact";
+    }
     
     public static class ProductsTags
     {

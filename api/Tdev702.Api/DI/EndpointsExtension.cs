@@ -18,6 +18,7 @@ public static class EndpointExtensions
         app.MapWebhookEndpoint();
         app.MapCustomerEndpoints();
         app.MapTagEndpoints();
+        app.MapOpenFoodFactEndpoints();
         return app;
     }
 
@@ -30,6 +31,7 @@ public static class EndpointExtensions
         services.AddScoped<IInventoriesService, InventoriesService>();
         services.AddScoped<IOrderService, OrderService>();
         services.AddScoped<ICustomerService, CustomerService>();
+        services.AddScoped<IOpenFoodFactService, OpenFoodFactService>();
         return services;
     }
 }

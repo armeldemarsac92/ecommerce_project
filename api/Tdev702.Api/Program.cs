@@ -3,6 +3,7 @@ using Tdev702.Api.Extensions;
 using Tdev702.Api.Middlewares.ExceptionHandlers;
 using Tdev702.AWS.SDK.SecretsManager;
 using Tdev702.Contracts.Config;
+using Tdev702.OpenFoodFact.SDK.Extensions;
 using Tdev702.Repository.DI;
 using Tdev702.Stripe.SDK.DI;
 
@@ -19,6 +20,7 @@ services.AddDbConnection(builder.Configuration);
 
 var stripeConfiguration = builder.Configuration.GetSection("stripe").Get<StripeConfiguration>() ?? throw new InvalidOperationException("Stripe configuration not found");
 var authConfiguration = builder.Configuration.GetSection("auth").Get<AuthConfiguration>()?? throw new InvalidOperationException("Auth configuration not found");
+services.AddOpenFoodFactServices();
 services.AddStripeServices(stripeConfiguration); 
 services.AddApiServices(builder.Configuration); 
 services.AddAuth(authConfiguration);

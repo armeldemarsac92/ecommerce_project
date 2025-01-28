@@ -13,4 +13,10 @@
       <PackageReference Include="Stripe.net" Version="47.2.0" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Reference Include="Refit">
+        <HintPath>..\..\..\..\..\.nuget\packages\refit\8.0.0\lib\net8.0\Refit.dll</HintPath>
+      </Reference>
+    </ItemGroup>
+
 </Project>
