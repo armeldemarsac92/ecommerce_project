@@ -114,6 +114,7 @@ export default function ProductClient({params}: {params: {productId: string}}) {
                 brand_id: parseInt(formData.brand),
                 category_id: parseInt(formData.category),
                 image_url: "test",
+                tag_ids: formData.tag ?? [],
                 updated_at: now.toISOString(),
                 created_at: now.toISOString()
             }
@@ -135,7 +136,7 @@ export default function ProductClient({params}: {params: {productId: string}}) {
                 brand_id: parseInt(formData.brand),
                 category_id: parseInt(formData.category),
                 image_url: "test",
-                tags: formData.tag ?? [],
+                tag_ids: formData.tag ?? [],
                 open_food_fact_id: 1
             }
 

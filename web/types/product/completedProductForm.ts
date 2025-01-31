@@ -6,6 +6,6 @@ export interface CompletedProductForm {
     category_id: number;
     brand_id: number;
     image_url: string;
-    tags: object;
+    tag_ids: object;
     open_food_fact_id: number
 }
