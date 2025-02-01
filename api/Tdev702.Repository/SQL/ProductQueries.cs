@@ -5,7 +5,7 @@ public static class ProductQueries
     public static string GetProductById = @"
     SELECT 
         *
-    FROM shop.vw_products
+    FROM shop.vw_full_product
     WHERE id = @Id;";
     
     public static string GetAllProducts = @"
@@ -52,6 +52,7 @@ public static class ProductQueries
     UPDATE shop.products
     SET 
         stripe_id = COALESCE(@StripeId, stripe_id),
+        image_url = COALESCE(@ImageUrl, image_url),
         title = COALESCE(@Title, title),
         description = COALESCE(@Description, description),
         price = COALESCE(@Price, price),

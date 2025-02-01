@@ -1,27 +1,28 @@
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json.Serialization;
 
 namespace Tdev702.Contracts.API.Response;
 
 public class CustomerResponse
 {
-    [Column("Id")]
+    [JsonPropertyName("id")]
     public string Id { get; set; }
     
-    [Column("UserName")]
+    [JsonPropertyName("user_name")]
     public string Username { get; set; }
     
-    [Column("Email")]
+    [JsonPropertyName("email")]
     public string Email { get; set; }
     
-    [Column("EmailConfirmed")]
+    [JsonPropertyName("email_confirmed")]
     public bool EmailConfirmed { get; set; }
     
-    [Column("PhoneNumber")]
+    [JsonPropertyName("phone_number")]
     public string PhoneNumber { get; set; }
     
-    [Column("Role")]
+    [JsonPropertyName("role")]
     public string Role { get; set; }
     
-    [Column("LockoutEnabled")]
+    [JsonPropertyName("locakout_enabled")]
     public string LockoutEnabled { get; set; }
 }

@@ -8,6 +8,7 @@ namespace Tdev702.Api.Services;
 public interface IOpenFoodFactService
 {
     Task<OpenFoodFactSearchResult> SearchProductAsync(ProductSearchParams searchParams, CancellationToken cancellationToken = default);
+    Task<OpenFoodFactProduct?> GetProductByBarCodeAsync(string barcode, CancellationToken cancellationToken = default);
 }
 
 public class OpenFoodFactService : IOpenFoodFactService
@@ -29,10 +30,25 @@ public class OpenFoodFactService : IOpenFoodFactService
         if (!response.IsSuccessStatusCode)
         {
             _logger.LogError(
-                $"Failed to search for product with query options: {searchParams}, status code: {response.StatusCode}");
+                "Failed to search for product with query options: {searchParams}, status code: {StatusCode}", searchParams, response.StatusCode);
             throw new HttpRequestException($"Failed to search for product with query options: {searchParams}");
         }
 
         return response.Content;
+    }
+
+    public async Task<OpenFoodFactProduct?> GetProductByBarCodeAsync(string barcode, CancellationToken cancellationToken = default)
+    {
+        _logger.LogInformation("Getting open food fact product by barcode: {barcode}", barcode);
+        var response = await _productsSearchEndpoint.GetProductByBarCode(barcode, cancellationToken);
+        
+        if (!response.IsSuccessStatusCode)
+        {
+            _logger.LogError("Failed to get product by barcode: {barcode}, status code: {StatusCode}", barcode, response.StatusCode);
+            throw new HttpRequestException($"Failed to get product by barcode: {barcode}");
+        }
+        
+        return response.Content.Product;
+        
     }
 }

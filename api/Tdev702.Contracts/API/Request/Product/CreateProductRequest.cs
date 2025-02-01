@@ -22,9 +22,10 @@ public class CreateProductRequest
     [JsonPropertyName("open_food_fact_id")]
     public long? OpenFoodFactId { get; set; }
     
+    [JsonPropertyName("quantity")]
+    public long? Quantity { get; set; }
+    
     [JsonPropertyName("tag_ids")]
     public List<long>? TagIds { get; set; }
     
-    [JsonPropertyName("image_url")]
-    public string? ImageUrl { get; set; }
 }

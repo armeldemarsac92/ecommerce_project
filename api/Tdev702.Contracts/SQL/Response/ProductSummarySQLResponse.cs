@@ -2,7 +2,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Tdev702.Contracts.SQL.Response;
 
-public class ProductSQLResponse
+public class ProductSummarySQLResponse
 {
     [Column("id")]
     public required int Id { get; init; }
