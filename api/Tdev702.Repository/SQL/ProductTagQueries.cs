@@ -32,5 +32,9 @@ public class ProductTagQueries
     
     public static string DeleteProductTagByTagId = @"
     DELETE FROM shop.link_products_tags
-    WHERE tag_id = @TagId;";
+    WHERE tag_id = @TagId;";    
+    
+    public static string DeleteProductTag = @"
+    DELETE FROM shop.link_products_tags
+    WHERE id = @ProductTagId;";
 }
