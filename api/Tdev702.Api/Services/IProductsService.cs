@@ -5,6 +5,7 @@ using Tdev702.Contracts.API.Response;
 using Tdev702.Contracts.Exceptions;
 using Tdev702.Contracts.Mapping;
 using Tdev702.Contracts.SQL.Request.All;
+using Tdev702.Contracts.SQL.Request.Inventory;
 using Tdev702.Contracts.SQL.Request.Product;
 using Tdev702.Contracts.SQL.Request.ProductTag;
 using Tdev702.Contracts.SQL.Response;
@@ -31,6 +32,7 @@ public class ProductsService : IProductsService
     private readonly IProductRepository _productRepository;
     private readonly IProductTagRepository _productTagRepository;
     private readonly INutrimentsRepository _nutrimentsRepository;
+    private readonly IInventoryRepository _inventoryRepository;
     private readonly ITagRepository _tagRepository;
     private readonly IUnitOfWork _unitOfWork;
     private readonly IPublishEndpoint _publishEndpoint;
@@ -42,7 +44,8 @@ public class ProductsService : IProductsService
         ITagRepository tagRepository, 
         IUnitOfWork unitOfWork, 
         INutrimentsRepository nutrimentsRepository, 
-        IPublishEndpoint publishEndpoint)
+        IPublishEndpoint publishEndpoint, 
+        IInventoryRepository inventoryRepository)
     {
         _productRepository = productRepository;
         _productTagRepository = productTagRepository;
@@ -51,6 +54,7 @@ public class ProductsService : IProductsService
         _unitOfWork = unitOfWork;
         _nutrimentsRepository = nutrimentsRepository;
         _publishEndpoint = publishEndpoint;
+        _inventoryRepository = inventoryRepository;
     }
 
 
@@ -97,7 +101,14 @@ public class ProductsService : IProductsService
             }
             
             var productResponse = await _productRepository.GetByIdAsync(productId, cancellationToken);
-            
+
+            if (createProductRequest.Quantity != null)
+            {
+                _logger.LogInformation("Creating inventory for product {productId}", productId);
+                await _inventoryRepository.CreateAsync(new CreateInventorySQLRequest(){ ProductId = productId, Quantity = (long)createProductRequest.Quantity, Sku = Guid.NewGuid().ToString()}, cancellationToken);
+                _logger.LogInformation("Inventory created successfully for product {productId}", productId);
+            }
+
             await _unitOfWork.CommitAsync(cancellationToken);
             
             if(productResponse.OpenFoodFactId != null) await _publishEndpoint.Publish(productResponse, cancellationToken);
