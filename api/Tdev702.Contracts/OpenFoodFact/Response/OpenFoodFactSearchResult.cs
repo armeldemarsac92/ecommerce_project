@@ -71,31 +71,31 @@ public class NutriscoreData
         public int? PositivePoints { get; set; }
 
         [JsonPropertyName("proteins")]
-        public string? Proteins { get; set; }
+        public double? Proteins { get; set; }
 
         [JsonPropertyName("proteins_points")]
-        public string? ProteinsPoints { get; set; }
+        public int? ProteinsPoints { get; set; }
 
         [JsonPropertyName("proteins_value")]
-        public string? ProteinsValue { get; set; }
+        public double? ProteinsValue { get; set; }
 
         [JsonPropertyName("saturated_fat")]
-        public string? SaturatedFat { get; set; }
+        public double? SaturatedFat { get; set; }
 
         [JsonPropertyName("saturated_fat_points")]
-        public string? SaturatedFatPoints { get; set; }
+        public int? SaturatedFatPoints { get; set; }
 
         [JsonPropertyName("saturated_fat_value")]
-        public string? SaturatedFatValue { get; set; }
+        public double? SaturatedFatValue { get; set; }
 
         [JsonPropertyName("score")]
-        public string? Score { get; set; }
+        public int? Score { get; set; }
 
         [JsonPropertyName("sodium")]
-        public string? Sodium { get; set; }
+        public int? Sodium { get; set; }
 
         [JsonPropertyName("sodium_points")]
-        public string? SodiumPoints { get; set; }
+        public int? SodiumPoints { get; set; }
 
         [JsonPropertyName("sodium_value")]
         public int? SodiumValue { get; set; }

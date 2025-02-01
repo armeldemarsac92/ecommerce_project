@@ -106,6 +106,38 @@ public class ProductsService : IProductsService
         await _unitOfWork.BeginTransactionAsync(cancellationToken);
         try
         {
+            var productTags = await _productTagRepository.GetAllByProductIdAsync(productId, cancellationToken);
+            if (productTags.Any() && updateProductRequest.TagIds.Any())
+            {
+                _logger.LogInformation("Deleting removed product tags for product {productId}", productId);
+                var productTagsToDelete = productTags.Where(tag => !updateProductRequest.TagIds.Contains(tag.Id));
+                foreach (var productTag in productTagsToDelete)
+                {
+                    await _productTagRepository.DeleteAsync(productTag.Id, cancellationToken);
+                }
+    
+                _logger.LogInformation("Creating new product tags for product {productId}", productId);
+                var productTagsToCreate = updateProductRequest.TagIds
+                    .Where(tagId => !productTags.Any(pt => pt.Id == tagId))
+                    .Select(tagId => new CreateProductTagSQLRequest() 
+                    { 
+                        ProductId = productId,
+                        TagId = tagId 
+                    });
+
+                foreach (var newProductTag in productTagsToCreate)
+                {
+                    await _productTagRepository.CreateAsync(newProductTag, cancellationToken);
+                }
+            }
+            else if (productTags.Any() && !updateProductRequest.TagIds.Any())
+            {
+                _logger.LogInformation("Deleting all product tags for product {productId}", productId);
+                foreach (var productTag in productTags)
+                {
+                    await _productTagRepository.DeleteAsync(productTag.Id, cancellationToken);
+                }
+            }
 
             var affectedRows = await _productRepository.UpdateAsync(sqlRequest, cancellationToken);
             if (affectedRows == 0) throw new NotFoundException($"Product {productId} not found");
