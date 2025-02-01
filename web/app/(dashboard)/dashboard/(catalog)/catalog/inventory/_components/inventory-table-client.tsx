@@ -233,7 +233,7 @@ export const InventoryTableClient = () => {
 
     return (
         <>
-            <div className="h-full">
+            <div className="h-full" data-cy="inventory-table">
                 {!loadingSWRProducts ? (
                 <Table
                     aria-label="Table of products"
