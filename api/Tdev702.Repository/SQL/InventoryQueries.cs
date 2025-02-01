@@ -23,7 +23,7 @@ public class InventoryQueries
 
     public static string CreateInventory = @"
     insert into backoffice.inventory(sku,quantity,product_id, created_at, updated_at)
-    VALUES (@sku, @quantity, @product_id, current_timestamp, current_timestamp)
+    VALUES (@sku, @quantity, @productId, current_timestamp, current_timestamp)
     RETURNING id;";
 
     public static string UpdateInventory = @"
