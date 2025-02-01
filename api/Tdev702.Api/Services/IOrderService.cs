@@ -200,7 +200,7 @@ public class OrderService : IOrderService
         }
     }
 
-    private async Task RemoveDetachedProducts(CancellationToken cancellationToken, OrderSummarySQLResponse order, List<ProductSQLResponse> newProducts)
+    private async Task RemoveDetachedProducts(CancellationToken cancellationToken, OrderSummarySQLResponse order, List<FullProductSQLResponse> newProducts)
     {
         //then we retrieve the old products linked to the order to see if some products have been removed
         var oldProductOrderList = await _orderProductRepository.GetAllByOrderIdAsync(order.Id, cancellationToken);
@@ -227,7 +227,7 @@ public class OrderService : IOrderService
                 order.StripePaymentIntentId, 
                 new PaymentIntentUpdateOptions()
                 {
-                    Amount = (long)(totalAmount * 100), //stripe requires amounts in cents
+                    Amount = (long)(totalAmount * 100), 
                     Description = $"Updated order {order.Id}" 
                 }, 
                 null, 

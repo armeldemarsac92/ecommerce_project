@@ -35,7 +35,7 @@ public static class OrderProductMapping
     
     public static List<CreateOrderProductSQLRequest> MapToCreateOrderProductRequests(
         this List<CreateOrderProductRequest> createOrderProductRequests,
-        List<ProductSQLResponse> productSqlResponse, 
+        List<FullProductSQLResponse> productSqlResponse, 
         long orderId)
     {
         return createOrderProductRequests
@@ -55,7 +55,7 @@ public static class OrderProductMapping
     
     public static List<UpdateOrderProductSQLRequest> MapToUpdateOrderProductRequests(
         this List<UpdateOrderProductRequest> updateOrderProductRequests,
-        List<ProductSQLResponse> productSqlResponse, 
+        List<FullProductSQLResponse> productSqlResponse, 
         long orderId)
     {
         return updateOrderProductRequests

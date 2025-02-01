@@ -1,9 +1,11 @@
+using MassTransit;
 using Tdev702.Contracts.API.Request.Product;
 using Tdev702.Contracts.API.Request.ProductTag;
 using Tdev702.Contracts.API.Response;
 using Tdev702.Contracts.Exceptions;
 using Tdev702.Contracts.Mapping;
 using Tdev702.Contracts.SQL.Request.All;
+using Tdev702.Contracts.SQL.Request.Product;
 using Tdev702.Contracts.SQL.Request.ProductTag;
 using Tdev702.Contracts.SQL.Response;
 using Tdev702.Repository.Context;
@@ -18,6 +20,9 @@ public interface IProductsService
     public Task<List<ShopProductResponse>> GetAllAsync(QueryOptions queryOptions, CancellationToken cancellationToken = default);
     public Task<ShopProductResponse> CreateAsync(CreateProductRequest createProductRequest, CancellationToken cancellationToken = default);
     public Task<ShopProductResponse> UpdateAsync(long productId, UpdateProductRequest updateProductRequest, CancellationToken cancellationToken = default);
+    public Task AddPictureAsync(long productId, string imageUrl, CancellationToken cancellationToken = default);
+    public Task CreateNutrimentsAsync(CreateNutrimentSQLRequest createNutrimentRequest, CancellationToken cancellationToken = default);
+    public Task UpdateNutrimentsAsync(UpdateNutrimentSQLRequest updateNutrimentSqlRequest, CancellationToken cancellationToken = default);
     public Task DeleteAsync(long productId ,CancellationToken cancellationToken = default);
 }
 
@@ -25,21 +30,27 @@ public class ProductsService : IProductsService
 {
     private readonly IProductRepository _productRepository;
     private readonly IProductTagRepository _productTagRepository;
+    private readonly INutrimentsRepository _nutrimentsRepository;
     private readonly ITagRepository _tagRepository;
     private readonly IUnitOfWork _unitOfWork;
+    private readonly IPublishEndpoint _publishEndpoint;
     private readonly ILogger<ProductsService> _logger;
 
     public ProductsService(IProductRepository productRepository, 
         IProductTagRepository productTagRepository, 
         ILogger<ProductsService> logger, 
         ITagRepository tagRepository, 
-        IUnitOfWork unitOfWork)
+        IUnitOfWork unitOfWork, 
+        INutrimentsRepository nutrimentsRepository, 
+        IPublishEndpoint publishEndpoint)
     {
         _productRepository = productRepository;
         _productTagRepository = productTagRepository;
         _logger = logger;
         _tagRepository = tagRepository;
         _unitOfWork = unitOfWork;
+        _nutrimentsRepository = nutrimentsRepository;
+        _publishEndpoint = publishEndpoint;
     }
 
 
@@ -48,7 +59,8 @@ public class ProductsService : IProductsService
         _logger.LogInformation("Getting product with id: {productId}", productId);
         var response = await _productRepository.GetByIdAsync(productId, cancellationToken);
         if(response is null) throw new NotFoundException($"Product {productId} not found");
-        
+
+        await _publishEndpoint.Publish(response, cancellationToken);
         return response.MapToProduct();
 
     }
@@ -87,6 +99,8 @@ public class ProductsService : IProductsService
             var productResponse = await _productRepository.GetByIdAsync(productId, cancellationToken);
             
             await _unitOfWork.CommitAsync(cancellationToken);
+            
+            if(productResponse.OpenFoodFactId != null) await _publishEndpoint.Publish(productResponse, cancellationToken);
 
             return productResponse.MapToProduct();
         }
@@ -155,6 +169,67 @@ public class ProductsService : IProductsService
             throw;
         }
         
+    }
+
+    public async Task AddPictureAsync(long productId, string imageUrl, CancellationToken cancellationToken = default)
+    {
+        _logger.LogInformation("Adding picture to product {productId}", productId);
+        
+        await _unitOfWork.BeginTransactionAsync(cancellationToken);
+        try
+        {
+            await _productRepository.UpdateAsync(new UpdateProductSQLRequest(){ImageUrl = imageUrl, Id = productId}, cancellationToken);
+            _logger.LogInformation("Picture added to product {productId} successfully.", productId);
+            
+            await _unitOfWork.CommitAsync(cancellationToken);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError("Failed to add picture to product {productId}: {message}", productId, ex.Message);
+            await _unitOfWork.RollbackAsync(cancellationToken);
+            throw;
+        }
+    }
+
+    public async Task CreateNutrimentsAsync(CreateNutrimentSQLRequest createNutrimentRequest, CancellationToken cancellationToken = default)
+    {
+       _logger.LogInformation("Creating OpenFoodFact data for product {productId}", createNutrimentRequest.ProductId);
+       
+       await _unitOfWork.BeginTransactionAsync(cancellationToken);
+       try
+       {
+           await _nutrimentsRepository.CreateAsync(createNutrimentRequest, cancellationToken);
+           _logger.LogInformation("OpenFoodFact data created successfully for product {productId}",
+               createNutrimentRequest.ProductId);
+           await _unitOfWork.CommitAsync(cancellationToken);
+       }
+       catch (Exception ex)
+       {
+           _logger.LogError("Failed to create OpenFoodFact data for product {productId}: {message}", createNutrimentRequest.ProductId, ex.Message);
+           await _unitOfWork.RollbackAsync(cancellationToken);
+           throw;
+       }
+    }
+
+    public async Task UpdateNutrimentsAsync(UpdateNutrimentSQLRequest updateNutrimentSqlRequest, CancellationToken cancellationToken = default)
+    {
+        _logger.LogInformation("Updating OpenFoodFact data for product {productId}", updateNutrimentSqlRequest.ProductId);
+
+        await _unitOfWork.BeginTransactionAsync(cancellationToken);
+        try
+        {
+            await _nutrimentsRepository.UpdateAsync(updateNutrimentSqlRequest, cancellationToken);
+            _logger.LogInformation("OpenFoodFact data updated successfully for product {productId}",
+                updateNutrimentSqlRequest.ProductId);
+            await _unitOfWork.CommitAsync(cancellationToken);
+        }
+        catch (Exception ex)
+        {
+            await _unitOfWork.RollbackAsync(cancellationToken);
+            _logger.LogError("Failed to update OpenFoodFact data for product {productId}: {message}",
+                updateNutrimentSqlRequest.ProductId, ex.Message);
+            throw;
+        }
     }
 
     public async Task DeleteAsync(long productId, CancellationToken cancellationToken = default)

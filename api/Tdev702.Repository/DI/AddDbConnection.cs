@@ -36,6 +36,7 @@ public static class DbExtensions
         services.AddScoped<IOrderRepository, OrderRepository>();
         services.AddScoped<IOrderProductRepository, OrderProductRepository>();
         services.AddScoped<ICustomerRepository, CustomerRepository>();
+        services.AddScoped<INutrimentsRepository, NutrimentsRepository>();
 
         return services;
     }

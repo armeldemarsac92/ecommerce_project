@@ -9,7 +9,7 @@ public class DapperMappingConfiguration
 {
     public static void ConfigureMappings()
     {
-        SetupDapperMapping<ProductSQLResponse>();
+        SetupDapperMapping<FullProductSQLResponse>();
         SetupDapperMapping<BrandSQLResponse>();
         SetupDapperMapping<CategorySQLResponse>();
         SetupDapperMapping<InventorySQLResponse>();
@@ -19,6 +19,7 @@ public class DapperMappingConfiguration
         SetupDapperMapping<OrderProductSQLResponse>();
         SetupDapperMapping<OrderSummarySQLResponse>();
         SetupDapperMapping<CustomerSQLResponse>();
+        SetupDapperMapping<NutrimentSQLResponse>();
     }
 
     private static void SetupDapperMapping<TModel>()

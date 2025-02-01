@@ -11,7 +11,7 @@ public class ProductSearchParams
     public string NutritionGrade { get; set; }
 
     [AliasAs("fields")]
-    public string Fields { get; set; }
+    public string Fields => "image_url,code,nutrition_grades,product_name_fr";
 
     [AliasAs("page_size")]
     public int PageSize { get; set; }

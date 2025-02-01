@@ -25,6 +25,7 @@ services.AddStripeServices(stripeConfiguration);
 services.AddApiServices(builder.Configuration); 
 services.AddAuth(authConfiguration);
 services.AddSecurityPolicies();
+services.AddMessaging();
 services.AddCors(options =>
 {
     options.AddPolicy("AllowAll", builder =>
