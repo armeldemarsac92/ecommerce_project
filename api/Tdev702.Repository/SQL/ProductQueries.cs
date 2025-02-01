@@ -25,7 +25,6 @@ public static class ProductQueries
 
     public static string CreateProduct = @"
     INSERT INTO shop.products (
-        stripe_id,
         title,
         description,
         price,
@@ -36,7 +35,6 @@ public static class ProductQueries
         updated_at
     )
     VALUES (
-        @StripeId,
         @Title,
         @Description,
         @Price,
@@ -51,7 +49,6 @@ public static class ProductQueries
     public static string UpdateProduct = @"
     UPDATE shop.products
     SET 
-        stripe_id = COALESCE(@StripeId, stripe_id),
         image_url = COALESCE(@ImageUrl, image_url),
         title = COALESCE(@Title, title),
         description = COALESCE(@Description, description),
