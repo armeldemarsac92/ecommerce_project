@@ -10,4 +10,5 @@ public interface IProductsSearchEndpoint
 {
     [Get(OpenFoodFactRoutes.Search.Product)]
     Task<ApiResponse<OpenFoodFactSearchResult>> SearchProducts([Query] ProductSearchParams searchParams, CancellationToken cancellationToken = default);
+    Task<ApiResponse<OpenFoodFactProduct>> SearchProduct([Query] string productBarCode, CancellationToken cancellationToken = default);
 }
