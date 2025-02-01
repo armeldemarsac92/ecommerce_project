@@ -16,10 +16,10 @@ public class CreateNutrimentsConsumer : IConsumer<FullProductSQLResponse>
 {
     private readonly IProductsService _productService;
     private readonly IOpenFoodFactService _openFoodFactService;
-    private readonly ILogger<OrderStockConsumer> _logger;
+    private readonly ILogger<CreateNutrimentsConsumer> _logger;
 
     public CreateNutrimentsConsumer(
-        ILogger<OrderStockConsumer> logger,
+        ILogger<CreateNutrimentsConsumer> logger,
         IProductsService productService, 
         IOpenFoodFactService openFoodFactService)
     {
