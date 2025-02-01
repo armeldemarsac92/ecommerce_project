@@ -4,19 +4,20 @@ using Tdev702.Api.Services;
 using Tdev702.Contracts.API.Request.Inventory;
 using Tdev702.Contracts.API.Response;
 using Tdev702.Contracts.Mapping;
+using Tdev702.Contracts.Messaging;
 using Tdev702.Contracts.SQL.Response;
 using Tdev702.Repository.Repository;
 
 namespace Tdev702.Api.Consumer;
 
-public class UpdateNutrimentsConsumer : IConsumer<FullProductSQLResponse>
+public class UpdateNutrimentsConsumer : IConsumer<UpdateWithOpenFoodFactsData>
 {
     private readonly IProductsService _productService;
     private readonly IOpenFoodFactService _openFoodFactService;
-    private readonly ILogger<OrderStockConsumer> _logger;
+    private readonly ILogger<UpdateNutrimentsConsumer> _logger;
 
     public UpdateNutrimentsConsumer(
-        ILogger<OrderStockConsumer> logger,
+        ILogger<UpdateNutrimentsConsumer> logger,
         IProductsService productService, 
         IOpenFoodFactService openFoodFactService)
     {
@@ -25,9 +26,9 @@ public class UpdateNutrimentsConsumer : IConsumer<FullProductSQLResponse>
         _openFoodFactService = openFoodFactService;
     }
 
-    public async Task Consume(ConsumeContext<FullProductSQLResponse> context)
+    public async Task Consume(ConsumeContext<UpdateWithOpenFoodFactsData> context)
     {
-        var message = context.Message;
+        var message = context.Message.Product;
 
         try
         {

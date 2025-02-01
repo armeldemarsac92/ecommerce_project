@@ -4,6 +4,7 @@ using Tdev702.Contracts.API.Request.ProductTag;
 using Tdev702.Contracts.API.Response;
 using Tdev702.Contracts.Exceptions;
 using Tdev702.Contracts.Mapping;
+using Tdev702.Contracts.Messaging;
 using Tdev702.Contracts.SQL.Request.All;
 using Tdev702.Contracts.SQL.Request.Inventory;
 using Tdev702.Contracts.SQL.Request.Product;
@@ -64,7 +65,7 @@ public class ProductsService : IProductsService
         var response = await _productRepository.GetByIdAsync(productId, cancellationToken);
         if(response is null) throw new NotFoundException($"Product {productId} not found");
 
-        await _publishEndpoint.Publish(response, cancellationToken);
+        await _publishEndpoint.Publish(new UpdateWithOpenFoodFactsData(){Product = response}, cancellationToken);
         return response.MapToProduct();
 
     }
