@@ -1,5 +1,6 @@
 using System.Text;
 using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
 using Tdev702.Contracts.Config;
@@ -12,8 +13,8 @@ public static class AuthExtensions
     {
         services.AddAuthentication(options => 
             {
-                options.DefaultAuthenticateScheme = IdentityConstants.BearerScheme;
-                options.DefaultChallengeScheme = IdentityConstants.BearerScheme;
+                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
             })
             .AddJwtBearer(options =>
             {
