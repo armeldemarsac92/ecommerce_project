@@ -17,18 +17,21 @@ public static class CategoryEndpoints
         app.MapGet(ShopRoutes.Categories.GetAll, GetAllCategories)
             .WithTags(Tags)
             .WithDescription("Get all Categories")
+            .RequireAuthorization("Authenticated")
             .Produces<List<CategoryResponse>>(200)
             .Produces(404);
         
         app.MapGet(ShopRoutes.Categories.GetById, GetCategory)
             .WithTags(Tags)
             .WithDescription("Get one Category")
+            .RequireAuthorization("Authenticated")
             .Produces<CategoryResponse>(200)
             .Produces(404);
         
         app.MapPost(ShopRoutes.Categories.Create, CreateCategory)
             .WithTags(Tags)
             .WithDescription("Create one Category")
+            .RequireAuthorization("Admin")
             .Accepts<CreateCategoryRequest>(ContentType)
             .Produces<CategoryResponse>(200)
             .Produces(404);
@@ -36,6 +39,7 @@ public static class CategoryEndpoints
         app.MapPut(ShopRoutes.Categories.Update, UpdateCategory)
             .WithTags(Tags)
             .WithDescription("Update one Category")
+            .RequireAuthorization("Admin")
             .Accepts<UpdateCategoryRequest>(ContentType)
             .Produces<CategoryResponse>(200)
             .Produces(404);
@@ -43,7 +47,7 @@ public static class CategoryEndpoints
         app.MapDelete(ShopRoutes.Categories.Delete, DeleteCategory)
             .WithTags(Tags)
             .WithDescription("Delete one Category by Id")
-            .Produces<CategoryResponse>(200)
+            .RequireAuthorization("Admin")
             .Produces(404);
         
         return app;

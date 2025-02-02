@@ -22,7 +22,7 @@ public static class OrderEndpoints
        app.MapGet(ShopRoutes.Orders.GetById, GetOrder)
            .WithTags(Tags)
            .WithDescription("Get one Order")
-           .RequireAuthorization("Authenticated")
+           .RequireAuthorization("Admin")
            .Produces<OrderResponse>(200)
            .Produces(404);
 

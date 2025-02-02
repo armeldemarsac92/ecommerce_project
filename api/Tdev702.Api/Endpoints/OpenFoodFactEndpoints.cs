@@ -16,6 +16,7 @@ public static class OpenFoodFactEndpoints
     {
         app.MapGet(ShopRoutes.OpenFoodFactProducts.GetAll, GetAllOpenFoodFactProducts)
             .WithTags(Tags)
+            .RequireAuthorization("Admin")
             .WithDescription("Get all products from Open Food Facts")
             .Produces<OpenFoodFactSearchResult>(200);
 

@@ -17,18 +17,21 @@ public static class BrandEndpoints
         app.MapGet(ShopRoutes.Brands.GetAll, GetAllBrands)
             .WithTags(Tags)
             .WithDescription("Get all brands")
+            .RequireAuthorization("Authenticated")
             .Produces<List<BrandResponse>>(200)
             .Produces(404);
         
         app.MapGet(ShopRoutes.Brands.GetById, GetBrand)
             .WithTags(Tags)
             .WithDescription("Get one brand")
+            .RequireAuthorization("Authenticated")
             .Produces<BrandResponse>(200)
             .Produces(404);
         
         app.MapPost(ShopRoutes.Brands.Create, CreateBrand)
             .WithTags(Tags)
             .WithDescription("Create one brand")
+            .RequireAuthorization("Admin")
             .Accepts<CreateBrandRequest>(ContentType)
             .Produces<BrandResponse>(200)
             .Produces(404);
@@ -36,6 +39,7 @@ public static class BrandEndpoints
         app.MapPut(ShopRoutes.Brands.Update, UpdateBrand)
             .WithTags(Tags)
             .WithDescription("Create one brand")
+            .RequireAuthorization("Admin")
             .Accepts<UpdateBrandRequest>(ContentType)
             .Produces<BrandResponse>(200)
             .Produces(404);
@@ -43,7 +47,7 @@ public static class BrandEndpoints
         app.MapDelete(ShopRoutes.Brands.Delete, DeleteBrand)
             .WithTags(Tags)
             .WithDescription("Delete one brand by Id")
-            .Produces<BrandResponse>(200)
+            .RequireAuthorization("Admin")
             .Produces(404);
         
         return app;

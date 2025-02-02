@@ -14,12 +14,14 @@ public static class InvoiceEndpoints
         app.MapGet(ShopRoutes.Invoices.GetById, GetInvoice)
             .WithTags(Tags)
             .WithDescription("Get an invoice by ID")
+            .RequireAuthorization("Authenticated")
             .Produces<Invoice>(200)
             .Produces(404);
         
         app.MapPost(ShopRoutes.Invoices.Create, CreateInvoice)
             .WithTags(Tags)
             .WithDescription("Create a new invoice")
+            .RequireAuthorization("Authenticated")
             .Accepts<InvoiceCreateOptions>(ContentType)
             .Produces<Invoice>(200)
             .Produces(400);
@@ -27,6 +29,7 @@ public static class InvoiceEndpoints
         app.MapPut(ShopRoutes.Invoices.Update, UpdateInvoice)
             .WithTags(Tags)
             .WithDescription("Update an existing invoice")
+            .RequireAuthorization("Authenticated")
             .Accepts<InvoiceUpdateOptions>(ContentType)
             .Produces<Invoice>(200)
             .Produces(404);
@@ -34,6 +37,7 @@ public static class InvoiceEndpoints
         app.MapDelete(ShopRoutes.Invoices.Delete, DeleteInvoice)
             .WithTags(Tags)
             .WithDescription("Delete an invoice")
+            .RequireAuthorization("Admin")
             .Produces(204)
             .Produces(404);
         
