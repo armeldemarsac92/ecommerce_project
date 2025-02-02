@@ -20,6 +20,7 @@ public static class PaymentEndpoint
         app.MapPost(ShopRoutes.Payments.Create, CreatePayment)
             .WithTags(Tags)
             .WithDescription("Create a new payment")
+            .RequireAuthorization("Authenticated")
             .Accepts<CreatePaymentRequest>(ContentType)
             .Produces<PaymentIntent>(200)
             .Produces(400);

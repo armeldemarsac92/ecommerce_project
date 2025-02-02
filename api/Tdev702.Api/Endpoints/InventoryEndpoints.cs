@@ -1,6 +1,7 @@
 using Tdev702.Api.Routes;
 using Tdev702.Api.Services;
 using Tdev702.Contracts.API.Request.Inventory;
+using Tdev702.Contracts.API.Response;
 using Tdev702.Contracts.SQL.Request.All;
 using Tdev702.Contracts.SQL.Response;
 using static Tdev702.Contracts.Mapping.QueryOptionsMapping;
@@ -17,51 +18,62 @@ public static class InventoryEndpoints
         app.MapGet(ShopRoutes.Inventories.GetById, GetInventory)
             .WithTags(Tags)
             .WithDescription("Get Inventory by id")
-            .Produces<InventorySQLResponse>(200)
+            .RequireAuthorization("Admin")
+            .Produces<InventoryResponse>(200)
             .Produces(404);
         
         app.MapGet(ShopRoutes.Inventories.GetInventoryByProductId, GetInventoryByProductId)
             .WithTags(Tags)
             .WithDescription("Get Inventory by product id")
-            .Produces<InventorySQLResponse>(200)
+            .RequireAuthorization("Admin")
+            .Produces<InventoryResponse>(200)
             .Produces(404);
         
         app.MapGet(ShopRoutes.Inventories.GetAll, GetAllInventory)
             .WithTags(Tags)
             .WithDescription("Get all inventories")
-            .Produces<List<InventorySQLResponse>>(200)
+            .RequireAuthorization("Admin")
+            .Produces<List<InventoryResponse>>(200)
             .Produces(404);
         
         app.MapPost(ShopRoutes.Inventories.Create, CreateInventory)
             .WithTags(Tags)
             .WithDescription("Create new inventory")
-            .Produces<InventorySQLResponse>(200)
+            .RequireAuthorization("Admin")
+            .Accepts<CreateInventoryRequest>(ContentType)
+            .Produces<InventoryResponse>(200)
             .Produces(404);
         
         app.MapPut(ShopRoutes.Inventories.Update, UpdateInventory)
             .WithTags(Tags)
             .WithDescription("Update new inventory")
-            .Produces<InventorySQLResponse>(200)
+            .RequireAuthorization("Admin")
+            .Accepts<UpdateInventoryRequest>(ContentType)
+            .Produces<InventoryResponse>(200)
+            .Produces(400)
             .Produces(404);
         
         app.MapDelete(ShopRoutes.Inventories.Delete, DeleteInventory)
             .WithTags(Tags)
             .WithDescription("Update new inventory")
-            .Produces<InventorySQLResponse>(200)
-            .Produces(404);
+            .RequireAuthorization("Admin")
+            .Produces(404)
+            .Produces(400);
 
         app.MapPut(ShopRoutes.Inventories.IncreamentStockInventory, IncreamentStockInventory)
             .WithTags(Tags)
             .WithDescription("Increament stock inventory")
+            .RequireAuthorization("Admin")
             .Accepts<UpdateQuantityRequest>(ContentType)
-            .Produces<InventorySQLResponse>(200)
+            .Produces<InventoryResponse>(200)
             .Produces(404);
         
         app.MapPut(ShopRoutes.Inventories.SubstractStockInventory, SubstractStockInventory)
             .WithTags(Tags)
             .WithDescription("Substract stock inventory")
+            .RequireAuthorization("Admin")
             .Accepts<UpdateQuantityRequest>(ContentType)
-            .Produces<InventorySQLResponse>(200)
+            .Produces<InventoryResponse>(200)
             .Produces(404);
         
         return app;

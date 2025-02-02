@@ -10,7 +10,7 @@ using Tdev702.Repository.Repository;
 
 namespace Tdev702.Api.Consumer;
 
-public class UpdateNutrimentsConsumer : IConsumer<UpdateWithOpenFoodFactsData>
+public class UpdateNutrimentsConsumer : IConsumer<UpdateNutrimentTask>
 {
     private readonly IProductsService _productService;
     private readonly IOpenFoodFactService _openFoodFactService;
@@ -26,7 +26,7 @@ public class UpdateNutrimentsConsumer : IConsumer<UpdateWithOpenFoodFactsData>
         _openFoodFactService = openFoodFactService;
     }
 
-    public async Task Consume(ConsumeContext<UpdateWithOpenFoodFactsData> context)
+    public async Task Consume(ConsumeContext<UpdateNutrimentTask> context)
     {
         var message = context.Message.Product;
 

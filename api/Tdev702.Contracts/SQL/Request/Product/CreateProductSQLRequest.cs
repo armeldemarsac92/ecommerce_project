@@ -8,6 +8,8 @@ public class CreateProductSQLRequest
     
     public required double Price { get; set; }
     
+    public required string ImageUrl { get; set; }
+    
     public long? BrandId { get; set; }
     
     public long? CategoryId { get; set; }

@@ -18,18 +18,21 @@ public static class TagEndpoints
         app.MapGet(ShopRoutes.ProductsTags.GetAll, GetAllTags)
             .WithTags(Tags)
             .WithDescription("Get all products tags")
+            .RequireAuthorization("Authenticated")
             .Produces<List<TagResponse>>(200)
             .Produces(404);
         
         app.MapGet(ShopRoutes.ProductsTags.GetById, GetTags)
             .WithTags(Tags)
             .WithDescription("Get one product tag")
+            .RequireAuthorization("Authenticated")
             .Produces<TagResponse>(200)
             .Produces(404);
         
         app.MapPost(ShopRoutes.ProductsTags.Create, CreateTag)
             .WithTags(Tags)
             .WithDescription("Create one product tag")
+            .RequireAuthorization("Admin")
             .Accepts<CreateTagRequest>(ContentType)
             .Produces<TagResponse>(200)
             .Produces(404);
@@ -37,6 +40,7 @@ public static class TagEndpoints
         app.MapPut(ShopRoutes.ProductsTags.Update, UpdateTag)
             .WithTags(Tags)
             .WithDescription("Create one product tag")
+            .RequireAuthorization("Admin")
             .Accepts<UpdateTagRequest>(ContentType)
             .Produces<TagResponse>(200)
             .Produces(404);
@@ -44,6 +48,7 @@ public static class TagEndpoints
         app.MapDelete(ShopRoutes.ProductsTags.Delete, DeleteTag)
             .WithTags(Tags)
             .WithDescription("Delete one product tag by Id")
+            .RequireAuthorization("Admin")
             .Produces<TagResponse>(200)
             .Produces(404);
         
