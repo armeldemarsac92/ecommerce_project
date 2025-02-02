@@ -1,8 +1,10 @@
+using System.Security.Cryptography;
 using System.Text;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
+using Tdev702.Auth.Services;
 using Tdev702.Contracts.Config;
 
 namespace Tdev702.Auth.Extensions;
@@ -18,26 +20,18 @@ public static class AuthExtensions
             })
             .AddJwtBearer(options =>
             {
+                var keyService = services.BuildServiceProvider().GetRequiredService<IKeyService>();
                 options.TokenValidationParameters = new TokenValidationParameters
                 {
                     ValidateIssuerSigningKey = true,
-                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(authConfiguration.SigninKey!)),
+                    IssuerSigningKey = keyService.PublicKey,
                     ValidateIssuer = true,
                     ValidateAudience = true,
+                    ValidIssuer = authConfiguration.JwtIssuer,
+                    ValidAudience = authConfiguration.JwtAudience,
                     ValidateLifetime = true,
                     ClockSkew = TimeSpan.Zero
                 };
-            })
-            .AddGoogle(options =>
-            {
-                options.ClientId = authConfiguration.GoogleClientId;
-                options.ClientSecret = authConfiguration.GoogleClientSecret;
-
-            })
-            .AddFacebook(options =>
-            {
-                options.ClientId = authConfiguration.FacebookAppId;
-                options.ClientSecret = authConfiguration.FacebookAppSecret;
             });
         
         return services;

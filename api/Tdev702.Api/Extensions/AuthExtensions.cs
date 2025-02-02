@@ -1,7 +1,10 @@
+using System.Security.Cryptography;
 using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
+using Tdev702.Api.Services;
+using Tdev702.Auth.Services;
 using Tdev702.Contracts.Config;
 
 namespace Tdev702.Api.Extensions;
@@ -17,14 +20,15 @@ public static class AuthExtensions
             })
             .AddJwtBearer(options =>
             {
+                var keyService = services.BuildServiceProvider().GetRequiredService<IKeyService>();
                 options.TokenValidationParameters = new TokenValidationParameters
                 {
                     ValidateIssuerSigningKey = true,
-                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(authConfiguration.SigninKey!)),
-                    ValidIssuer = authConfiguration.Issuer,
+                    IssuerSigningKey = keyService.PublicKey,
                     ValidateIssuer = true,
-                    ValidAudience = authConfiguration.Audience,
                     ValidateAudience = true,
+                    ValidIssuer = authConfiguration.JwtIssuer,
+                    ValidAudience = authConfiguration.JwtAudience,
                     ValidateLifetime = true,
                     ClockSkew = TimeSpan.Zero
                 };
