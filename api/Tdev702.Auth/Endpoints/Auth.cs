@@ -8,11 +8,14 @@ using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.Data;
 using Microsoft.AspNetCore.Identity.UI.Services;
+using Tdev702.Auth.Extensions;
+using Tdev702.Auth.Models;
 using Tdev702.Auth.Routes;
 using Tdev702.Auth.Services;
 using Tdev702.AWS.SDK.SES;
 using Tdev702.Contracts.Auth;
 using Tdev702.Contracts.Auth.Request;
+using Tdev702.Contracts.Config;
 using Tdev702.Contracts.Database;
 using Tdev702.Contracts.Exceptions;
 
@@ -285,9 +288,22 @@ public static class AuthEndpoints
     private static async Task<IResult> ExternalLogin(
         HttpContext context,
         string provider,
-        IOAuthService oauthService)
+        AuthConfiguration configuration,
+        IAuthService authService,
+        ISecurityService securityService)
     {
-        return Results.Redirect(oauthService.GetRedirectUrl(context));
+        var authParameters = new AuthenticationParameters
+        (
+            provider,
+            provider == "google" ? configuration.GoogleClientId : configuration.FacebookAppId,
+            provider == "google" ? configuration.GoogleClientSecret : configuration.FacebookAppSecret,
+            $"{context.Request.Scheme}://{context.Request.Host}/api/auth/external-callback",
+            provider == "google" ? "openid profile email" : "public_profile email"
+            );
+
+        await securityService.StoreAuthState(authParameters);
+        var loginUri = authService.BuildLoginUri(authParameters);
+        return Results.Ok(loginUri);
     }
 
     private static async Task<IResult> Callback(
@@ -295,19 +311,24 @@ public static class AuthEndpoints
     IConfiguration config,
     UserManager<User> userManager,
     SignInManager<User> signInManager,
-    ITokenService tokenService,
-    IOAuthService oauthService,
+    ISecurityService securityService,
     IUserService userService,
-    string provider,
+    IAuthService authService,
+    ITokenService tokenService,
     IHttpClientFactory httpClientFactory)
     {
+        
+        var state = context.GetUriParameterFromHttpContext("state");
+        var authStateData = await securityService.ValidateState(state);
+        var authParameters = authStateData.AuthenticationParameters;
+        
+        var code = context.GetUriParameterFromHttpContext("code");
+        authParameters.AuthorizationCode = code;
+        var tokenResponse = await authService.ExchangeCodeForTokens(authParameters);
 
-        if (provider == "Google")
+        if (authParameters.IdentityProvider == "google")
         {
-            var tokenData = await oauthService.GetGoogleAccessTokenAsync(context);
-
-            var googleUser = await oauthService.GetGoogleUserInfoAsync(tokenData.AccessToken);
-
+            var googleUser = await authService.GetGoogleUserInfoAsync(tokenResponse.AccessToken);
             var user = await userManager.FindByEmailAsync(googleUser.Email);
             if (user != null)
             {
@@ -326,11 +347,9 @@ public static class AuthEndpoints
             return Results.Ok(await tokenService.GetAccessTokenAsync(newUser));
         }
         
-        if (provider == "Facebook")
+        if (authParameters.IdentityProvider == "facebook")
         {
-            var tokenData = await oauthService.GetFacebookAccessTokenAsync(context);
-            
-            var facebookUser = await oauthService.GetFacebookUserInfoAsync(tokenData.AccessToken);
+            var facebookUser = await authService.GetFacebookUserInfoAsync(tokenResponse.AccessToken);
 
             var user = await userManager.FindByEmailAsync(facebookUser.Email);
             if (user != null)
