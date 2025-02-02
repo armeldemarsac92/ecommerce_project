@@ -5,6 +5,7 @@ using Tdev702.Contracts.API.Request.Inventory;
 using Tdev702.Contracts.API.Request.Product;
 using Tdev702.Contracts.API.Response;
 using Tdev702.Contracts.Mapping;
+using Tdev702.Contracts.Messaging;
 using Tdev702.Contracts.OpenFoodFact.Response;
 using Tdev702.Contracts.SQL.Request.Product;
 using Tdev702.Contracts.SQL.Response;
@@ -12,7 +13,7 @@ using Tdev702.Repository.Repository;
 
 namespace Tdev702.Api.Consumer;
 
-public class CreateNutrimentsConsumer : IConsumer<FullProductSQLResponse>
+public class CreateNutrimentsConsumer : IConsumer<CreateNutrimentTask>
 {
     private readonly IProductsService _productService;
     private readonly IOpenFoodFactService _openFoodFactService;
@@ -28,9 +29,9 @@ public class CreateNutrimentsConsumer : IConsumer<FullProductSQLResponse>
         _openFoodFactService = openFoodFactService;
     }
 
-    public async Task Consume(ConsumeContext<FullProductSQLResponse> context)
+    public async Task Consume(ConsumeContext<CreateNutrimentTask> context)
     {
-        var message = context.Message;
+        var message = context.Message.Product;
 
         try
         {
@@ -47,10 +48,6 @@ public class CreateNutrimentsConsumer : IConsumer<FullProductSQLResponse>
            var createNutrimentRequest = openFoodFactProduct.Nutriments.MapToCreateNutrimentSQLRequest(message.Id);
            await _productService.CreateNutrimentsAsync(createNutrimentRequest);
            _logger.LogInformation("Nutriments created for product {ProductId}", message.Id);
-
-           _logger.LogInformation("Adding picture to product {ProductId}", message.Id);
-           await _productService.AddPictureAsync(message.Id, openFoodFactProduct.ImageUrl);
-           _logger.LogInformation("Picture added to product {ProductId}", message.Id);
         }
         catch (Exception ex)
         {

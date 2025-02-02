@@ -17,6 +17,7 @@ public static class ProductMapping
             BrandId = createProductRequest.BrandId,
             CategoryId = createProductRequest.CategoryId,
             OpenFoodFactId = createProductRequest.OpenFoodFactId,
+            ImageUrl = createProductRequest.ImageUrl
         };
     }
 

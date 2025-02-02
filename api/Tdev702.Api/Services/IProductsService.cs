@@ -22,7 +22,6 @@ public interface IProductsService
     public Task<List<ShopProductResponse>> GetAllAsync(QueryOptions queryOptions, CancellationToken cancellationToken = default);
     public Task<ShopProductResponse> CreateAsync(CreateProductRequest createProductRequest, CancellationToken cancellationToken = default);
     public Task<ShopProductResponse> UpdateAsync(long productId, UpdateProductRequest updateProductRequest, CancellationToken cancellationToken = default);
-    public Task AddPictureAsync(long productId, string imageUrl, CancellationToken cancellationToken = default);
     public Task CreateNutrimentsAsync(CreateNutrimentSQLRequest createNutrimentRequest, CancellationToken cancellationToken = default);
     public Task UpdateNutrimentsAsync(UpdateNutrimentSQLRequest updateNutrimentSqlRequest, CancellationToken cancellationToken = default);
     public Task DeleteAsync(long productId ,CancellationToken cancellationToken = default);
@@ -65,7 +64,7 @@ public class ProductsService : IProductsService
         var response = await _productRepository.GetByIdAsync(productId, cancellationToken);
         if(response is null) throw new NotFoundException($"Product {productId} not found");
 
-        await _publishEndpoint.Publish(new UpdateWithOpenFoodFactsData(){Product = response}, cancellationToken);
+        await _publishEndpoint.Publish(new UpdateNutrimentTask(){Product = response}, cancellationToken);
         return response.MapToProduct();
 
     }
@@ -112,7 +111,7 @@ public class ProductsService : IProductsService
 
             await _unitOfWork.CommitAsync(cancellationToken);
             
-            if(productResponse.OpenFoodFactId != null) await _publishEndpoint.Publish(productResponse, cancellationToken);
+            if(productResponse.OpenFoodFactId != null) await _publishEndpoint.Publish(new CreateNutrimentTask(){Product = productResponse}, cancellationToken);
 
             return productResponse.MapToProduct();
         }
@@ -181,26 +180,6 @@ public class ProductsService : IProductsService
             throw;
         }
         
-    }
-
-    public async Task AddPictureAsync(long productId, string imageUrl, CancellationToken cancellationToken = default)
-    {
-        _logger.LogInformation("Adding picture to product {productId}", productId);
-        
-        await _unitOfWork.BeginTransactionAsync(cancellationToken);
-        try
-        {
-            await _productRepository.UpdateAsync(new UpdateProductSQLRequest(){ImageUrl = imageUrl, Id = productId}, cancellationToken);
-            _logger.LogInformation("Picture added to product {productId} successfully.", productId);
-            
-            await _unitOfWork.CommitAsync(cancellationToken);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError("Failed to add picture to product {productId}: {message}", productId, ex.Message);
-            await _unitOfWork.RollbackAsync(cancellationToken);
-            throw;
-        }
     }
 
     public async Task CreateNutrimentsAsync(CreateNutrimentSQLRequest createNutrimentRequest, CancellationToken cancellationToken = default)

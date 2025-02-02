@@ -12,7 +12,10 @@ public class CreateProductRequest
    
     [JsonPropertyName("price")]
     public required double Price { get; set; }
-   
+    
+    [JsonPropertyName("image_url")]
+    public required string ImageUrl { get; set; }
+    
     [JsonPropertyName("brand_id")]
     public long? BrandId { get; set; }
    
