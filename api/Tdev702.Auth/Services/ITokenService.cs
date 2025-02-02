@@ -1,5 +1,6 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using System.Security.Cryptography;
 using System.Text;
 using Microsoft.AspNetCore.Authentication.BearerToken;
 using Microsoft.AspNetCore.Identity;
@@ -20,24 +21,25 @@ public class TokenService : ITokenService
     private readonly AuthConfiguration _configuration;
     private readonly UserManager<User> _userManager;
     private readonly TokenValidationParameters _tokenValidationParams;
+    private readonly IKeyService _keyService;
     private readonly ILogger<TokenService> _logger;
 
-    public TokenService(IConfiguration configuration, UserManager<User> userManager, ILogger<TokenService> logger)
+    public TokenService(IConfiguration configuration, UserManager<User> userManager, ILogger<TokenService> logger, IKeyService keyService)
     {
         _userManager = userManager;
         _logger = logger;
+        _keyService = keyService;
         _configuration = configuration.GetSection("auth").Get<AuthConfiguration>() 
                          ?? throw new InvalidOperationException("Auth configuration not found");
         
-        var key = Encoding.ASCII.GetBytes(_configuration.SigninKey);
         _tokenValidationParams = new TokenValidationParameters
         {
             ValidateIssuerSigningKey = true,
-            IssuerSigningKey = new SymmetricSecurityKey(key),
+            IssuerSigningKey = _keyService.PublicKey,
             ValidateIssuer = true,
             ValidateAudience = true,
-            ValidIssuer = _configuration.Issuer,
-            ValidAudience = _configuration.Audience,
+            ValidIssuer = _configuration.JwtIssuer,
+            ValidAudience = _configuration.JwtAudience,
             ValidateLifetime = true,
             ClockSkew = TimeSpan.Zero
         };
@@ -78,7 +80,6 @@ public class TokenService : ITokenService
     private async Task<string> GenerateToken(User user, TimeSpan expiration)
     {
         var tokenHandler = new JwtSecurityTokenHandler();
-        var key = Encoding.ASCII.GetBytes(_configuration.SigninKey);
         var roles = await _userManager.GetRolesAsync(user);
 
         var claims = new List<Claim>
@@ -98,13 +99,13 @@ public class TokenService : ITokenService
         claims.AddRange(roles.Select(role => new Claim(ClaimTypes.Role, role)));
 
         var token = new JwtSecurityToken(
-            issuer: _configuration.Issuer,
-            audience: _configuration.Audience,
+            issuer: _configuration.JwtIssuer,
+            audience: _configuration.JwtAudience,
             claims: claims,
             expires: DateTime.UtcNow.Add(expiration),
             signingCredentials: new SigningCredentials(
-                new SymmetricSecurityKey(key),
-                SecurityAlgorithms.HmacSha256Signature)
+                _keyService.PrivateKey,
+                SecurityAlgorithms.RsaSha256)
         );
 
         return tokenHandler.WriteToken(token);
