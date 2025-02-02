@@ -2,7 +2,7 @@
 using System.Security;
 using System.Text.Json;
 using Microsoft.Extensions.Caching.Distributed;
-using Tdev702.Auth.Models;
+using Tdev702.Contracts.Auth;
 using Tdev702.Contracts.Config;
 
 namespace Tdev702.Auth.Services;

@@ -9,7 +9,6 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.Data;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Tdev702.Auth.Extensions;
-using Tdev702.Auth.Models;
 using Tdev702.Auth.Routes;
 using Tdev702.Auth.Services;
 using Tdev702.AWS.SDK.SES;
