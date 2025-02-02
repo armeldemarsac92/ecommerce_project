@@ -1,6 +1,6 @@
 ﻿using System.Net.Http.Headers;
 using System.Text.Json;
-using Tdev702.Auth.Models;
+using Tdev702.Contracts.Auth;
 using Tdev702.Contracts.Auth.Response;
 using Tdev702.Contracts.Config;
 
