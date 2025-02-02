@@ -8,9 +8,9 @@ public static partial class AuthServiceExtensions
 {
     public static IServiceCollection AddAuthServices(this IServiceCollection services)
     {
-        services.AddHttpClient("GoogleToken", client =>
+        services.AddHttpClient("googletoken", client =>
         {
-            client.BaseAddress = new Uri("https://oauth2.googleapis.com/");
+            client.BaseAddress = new Uri("https://oauth2.googleapis.com/token");
         });
 
         services.AddHttpClient("GoogleUserInfo", client =>
@@ -18,9 +18,9 @@ public static partial class AuthServiceExtensions
             client.BaseAddress = new Uri("https://www.googleapis.com/oauth2/v2/");
         });
 
-        services.AddHttpClient("FacebookToken", client =>
+        services.AddHttpClient("facebooktoken", client =>
         {
-            client.BaseAddress = new Uri("https://graph.facebook.com/v21.0/oauth/");
+            client.BaseAddress = new Uri("https://graph.facebook.com/v21.0/oauth/access_token");
         });
 
         services.AddHttpClient("FacebookUserInfo", client =>
@@ -29,8 +29,9 @@ public static partial class AuthServiceExtensions
         });
         
         services.AddScoped<IUserService, UserService>();
-        services.AddScoped<IOAuthService, OAuthService>();
+        services.AddScoped<IAuthService, AuthService>();
         services.AddScoped<ITokenService, TokenService>();
+        services.AddScoped<ISecurityService, SecurityService>();
         services.AddTransient<IEmailSender<User>, EmailSender>();
         return services;
     }
