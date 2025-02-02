@@ -10,7 +10,7 @@ public class InventoryQueries
     public static string GetInventoryByProductId = @"
     SELECT *
     FROM backoffice.inventory
-    WHERE product_id = @product_id";
+    WHERE product_id = @productId";
 
     public static string GetAllInventories = @"
     SELECT *
