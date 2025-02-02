@@ -3,6 +3,8 @@ using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
+using Tdev702.Api.Services;
+using Tdev702.Auth.Services;
 using Tdev702.Contracts.Config;
 
 namespace Tdev702.Api.Extensions;
@@ -18,18 +20,15 @@ public static class AuthExtensions
             })
             .AddJwtBearer(options =>
             {
-                var publicKey = authConfiguration.PublicKey;
-                using var rsa = RSA.Create();
-                rsa.ImportFromPem(publicKey);
-                
+                var keyService = services.BuildServiceProvider().GetRequiredService<IKeyService>();
                 options.TokenValidationParameters = new TokenValidationParameters
                 {
                     ValidateIssuerSigningKey = true,
-                    IssuerSigningKey = new RsaSecurityKey(rsa),
-                    ValidIssuer = authConfiguration.JwtIssuer,
+                    IssuerSigningKey = keyService.PublicKey,
                     ValidateIssuer = true,
-                    ValidAudience = authConfiguration.JwtAudience,
                     ValidateAudience = true,
+                    ValidIssuer = authConfiguration.JwtIssuer,
+                    ValidAudience = authConfiguration.JwtAudience,
                     ValidateLifetime = true,
                     ClockSkew = TimeSpan.Zero
                 };

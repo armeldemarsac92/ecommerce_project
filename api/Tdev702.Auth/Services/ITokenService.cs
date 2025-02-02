@@ -87,8 +87,8 @@ public class TokenService : ITokenService
             new(JwtRegisteredClaimNames.Sub, user.Id),
             new(JwtRegisteredClaimNames.Email, user.Email),
             new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-            new(JwtRegisteredClaimNames.Iat, DateTimeOffset.UtcNow.ToUnixTimeSeconds().ToString()),
-            
+            new(JwtRegisteredClaimNames.Iat, DateTimeOffset.UtcNow.ToUnixTimeSeconds().ToString(), ClaimValueTypes.Integer64),
+    
             new(ClaimTypes.Name, user.UserName),
             new(JwtRegisteredClaimNames.GivenName, user.FirstName ?? string.Empty),
             new(JwtRegisteredClaimNames.FamilyName, user.LastName ?? string.Empty),

@@ -1,5 +1,6 @@
 using Tdev702.Api.Endpoints;
 using Tdev702.Api.Services;
+using Tdev702.Auth.Services;
 
 namespace Tdev702.Api.DI;
 
@@ -32,6 +33,7 @@ public static class EndpointExtensions
         services.AddScoped<IOrderService, OrderService>();
         services.AddScoped<ICustomerService, CustomerService>();
         services.AddScoped<IOpenFoodFactService, OpenFoodFactService>();
+        services.AddSingleton<IKeyService, KeyService>();
         return services;
     }
 }
