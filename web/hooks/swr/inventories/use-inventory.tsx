@@ -4,7 +4,7 @@ import {useEffect, useState} from "react";
 import {Inventory} from "@/types/inventory/inventory";
 
 export const useInventory = (id: number) => {
-    const { data, mutate, isLoading: loadingSWRInventory, error: errorSWRInventory } = useSWR(id ? `/inventories/${id}` : null, axiosSWRFetcher, {
+    const { data, mutate, isLoading: loadingSWRInventory, error: errorSWRInventory } = useSWR(id ? `/inventories/product/${id}` : null, axiosSWRFetcher, {
         revalidateOnFocus: true,
         revalidateOnReconnect: true,
         refreshInterval: 60000

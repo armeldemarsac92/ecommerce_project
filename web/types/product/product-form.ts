@@ -4,7 +4,7 @@ export interface ProductForm {
     description: string;
     price: number;
     category: string;
+    quantity: number;
     brand: string;
-    image: string;
     tag: object;
 }

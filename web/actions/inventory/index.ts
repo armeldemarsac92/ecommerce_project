@@ -1,10 +1,14 @@
 import {axiosInstance} from "@/utils/instance/axios-instance";
-import {CreateInventoryForm} from "@/types/inventory/createInventoryForm";
 
-async function createInventory(data: CreateInventoryForm) {
-    return await axiosInstance.post(`/inventories`, data)
+async function increamentProduct(product_id: number, quantity: number) {
+    return await axiosInstance.put(`/inventories/${product_id}/increament`, {quantity: quantity});
+}
+
+async function substractProduct(product_id: number, quantity: number) {
+    return await axiosInstance.put(`/inventories/${product_id}/substract`, {quantity: quantity});
 }
 
 export {
-    createInventory
+    increamentProduct,
+    substractProduct,
 }

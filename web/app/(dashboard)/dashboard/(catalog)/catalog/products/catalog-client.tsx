@@ -10,19 +10,22 @@ import {Spinner} from "@nextui-org/react";
 import {Link} from "@nextui-org/link";
 import {useToast} from "@/hooks/use-toast";
 import {useProducts} from "@/hooks/swr/products/use-products";
+import {AddButton} from "@/components/ui/add-button";
+import {useInventories} from "@/hooks/swr/inventories/use-inventories";
 
 
 export default function CatalogClient() {
     const [filterValue, setFilterValue] = useState("");
     const [page, setPage] = useState(1);
     const [rowsPerPage] = useState(10);
-    const { toast } = useToast()
+    const { toast } = useToast();
 
     const { products, errorSWRProducts, loadingSWRProducts } = useProducts();
+    const { inventories, errorSWRInventories, loadingSWRInventories } = useInventories();
 
 
     useEffect(() => {
-        if (errorSWRProducts) {
+        if (errorSWRProducts && errorSWRInventories) {
             toast({ variant: "destructive", title: "Error", description: "An error occurred"})
         }
     }, []);
@@ -30,15 +33,22 @@ export default function CatalogClient() {
     const hasSearchFilter = Boolean(filterValue);
 
     const filteredItems = useMemo(() => {
-        let filteredUsers = [...products];
+        let filteredProducts = [...products].map(product => {
+            const inventory = inventories.find(inv => inv.product_id === product.id);
+
+            return {
+                ...product,
+                stock: inventory?.quantity || 0
+            };
+        });
 
         if (hasSearchFilter) {
-            filteredUsers = filteredUsers.filter((product) =>
+            filteredProducts = filteredProducts.filter((product) =>
                 product.title.toLowerCase().includes(filterValue.toLowerCase()),
             );
         }
 
-        return filteredUsers;
+        return filteredProducts;
     }, [products, filterValue]);
 
     const pages = Math.ceil(filteredItems.length / rowsPerPage);
@@ -72,14 +82,20 @@ export default function CatalogClient() {
     return (
         <div className="h-full">
             <div className="h-full flex flex-col">
-                {loadingSWRProducts ? (
+                {loadingSWRProducts && loadingSWRInventories ? (
                     <div className="h-full w-full flex justify-center">
                         <Spinner color="success" labelColor="success" />
                     </div>
                 ) : (
                     <>
-                        <div className="m-4">
-                            <SearchBar onClear={onClear} onValueChange={onSearchChange} value={filterValue}/>
+                        <div className="m-4 flex flex-col gap-4">
+                            <div className="flex justify-between gap-3 items-end">
+                                <SearchBar onClear={onClear} onValueChange={onSearchChange} value={filterValue}/>
+
+                                <div className="flex gap-3">
+                                    <AddButton />
+                                </div>
+                            </div>
                         </div>
                         <div className="gap-5 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 p-4">
                             {filteredItems.map((product, index) => (
@@ -94,7 +110,7 @@ export default function CatalogClient() {
                                             radius="none"
                                             width="100%"
                                             alt={product.title}
-                                            className="h-full object-contain"
+                                            className="object-contain"
                                             src={product.image_url || 'https://placehold.co/300x300'}
                                         />
                                     </CardBody>

@@ -1,6 +1,6 @@
 export interface Inventory {
     id: number;
-    productId: number;
+    product_id: number;
     quantity: number;
     sku: number;
 }

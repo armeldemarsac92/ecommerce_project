@@ -4,7 +4,6 @@ import {Chip, Pagination, SortDescriptor, Spinner, Table, TableBody, TableCell, 
 import React, {useEffect, useMemo, useState, useCallback} from "react";
 import {columns} from "@/app/(dashboard)/dashboard/(catalog)/catalog/inventory/_data/data";
 import {SearchBar} from "@/components/ui/search-bar";
-import {AddButton} from "@/components/ui/add-button";
 import {Button} from "@/components/shadcn/button";
 import {ChevronLeft, ChevronRight, Edit, Ellipsis, Trash} from "lucide-react";
 import {DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger} from "@/components/shadcn/dropdown-menu";
@@ -12,7 +11,9 @@ import {useProducts} from "@/hooks/swr/products/use-products";
 import {useToast} from "@/hooks/use-toast";
 import {deleteProduct} from "@/actions/product";
 import {Modal, ModalBody, ModalContent, ModalFooter, ModalHeader} from "@nextui-org/modal";
-import {useRouter} from "next/navigation";
+import {useInventories} from "@/hooks/swr/inventories/use-inventories";
+import {Input} from "@/components/shadcn/input";
+import {increamentProduct, substractProduct} from "@/actions/inventory";
 
 export const InventoryTableClient = () => {
     const [filterValue, setFilterValue] = useState("");
@@ -23,14 +24,20 @@ export const InventoryTableClient = () => {
         direction: "ascending",
     });
     const {isOpen, onOpen, onClose} = useDisclosure();
+    const {isOpen: isQuantityModalOpen, onOpen: onQuantityModalOpen, onClose: onQuantityModalClose} = useDisclosure();
     const [productIdToDelete, setProductIdToDelete] = useState<number|null>(null);
     const [page, setPage] = useState(1);
-    const router = useRouter();
     const { products, refreshProducts, errorSWRProducts, loadingSWRProducts } = useProducts();
+    const { inventories, refreshInventories, errorSWRInventories, loadingSWRInventories } = useInventories();
+    const [selectedInventory, setSelectedInventory] = useState<{
+        productId: number;
+        currentQuantity: number;
+    } | null>(null);
+    const [quantityToAdd, setQuantityToAdd] = useState(0);
 
 
     useEffect(() => {
-      if (errorSWRProducts) {
+      if (errorSWRProducts || errorSWRInventories) {
           toast({ variant: "destructive", title: "Error", description: "An error occurred"})
       }
     }, []);
@@ -98,23 +105,92 @@ export const InventoryTableClient = () => {
                 }
             })
             .catch(() => {
-            toast({
-                variant: "destructive",
-                title: "Error",
-                description: "An error occurred"
-            });
+                toast({
+                    variant: "destructive",
+                    title: "Error",
+                    description: "An error occurred"
+                });
             })
         }
     };
 
+    const updateProductQuantity = (quantity: number) => {
+        if (selectedInventory) {
+            if (quantity > 0) {
+                increamentProduct(selectedInventory.productId, quantity).then(() => {
+                    refreshInventories().then(() => {
+                        onQuantityModalClose();
+                        toast({
+                            variant: "success",
+                            title: "Success",
+                            description: "Stock successfully updated"
+                        });
+                    })
+                        .catch(() => {
+                            toast({
+                                variant: "destructive",
+                                title: "Error",
+                                description: "An error occurred"
+                            });
+                        })
+                })
+                    .catch(() => {
+                        toast({
+                            variant: "destructive",
+                            title: "Error",
+                            description: "An error occurred"
+                        });
+                    })
+            }
+            else if (quantity < 0) {
+                substractProduct(selectedInventory.productId, Math.abs(quantity)).then(() => {
+                    refreshInventories().then(() => {
+                        onQuantityModalClose();
+                        toast({
+                            variant: "success",
+                            title: "Success",
+                            description: "Stock successfully updated"
+                        });
+                    })
+                        .catch(() => {
+                            toast({
+                                variant: "destructive",
+                                title: "Error",
+                                description: "An error occurred"
+                            });
+                        })
+                })
+                    .catch(() => {
+                        toast({
+                            variant: "destructive",
+                            title: "Error",
+                            description: "An error occurred"
+                        });
+                    })
+            }
+            else {
+                toast({
+                    variant: "destructive",
+                    title: "Error",
+                    description: "An error occurred"
+                });
+            }
+        }
+    }
+
     const renderCell = useCallback((product: Product, columnKey: React.Key) => {
         const cellValue = product[columnKey as keyof Product];
+        const productInventory = inventories.find(inv => inv.product_id === product.id);
 
         switch (columnKey) {
+            case "sku":
+                return productInventory?.sku || "-";
             case "stock":
+                const quantity = productInventory?.quantity ?? 0;
+
                 return (
-                    <Chip size="sm" className={"rounded-sm"} color={`${product.stock > 0 ? 'success' : 'danger'}`} variant="flat">
-                        {product.stock > 0 ? 'In stock' : 'Out stock'}
+                    <Chip size="sm" className={"rounded-sm"} color={`${quantity > 0 ? 'success' : 'danger'}`} variant="flat">
+                        {quantity > 0 ? 'In stock' : 'Out stock'}
                     </Chip>
                 );
             case "actions":
@@ -128,10 +204,17 @@ export const InventoryTableClient = () => {
                             </DropdownMenuTrigger>
                             <DropdownMenuContent side="right" align="start" className="w-56">
                                 <DropdownMenuItem className={"hover:cursor-pointer"} onClick={() => {
-                                    router.push(`/dashboard/catalog/inventory/products/${product.id}`);
+                                    const productInventory = inventories.find(inv => inv.product_id === product.id);
+
+                                    setSelectedInventory({
+                                        productId: product.id,
+                                        currentQuantity: productInventory?.quantity ?? 0,
+                                    });
+                                    setQuantityToAdd(0);
+                                    onQuantityModalOpen();
                                 }}>
                                     <Edit className="mr-2 size-4" />
-                                    <span>Modify</span>
+                                    <span>Manage quantity</span>
                                 </DropdownMenuItem>
                                 <DropdownMenuSeparator />
                                 <DropdownMenuItem className={"hover:cursor-pointer"}  onClick={() => {
@@ -148,7 +231,7 @@ export const InventoryTableClient = () => {
             default:
                 return cellValue;
         }
-    }, []);
+    }, [inventories]);
 
     const onNextPage = useCallback(() => {
         if (page < pages) {
@@ -181,10 +264,6 @@ export const InventoryTableClient = () => {
             <div className="flex flex-col gap-4">
                 <div className="flex justify-between gap-3 items-end">
                     <SearchBar onClear={onClear} onValueChange={onSearchChange} value={filterValue}/>
-
-                    <div className="flex gap-3">
-                        <AddButton/>
-                    </div>
                 </div>
 
                 <div className="flex justify-between items-center">
@@ -234,7 +313,7 @@ export const InventoryTableClient = () => {
     return (
         <>
             <div className="h-full" data-cy="inventory-table">
-                {!loadingSWRProducts ? (
+                {!loadingSWRProducts && !loadingSWRInventories ? (
                 <Table
                     aria-label="Table of products"
                     isHeaderSticky
@@ -283,11 +362,64 @@ export const InventoryTableClient = () => {
                             <ModalHeader className="flex flex-col gap-1 text-left">Delete confirmation</ModalHeader>
                             <ModalBody>Are you sure to delete this product ?</ModalBody>
                             <ModalFooter>
-                                <Button onClick={onClose}>
+                                <Button variant="outline" onClick={onClose}>
                                     Cancel
                                 </Button>
                                 <Button variant="destructive" onClick={deleteInventoryProduct}>
                                     Delete
+                                </Button>
+                            </ModalFooter>
+                        </div>
+                    )}
+                </ModalContent>
+            </Modal>
+            <Modal isOpen={isQuantityModalOpen} onClose={onQuantityModalClose}>
+                <ModalContent>
+                    {(onQuantityModalClose) => (
+                        <div>
+                            <ModalHeader className="flex flex-col gap-1 text-left">Manage product quantity</ModalHeader>
+                            <ModalBody>
+                                <div className="space-y-4">
+                                    <div className="flex items-center justify-between">
+                                        <span>Current Quantity:</span>
+                                        <span className="font-bold">
+                                            {selectedInventory?.currentQuantity ?? 0}
+                                        </span>
+                                    </div>
+
+                                    <div className="space-y-2">
+                                        <Input
+                                            type="number"
+                                            value={quantityToAdd}
+                                            onChange={(e) => {
+                                                const value = parseInt(e.target.value);
+
+                                                setQuantityToAdd(isNaN(value) ? 0 : value);
+                                            }}
+                                            placeholder="Enter quantity to add or remove"
+                                        />
+                                        <p className="text-sm text-gray-500">
+                                            Use positive numbers to add, negative to remove
+                                        </p>
+                                    </div>
+
+                                    <div className="flex items-center justify-between">
+                                        <span>New Total:</span>
+                                        <span className="font-bold">
+                                            {(selectedInventory?.currentQuantity ?? 0) + quantityToAdd}
+                                        </span>
+                                    </div>
+                                </div>
+                            </ModalBody>
+                            <ModalFooter>
+                                <Button variant="outline" onClick={onQuantityModalClose}>
+                                    Cancel
+                                </Button>
+                                <Button
+                                    className="bg-secondary"
+                                    onClick={() => updateProductQuantity(quantityToAdd)}
+                                >
+                                    Update
                                 </Button>
                             </ModalFooter>
                         </div>

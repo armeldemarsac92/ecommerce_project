@@ -1,4 +1,5 @@
-export interface CompletedCreateProductForm {
+export interface CompletedProductForm {
+    id: number,
     title: string;
     description: string;
     price: number;
@@ -6,7 +7,5 @@ export interface CompletedCreateProductForm {
     brand_id: number;
     image_url: string;
     tag_ids: object;
-    open_food_fact_id: number
-    updated_at: string;
-    created_at: string;
+    open_food_fact_id: number;
 }

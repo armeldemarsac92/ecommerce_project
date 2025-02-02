@@ -23,6 +23,6 @@ export const useInventories = () => {
         refreshInventories: () => mutate(),
         loadingSWRInventories,
         errorSWRInventories,
-        isError: !!errorSWRInventories,
+        isError: !!errorSWRInventories
     }
 }
