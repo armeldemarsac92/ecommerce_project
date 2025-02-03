@@ -26,5 +26,6 @@ public class IdentityProvider
     public string? CodeEndpoint { get; init; }
     public required string TokenEndpointName { get; init; }
     public required string TokenEndpoint { get; init; }
+    public required string UserInfoEndpointName { get; init; }
     public required string UserInfoEndpoint { get; init; }
 }
