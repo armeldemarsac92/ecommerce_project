@@ -26,16 +26,16 @@ public class OrderSummaryResponse
     public required DateTime CreatedAt { get; init; }
 
     [Column("order_items")]
-    public required OrderItemResponse[] OrderItems { get; init; }
+    public OrderItemResponse[]? OrderItems { get; init; }
 }
 
 public class OrderItemResponse
 {
-    public required int ProductId { get; init; }
-    public required string Title { get; init; }
-    public required int Quantity { get; init; }
-    public required double UnitPrice { get; init; }
-    public required double Subtotal { get; init; }
+    public int? ProductId { get; init; }
+    public string? Title { get; init; }
+    public int? Quantity { get; init; }
+    public double? UnitPrice { get; init; }
+    public double? Subtotal { get; init; }
     public string? Brand { get; init; }
     public string? Category { get; init; }
 }

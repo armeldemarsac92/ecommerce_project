@@ -11,7 +11,7 @@ public class DapperMappingConfiguration
 {
     public static void ConfigureMappings()
     {
-        SqlMapper.AddTypeHandler(new JsonArrayTypeHandler<OrderItem>());
+        SqlMapper.AddTypeHandler(new JsonTypeHandler<OrderItem[]>());
 
         SetupDapperMapping<FullProductSQLResponse>();
         SetupDapperMapping<BrandSQLResponse>();
@@ -41,19 +41,21 @@ public class DapperMappingConfiguration
     }
 }
 
-public class JsonArrayTypeHandler<T> : SqlMapper.TypeHandler<T[]>
+public class JsonTypeHandler<T> : SqlMapper.TypeHandler<T>
 {
-    public override T[] Parse(object value)
+    private readonly JsonSerializerOptions _options = new()
     {
-        if (value is string json)
-        {
-            return JsonSerializer.Deserialize<T[]>(json);
-        }
-        return null;
+        PropertyNameCaseInsensitive = true
+    };
+
+    public override T Parse(object value)
+    {
+        return JsonSerializer.Deserialize<T>(value.ToString(), _options);
     }
 
-    public override void SetValue(IDbDataParameter parameter, T[] value)
+    public override void SetValue(IDbDataParameter parameter, T value)
     {
-        parameter.Value = JsonSerializer.Serialize(value);
+        parameter.Value = JsonSerializer.Serialize(value, _options);
+        parameter.DbType = DbType.String;
     }
 }
