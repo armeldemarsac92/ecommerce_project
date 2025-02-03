@@ -27,10 +27,10 @@ services.AddDistributedMemoryCache();
 services.AddStripeServices(stripeConfiguration);
 services.AddMessaging();
 services.AddEndpointsApiExplorer();
-services.AddAuthServices();
+services.AddAuthServices(authConfiguration);
 
 services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseNpgsql(connectionString));
+    options.UseNpgsql(connectionString, b => b.MigrationsAssembly("Tdev702.Auth")));
 
 services.AddSwagger("Auth Server");
 services.AddIdentity();

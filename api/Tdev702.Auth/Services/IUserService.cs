@@ -9,6 +9,7 @@ public record UserRecord(
     string LastName, 
     string Email, 
     bool EmailConfirmed,
+    string? Picture,
     string? Password
 );
 public interface IUserService
@@ -45,7 +46,7 @@ public class UserService : IUserService
         try
         {
             _logger.LogInformation("Creating user: {Email}", record.Email);
-            var user = new User { UserName = record.Email, Email = record.Email, FirstName = record.FirstName, LastName = record.LastName, EmailConfirmed = record.EmailConfirmed};
+            var user = new User { UserName = record.Email, Email = record.Email, FirstName = record.FirstName, LastName = record.LastName, EmailConfirmed = record.EmailConfirmed, ProfilePicture = record.Picture};
             var result = !string.IsNullOrEmpty(record.Password) ? await _userManager.CreateAsync(user, record.Password): await _userManager.CreateAsync(user);
             if (!result.Succeeded) throw new Exception(result.Errors.First().Description);
             _logger.LogInformation("User created: {Email}", user.Email);

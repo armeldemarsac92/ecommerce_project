@@ -7,26 +7,17 @@ public class AuthenticationParameters
 {
     protected AuthenticationParameters() { }
 
-    public AuthenticationParameters(string identityProvider, string clientId, string clientSecret, string redirectUri, string scope)
+    public AuthenticationParameters(string identityProvider)
     {
         IdentityProvider = identityProvider;
-        ClientId = clientId;
-        ClientSecret = clientSecret;
-        RedirectUri = redirectUri;
-        Scope = scope;
         State = GenerateSecureToken();
         ChallengeVerifier = GenerateSecureToken();
         Challenge = CreateCodeChallenge(ChallengeVerifier);
     }
 
     public string IdentityProvider { get; init; }
-    public string ClientId { get; init; }
-    public string ClientSecret { get; init; } 
-    public string RedirectUri { get; init; }
-    public string ResponseType { get; } = "code";
-    public string Scope { get; init; }
-    public string FlowType { get; } = "authorization_code";
     public string? AuthorizationCode { get; set; }
+    public string? AccessToken { get; set; }
     public string State { get; init; }
     public string Challenge { get; init; }
     public string ChallengeVerifier { get; init; }
