@@ -72,7 +72,7 @@ const data = {
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   return (
     <Sidebar collapsible="icon" {...props}>
-      <SidebarHeader className={"flex-row items-center gap-x-3"}>
+      <SidebarHeader className={"flex-row items-center gap-x-3"} data-cy="navbar-header">
         <Link href={"/dashboard"}>
           <Logo size={30}/>
         </Link>
@@ -82,14 +82,14 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         </div>
       </SidebarHeader>
 
-      <SidebarContent>
+      <SidebarContent data-cy="navbar-content">
         <NavMain titleNav={"Dashboard"} items={data.dashboard_nav} />
         <NavMain titleNav={"Catalog"} items={data.catalog_nav} />
         <NavMain titleNav={"Customers"} items={data.customers_nav} />
         <NavMain titleNav={"Sales"} items={data.sales_nav} />
       </SidebarContent>
 
-      <SidebarFooter>
+      <SidebarFooter data-cy="navbar-footer">
         <NavUser user={data.user} />
       </SidebarFooter>
       <SidebarRail />

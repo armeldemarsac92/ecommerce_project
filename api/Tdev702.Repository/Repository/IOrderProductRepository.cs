@@ -59,7 +59,7 @@ public class OrderProductRepository : IOrderProductRepository
            ProductIds = orderProducts.Select(op => op.ProductId).ToArray(),
            OrderIds = orderProducts.Select(op => op.OrderId).ToArray(),
            Quantities = orderProducts.Select(op => op.Quantity).ToArray(),
-           UnitPrice = orderProducts.Select(op => op.UnitPrice).ToArray(),
+           UnitPrices = orderProducts.Select(op => op.UnitPrice).ToArray(),
            Subtotals = orderProducts.Select(op => op.Subtotal).ToArray()
        };
 

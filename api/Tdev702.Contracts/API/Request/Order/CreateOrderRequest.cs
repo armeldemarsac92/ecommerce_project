@@ -10,9 +10,6 @@ public class CreateOrderRequest
     [JsonPropertyName("stripe_invoice_id" )]
     public string? StripeInvoiceId { get; set; }
     
-    [JsonPropertyName("payment_status" )]
-    public required string PaymentStatus { get; set; }
-    
     [JsonPropertyName("products" )]
     public List<CreateOrderProductRequest> Products { get; set; }
     

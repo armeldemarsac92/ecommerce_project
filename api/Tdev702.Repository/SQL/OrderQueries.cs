@@ -46,7 +46,7 @@ public static class OrderQueries
        CURRENT_TIMESTAMP, 
        CURRENT_TIMESTAMP, 
        @StripePaymentIntentId, 
-       @PaymentStatus,
+       @PaymentStatus::backoffice.payment_status,
        @TotalAmount)
    RETURNING id;";
 

@@ -1,13 +1,7 @@
-using System.Net.Http.Headers;
-using System.Security.Authentication;
 using System.Security.Claims;
-using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.BearerToken;
-using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.Data;
-using Microsoft.AspNetCore.Identity.UI.Services;
 using Tdev702.Auth.Extensions;
 using Tdev702.Auth.Routes;
 using Tdev702.Auth.Services;
@@ -31,6 +25,12 @@ public static class AuthEndpoints
             .Accepts<LoginRequest>(ContentType)
             .Produces<AccessTokenResponse>()
             .WithName("Login")
+            .WithTags(Tags);        
+        
+        app.MapPost(ApiRoutes.Auth.SimpleLogin, SimpleLogin)
+            .Accepts<LoginRequest>(ContentType)
+            .Produces<AccessTokenResponse>()
+            .WithName("SimpleLogin")
             .WithTags(Tags);
         
         app.MapPost(ApiRoutes.Auth.Verify2FA, Verify2Fa)
@@ -94,6 +94,7 @@ public static class AuthEndpoints
            request.Password,
            isPersistent: false,
            lockoutOnFailure: true);
+       
 
        if (result.IsLockedOut)
        {
@@ -151,6 +152,55 @@ public static class AuthEndpoints
 
        throw new BadRequestException("Invalid credentials");
     }
+    
+    private static async Task<IResult> SimpleLogin(
+        UserManager<User> userManager,
+        ITokenService tokenService,
+        SignInManager<User> signInManager,
+        IEmailService emailService,
+        SimpleLoginRequest request)
+    {
+        var user = await userManager.FindByEmailAsync(request.Email);
+        if (user == null)
+        {
+            throw new BadRequestException("User not found");
+        }
+        
+        
+        switch (user.PreferredTwoFactorProvider)
+        {
+            case TwoFactorType.Email:
+                var emailToken = await signInManager.UserManager.GenerateTwoFactorTokenAsync(user, "Email");
+                await emailService.SendEmailAsync(
+                    user.Email,
+                    "2FA Code",
+                    $"Your verification code is: {emailToken}");
+                return Results.Ok(new { requiresTwoFactor = true, provider = "Email" });
+
+            case TwoFactorType.Authenticator:
+                if (!string.IsNullOrEmpty(request.TwoFactorCode))
+                {
+                    var isValid = await userManager.VerifyTwoFactorTokenAsync(user, 
+                        TokenOptions.DefaultAuthenticatorProvider, 
+                        request.TwoFactorCode);
+
+                    if (isValid)
+                    {
+                        return Results.Ok(await tokenService.GetAccessTokenAsync(user));
+                    }
+                    throw new BadRequestException("Invalid 2FA code");
+                }
+                return Results.Ok(new { requiresTwoFactor = true, provider = "Authenticator" });
+
+            case TwoFactorType.SMS:
+                var phoneToken = await signInManager.UserManager.GenerateTwoFactorTokenAsync(user, "Phone");
+                return Results.Ok(new { requiresTwoFactor = true, provider = "Phone" });
+
+            default:
+                throw new BadRequestException("Invalid 2FA provider");
+        }
+
+    }    
     
     private static async Task<IResult> Verify2Fa(
         UserManager<User> userManager,
