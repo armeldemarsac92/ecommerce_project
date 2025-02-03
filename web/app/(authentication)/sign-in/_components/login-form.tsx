@@ -14,18 +14,23 @@ import { ArrowRight } from "lucide-react";
 import { useState } from "react";
 import { Spinner } from "@nextui-org/spinner";
 import { useRouter } from "next/navigation";
-import {useToast} from "@/hooks/use-toast";
+import {signinWithOAuth} from "@/actions/auth";
+import {FcGoogle} from "react-icons/fc";
 
 export const LoginForm = () => {
   const router = useRouter();
   const [buttonIsLoading, setButtonIsLoading] = useState(false);
-  const { toast } = useToast()
 
 
   const handleSubmit = () => {
     setButtonIsLoading(true);
-    toast({ variant: "success", title: "Connected successfully", description: "Friday, February 10, 2023 at 5:57 PM" })
-    router.push("/dashboard");
+    router.push("/sign-in/verify");
+  }
+
+  const handleOAuthLogin = async (provider: string) => {
+    const data = await signinWithOAuth(provider);
+
+    console.log(data);
   }
 
   return (
@@ -38,6 +43,10 @@ export const LoginForm = () => {
       </CardHeader>
       <CardContent>
         <div className="grid gap-4 gap-y-8">
+          <Button onClick={() => handleOAuthLogin('google')} variant={"outline"}>
+            <FcGoogle className={"mr-2"} size={24}/>
+            Connexion avec Google
+          </Button>
           <div className="grid gap-2">
             <Label className={"text-xs"} htmlFor="email">Email</Label>
             <Input
@@ -47,7 +56,7 @@ export const LoginForm = () => {
               required
             />
           </div>
-          <div className="grid gap-1">
+          {/*<div className="grid gap-1">
             <div className="flex justify-between items-center">
               <Label className={"text-xs"} htmlFor="password">Password</Label>
               <Button className={"text-xs p-0 hover:text-secondary"} variant={"linkHover2"}>
@@ -55,7 +64,7 @@ export const LoginForm = () => {
               </Button>
             </div>
             <Input id="password" type="password" placeholder={"*********"} required />
-          </div>
+          </div>*/}
           <Button onClick={handleSubmit} variant={"expandIcon"} iconPlacement={"right"} Icon={ArrowRight} type="submit" className="w-full" disabled={buttonIsLoading}>
             {buttonIsLoading ? <Spinner color={"success"} size={"sm"}/> : "Login"}
           </Button>
