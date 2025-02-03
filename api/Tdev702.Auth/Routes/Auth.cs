@@ -7,6 +7,7 @@ public static partial class ApiRoutes
         private const string Base = $"{BaseApi}/auth";
 
         public const string Login = $"{Base}/login";
+        public const string SimpleLogin = $"{Base}/simple-login";
         public const string Register = $"{Base}/register";
         public const string Refresh = $"{Base}/refresh";
         public const string ConfirmEmail = $"{Base}/confirm-email/{{userId}}/{{token}}";
