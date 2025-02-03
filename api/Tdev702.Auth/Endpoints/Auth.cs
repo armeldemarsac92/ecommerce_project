@@ -30,7 +30,7 @@ public static class AuthEndpoints
         app.MapPost(ApiRoutes.Auth.Login, SimpleLogin)
             .Accepts<LoginRequest>(ContentType)
             .Produces<AccessTokenResponse>()
-            .WithName("Login")
+            .WithName("SimpleLogin")
             .WithTags(Tags);
         
         app.MapPost(ApiRoutes.Auth.Verify2FA, Verify2Fa)

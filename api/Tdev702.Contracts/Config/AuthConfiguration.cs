@@ -13,6 +13,7 @@ public class AuthConfiguration
     public required string GoogleClientSecret { get; init; }
     public required string FacebookAppId { get; init; }
     public required string FacebookAppSecret { get; init; }
+    public List<IdentityProvider> IdentityProviders { get; init; }
 }
 
 public class IdentityProvider
