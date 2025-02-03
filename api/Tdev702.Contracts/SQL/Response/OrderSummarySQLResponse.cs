@@ -31,11 +31,24 @@ public class OrderSummarySQLResponse
 
 public class OrderItem
 {
+    [Column("product_id")]
     public required int ProductId { get; init; }
+    
+    [Column("title")]
     public required string Title { get; init; }
+    
+    [Column("quantity")]
     public required int Quantity { get; init; }
+    
+    [Column("unit_price")]
     public required double UnitPrice { get; init; }
+    
+    [Column("subtotal")]
     public required double Subtotal { get; init; }
+    
+    [Column("brand")]
     public string? Brand { get; init; }
+    
+    [Column("category")]
     public string? Category { get; init; }
 }

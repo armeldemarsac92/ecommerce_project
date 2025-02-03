@@ -9,11 +9,7 @@ public class AuthConfiguration
     public required string SourceEmail { get; init; }
     public required string SmtpUsername { get; init; }
     public required string SmtpPassword { get; init; }
-    public required string GoogleClientId { get; init; }
-    public required string GoogleClientSecret { get; init; }
-    public required string FacebookAppId { get; init; }
-    public required string FacebookAppSecret { get; init; }
-    public List<IdentityProvider> IdentityProviders { get; init; }
+    public required List<IdentityProvider> IdentityProviders { get; init; }
 }
 
 public class IdentityProvider
@@ -23,10 +19,20 @@ public class IdentityProvider
     public required string ClientSecret { get; init; }
     public required string RedirectUri { get; init; }
     public required string Scope { get; init; }
-    public required string FlowType { get; init; }
+    public required string GrantType { get; init; }
+    public required string ResponseType { get; init; }
     public string? CodeEndpoint { get; init; }
-    public required string TokenEndpointName { get; init; }
     public required string TokenEndpoint { get; init; }
-    public required string UserInfoEndpointName { get; init; }
     public required string UserInfoEndpoint { get; init; }
+    public required UserClaims UserClaims { get; init; }
+}
+
+public class UserClaims
+{
+    public required string sub { get; init; }
+    public required string email { get; init; }
+    public required string name { get; init; }
+    public required string given_name { get; init; }
+    public required string family_name { get; init; }
+    public required string picture { get; init; }
 }

@@ -1,32 +1,31 @@
 using Microsoft.AspNetCore.Identity;
 using Tdev702.Auth.Services;
+using Tdev702.Contracts.Config;
 using Tdev702.Contracts.Database;
 
 namespace Tdev702.Auth.Extensions;
 
 public static partial class AuthServiceExtensions
 {
-    public static IServiceCollection AddAuthServices(this IServiceCollection services)
+    public static IServiceCollection AddAuthServices(this IServiceCollection services, AuthConfiguration authConfiguration)
     {
-        services.AddHttpClient("googletoken", client =>
-        {
-            client.BaseAddress = new Uri("https://oauth2.googleapis.com/token");
-        });
 
-        services.AddHttpClient("GoogleUserInfo", client =>
+        foreach (var identityProvider in authConfiguration.IdentityProviders)
         {
-            client.BaseAddress = new Uri("https://www.googleapis.com/oauth2/v2/");
-        });
-
-        services.AddHttpClient("facebooktoken", client =>
-        {
-            client.BaseAddress = new Uri("https://graph.facebook.com/v21.0/oauth/access_token");
-        });
-
-        services.AddHttpClient("FacebookUserInfo", client =>
-        {
-            client.BaseAddress = new Uri("https://graph.facebook.com/v21.0/");
-        });
+            var tokenClientName = $"{identityProvider.Name}token";
+            services.AddHttpClient(tokenClientName, options =>
+            {
+                var tokenUri = new Uri(identityProvider.TokenEndpoint);
+                options.BaseAddress = new Uri($"{tokenUri.Scheme}://{tokenUri.Host}");
+            });
+           
+            var userInfosClientName = $"{identityProvider.Name}userinfos";
+            services.AddHttpClient(userInfosClientName, options =>
+            {
+                var userInfoUri = new Uri(identityProvider.UserInfoEndpoint); 
+                options.BaseAddress = new Uri($"{userInfoUri.Scheme}://{userInfoUri.Host}");
+            });
+        }
         
         services.AddScoped<IUserService, UserService>();
         services.AddScoped<IAuthService, AuthService>();

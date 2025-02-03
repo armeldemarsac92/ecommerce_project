@@ -1,4 +1,5 @@
 using System.Security.Claims;
+using MassTransit;
 using Microsoft.AspNetCore.Authentication.BearerToken;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.Data;
@@ -239,7 +240,7 @@ public static class AuthEndpoints
         HttpContext httpContext,
         RegisterUserRequest request)
     {
-        var user = await userService.CreateUserAsync(new UserRecord(request.FirstName, request.LastName, request.Email, false, request.Password));
+        var user = await userService.CreateUserAsync(new UserRecord(request.FirstName, request.LastName, request.Email, false, request.ProfilePicture, request.Password));
         
         await userService.ConfirmUserEmailAsync(user, httpContext);
         return Results.Ok("Registration successful. Please check your email for confirmation.");
@@ -341,18 +342,11 @@ public static class AuthEndpoints
         IAuthService authService,
         ISecurityService securityService)
     {
-        var authParameters = new AuthenticationParameters
-        (
-            provider,
-            provider == "google" ? configuration.GoogleClientId : configuration.FacebookAppId,
-            provider == "google" ? configuration.GoogleClientSecret : configuration.FacebookAppSecret,
-            $"{context.Request.Scheme}://{context.Request.Host}/api/auth/external-callback",
-            provider == "google" ? "openid profile email" : "public_profile email"
-            );
+        var authParameters = new AuthenticationParameters(provider);
 
         await securityService.StoreAuthState(authParameters);
         var loginUri = authService.BuildLoginUri(authParameters);
-        return Results.Ok(loginUri);
+        return Results.Redirect(loginUri);
     }
 
     private static async Task<IResult> Callback(
@@ -374,50 +368,90 @@ public static class AuthEndpoints
         var code = context.GetUriParameterFromHttpContext("code");
         authParameters.AuthorizationCode = code;
         var tokenResponse = await authService.ExchangeCodeForTokens(authParameters);
+        authParameters.AccessToken = tokenResponse.AccessToken;
 
-        if (authParameters.IdentityProvider == "google")
+        var userInfos = await authService.GetUserInfosAsync(authParameters);
+        
+        var user = await userManager.FindByEmailAsync(userInfos.Email);
+        if (user != null)
         {
-            var googleUser = await authService.GetGoogleUserInfoAsync(tokenResponse.AccessToken);
-            var user = await userManager.FindByEmailAsync(googleUser.Email);
-            if (user != null)
-            {
-                return Results.Ok(await tokenService.GetAccessTokenAsync(user));
-            }
+            var accessTokenResponse = await tokenService.GetAccessTokenAsync(user);
             
-            var newUser = await userService.CreateUserAsync(new UserRecord(googleUser.GivenName, googleUser.FamilyName, googleUser.Email, true, ""));
-
-            var info = new UserLoginInfo("Google", googleUser.Id, "Google");
-            var addLoginResult = await userManager.AddLoginAsync(newUser, info);
-            if (!addLoginResult.Succeeded)
+            context.Response.Cookies.Append("access_token", accessTokenResponse.AccessToken, new CookieOptions
             {
-                throw new Exception("Failed to add external login");
-            }
+                HttpOnly = true,
+                Secure = true,
+                SameSite = SameSiteMode.Strict
+            });
 
-            return Results.Ok(await tokenService.GetAccessTokenAsync(newUser));
+            context.Response.Cookies.Append("refresh_token", accessTokenResponse.RefreshToken, new CookieOptions
+            {
+                HttpOnly = true,
+                Secure = true,
+                SameSite = SameSiteMode.Strict
+            });
+            
+            return Results.Redirect($"http://localhost:3000/dashboard");
+
         }
-        
-        if (authParameters.IdentityProvider == "facebook")
+            
+        var newUser = await userService.CreateUserAsync(new UserRecord(userInfos.GivenName, userInfos.FamilyName, userInfos.Email, true, userInfos.Picture, ""));
+
+        var info = new UserLoginInfo("Google", userInfos.Sub, "Google");
+        var addLoginResult = await userManager.AddLoginAsync(newUser, info);
+        if (!addLoginResult.Succeeded)
         {
-            var facebookUser = await authService.GetFacebookUserInfoAsync(tokenResponse.AccessToken);
-
-            var user = await userManager.FindByEmailAsync(facebookUser.Email);
-            if (user != null)
-            {
-                return Results.Ok(await tokenService.GetAccessTokenAsync(user));
-            }
-
-            var newUser = await userService.CreateUserAsync(new UserRecord(facebookUser.FirstName, facebookUser.LastName, facebookUser.Email, true, ""));
-
-            var info = new UserLoginInfo("Facebook", facebookUser.Id, "Facebook");
-            var addLoginResult = await userManager.AddLoginAsync(newUser, info);
-            if (!addLoginResult.Succeeded)
-            {
-                throw new Exception("Failed to add external login");
-            }
-
-            return Results.Ok(await tokenService.GetAccessTokenAsync(newUser));
+            throw new Exception("Failed to add external login");
         }
+
+        var accessTokenResponse2 = await tokenService.GetAccessTokenAsync(user);
+            
+        context.Response.Cookies.Append("access_token", accessTokenResponse2.AccessToken, new CookieOptions
+        {
+            HttpOnly = true,
+            Secure = true,
+            SameSite = SameSiteMode.Strict
+        });
+
+        context.Response.Cookies.Append("refresh_token", accessTokenResponse2.RefreshToken, new CookieOptions
+        {
+            HttpOnly = true,
+            Secure = true,
+            SameSite = SameSiteMode.Strict
+        });
         
-        throw new BadRequestException("Invalid external login provider");
-    }
+        return Results.Redirect($"http://localhost:3000/dashboard");
+
+        return Results.Ok();
+
+    //     if (authParameters.IdentityProvider == "google")
+    //     {
+    //         var googleUser = await authService.GetGoogleUserInfoAsync(tokenResponse.AccessToken);
+    //         
+    //     }
+    //     
+    //     if (authParameters.IdentityProvider == "facebook")
+    //     {
+    //         var facebookUser = await authService.GetFacebookUserInfoAsync(tokenResponse.AccessToken);
+    //
+    //         var user = await userManager.FindByEmailAsync(facebookUser.Email);
+    //         if (user != null)
+    //         {
+    //             return Results.Ok(await tokenService.GetAccessTokenAsync(user));
+    //         }
+    //
+    //         var newUser = await userService.CreateUserAsync(new UserRecord(facebookUser.FirstName, facebookUser.LastName, facebookUser.Email, true, ""));
+    //
+    //         var info = new UserLoginInfo("Facebook", facebookUser.Id, "Facebook");
+    //         var addLoginResult = await userManager.AddLoginAsync(newUser, info);
+    //         if (!addLoginResult.Succeeded)
+    //         {
+    //             throw new Exception("Failed to add external login");
+    //         }
+    //
+    //         return Results.Ok(await tokenService.GetAccessTokenAsync(newUser));
+    //     }
+    //     
+    //     throw new BadRequestException("Invalid external login provider");
+      }
 }
