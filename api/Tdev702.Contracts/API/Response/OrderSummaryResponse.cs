@@ -8,7 +8,7 @@ public class OrderSummaryResponse
     public required int Id { get; init; }
 
     [Column("user_id")] 
-    public required int UserId { get; init; }
+    public required string UserId { get; init; }
 
     [Column("payment_status")]
     public required string PaymentStatus { get; init; }
