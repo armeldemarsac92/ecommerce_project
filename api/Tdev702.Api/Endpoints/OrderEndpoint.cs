@@ -108,7 +108,6 @@ public static class OrderEndpoints
        CreateOrderRequest orderRequest,
        CancellationToken cancellationToken)
    {
-       orderRequest.PaymentStatus = "draft";
        var order = await orderService.CreateAsync(orderRequest, cancellationToken);
        return Results.Created($"/api/orders/{order.Id}", order);
    }
