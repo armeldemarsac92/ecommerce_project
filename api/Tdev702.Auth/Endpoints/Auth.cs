@@ -391,13 +391,7 @@ public static class AuthEndpoints
 
         var stringifier = token.ToString();
         
-        context.Response.Cookies.Append("auth_token", stringifier, new CookieOptions
-        {
-            HttpOnly = true,
-            Secure = true,
-            SameSite = SameSiteMode.Strict
-        });
-        return Results.Redirect("http://localhost:3000/dashboard");
+        return Results.Redirect($"http://localhost:3000/dashboard?token={Uri.EscapeDataString(stringifier)}");
 
         return Results.Ok();
 
