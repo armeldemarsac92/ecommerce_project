@@ -1,10 +1,11 @@
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json.Serialization;
 
 namespace Tdev702.Contracts.SQL.Response;
 
 public class OrderSummarySQLResponse
 {
-    [Column("order_id")]
+    [Column("id")]
     public required int Id { get; init; }
 
     [Column("user_id")] 
@@ -26,29 +27,29 @@ public class OrderSummarySQLResponse
     public required DateTime CreatedAt { get; init; }
 
     [Column("order_items")]
-    public required OrderItem[] OrderItems { get; init; }
+    public OrderItem[]? OrderItems { get; init; }
 }
 
 public class OrderItem
 {
-    [Column("product_id")]
-    public required int ProductId { get; init; }
+    [JsonPropertyName("product_id")]
+    public int? ProductId { get; init; }
     
-    [Column("title")]
-    public required string Title { get; init; }
+    [JsonPropertyName("title")]
+    public string? Title { get; init; }
     
-    [Column("quantity")]
-    public required int Quantity { get; init; }
+    [JsonPropertyName("quantity")]
+    public int? Quantity { get; init; }
     
-    [Column("unit_price")]
-    public required double UnitPrice { get; init; }
+    [JsonPropertyName("unit_price")]
+    public double? UnitPrice { get; init; }
     
-    [Column("subtotal")]
-    public required double Subtotal { get; init; }
+    [JsonPropertyName("subtotal")]
+    public double? Subtotal { get; init; }
     
-    [Column("brand")]
+    [JsonPropertyName("brand")]
     public string? Brand { get; init; }
     
-    [Column("category")]
+    [JsonPropertyName("category")]
     public string? Category { get; init; }
 }

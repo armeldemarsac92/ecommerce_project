@@ -41,16 +41,18 @@ public static class OrderMapping
             StripeInvoiceId = orderSql.StripeInvoiceId,
             StripePaymentIntentId = orderSql.StripePaymentIntentId,
             CreatedAt = orderSql.CreatedAt,
-            OrderItems = orderSql.OrderItems.Select(item => new OrderItemResponse
-            {
-                ProductId = item.ProductId,
-                Title = item.Title,
-                Quantity = item.Quantity,
-                UnitPrice = item.UnitPrice,
-                Subtotal = item.Subtotal,
-                Brand = item.Brand,
-                Category = item.Category
-            }).ToArray()
+            OrderItems = orderSql.OrderItems?
+                .Where(item => item.ProductId != null)
+                .Select(item => new OrderItemResponse
+                {
+                    ProductId = item.ProductId!.Value,
+                    Title = item.Title,
+                    Quantity = item.Quantity!.Value,
+                    UnitPrice = item.UnitPrice!.Value,
+                    Subtotal = item.Subtotal!.Value,
+                    Brand = item.Brand,
+                    Category = item.Category
+                }).ToArray()
         };
     }
 
