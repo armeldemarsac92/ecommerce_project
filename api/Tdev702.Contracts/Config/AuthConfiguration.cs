@@ -14,3 +14,17 @@ public class AuthConfiguration
     public required string FacebookAppId { get; init; }
     public required string FacebookAppSecret { get; init; }
 }
+
+public class IdentityProvider
+{
+    public required string Name { get; init; }
+    public required string ClientId { get; init; }
+    public required string ClientSecret { get; init; }
+    public required string RedirectUri { get; init; }
+    public required string Scope { get; init; }
+    public required string FlowType { get; init; }
+    public string? CodeEndpoint { get; init; }
+    public required string TokenEndpointName { get; init; }
+    public required string TokenEndpoint { get; init; }
+    public required string UserInfoEndpoint { get; init; }
+}

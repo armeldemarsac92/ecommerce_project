@@ -103,6 +103,7 @@ public class OrderService : IOrderService
         
         //we prepare the order data for insertion into the SQL database
         var createOrderSqlRequest = createOrderRequest.MapToCreateOrderRequest(totalAmount);
+        createOrderSqlRequest.PaymentStatus = "created";
 
         await _unitOfWork.BeginTransactionAsync(cancellationToken);
         try
