@@ -27,7 +27,7 @@ public static class AuthEndpoints
             .WithName("Login")
             .WithTags(Tags);        
         
-        app.MapPost(ApiRoutes.Auth.Login, SimpleLogin)
+        app.MapPost(ApiRoutes.Auth.SimpleLogin, SimpleLogin)
             .Accepts<LoginRequest>(ContentType)
             .Produces<AccessTokenResponse>()
             .WithName("SimpleLogin")
