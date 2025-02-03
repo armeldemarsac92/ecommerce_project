@@ -65,7 +65,7 @@ export const LoginForm = () => {
             </div>
             <Input id="password" type="password" placeholder={"*********"} required />
           </div>*/}
-          <Button onClick={handleSubmit} variant={"expandIcon"} iconPlacement={"right"} Icon={ArrowRight} type="submit" className="w-full" disabled={buttonIsLoading}>
+          <Button onClick={handleSubmit} variant={"expandIcon"} iconPlacement={"right"} Icon={<ArrowRight size={15} />} type="submit" className="w-full" disabled={buttonIsLoading}>
             {buttonIsLoading ? <Spinner color={"success"} size={"sm"}/> : "Login"}
           </Button>
         </div>
