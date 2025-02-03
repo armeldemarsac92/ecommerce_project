@@ -67,7 +67,6 @@ public static class OrderMapping
             UserId = createOrderRequest.UserId,
             TotalAmount = totalAmount,
             
-            PaymentStatus = createOrderRequest.PaymentStatus,
             StripeInvoiceId = createOrderRequest.StripeInvoiceId
         };
     }
