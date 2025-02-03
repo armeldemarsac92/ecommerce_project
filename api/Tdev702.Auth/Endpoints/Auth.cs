@@ -346,7 +346,7 @@ public static class AuthEndpoints
 
         await securityService.StoreAuthState(authParameters);
         var loginUri = authService.BuildLoginUri(authParameters);
-        return Results.Ok(loginUri);
+        return Results.Redirect(loginUri);
     }
 
     private static async Task<IResult> Callback(
@@ -375,7 +375,24 @@ public static class AuthEndpoints
         var user = await userManager.FindByEmailAsync(userInfos.Email);
         if (user != null)
         {
-            return Results.Ok(await tokenService.GetAccessTokenAsync(user));
+            var accessTokenResponse = await tokenService.GetAccessTokenAsync(user);
+            
+            context.Response.Cookies.Append("access_token", accessTokenResponse.AccessToken, new CookieOptions
+            {
+                HttpOnly = true,
+                Secure = true,
+                SameSite = SameSiteMode.Strict
+            });
+
+            context.Response.Cookies.Append("refresh_token", accessTokenResponse.RefreshToken, new CookieOptions
+            {
+                HttpOnly = true,
+                Secure = true,
+                SameSite = SameSiteMode.Strict
+            });
+            
+            return Results.Redirect($"http://localhost:3000/dashboard");
+
         }
             
         var newUser = await userService.CreateUserAsync(new UserRecord(userInfos.GivenName, userInfos.FamilyName, userInfos.Email, true, userInfos.Picture, ""));
@@ -387,11 +404,23 @@ public static class AuthEndpoints
             throw new Exception("Failed to add external login");
         }
 
-        var token = await tokenService.GetAccessTokenAsync(newUser);
+        var accessTokenResponse2 = await tokenService.GetAccessTokenAsync(user);
+            
+        context.Response.Cookies.Append("access_token", accessTokenResponse2.AccessToken, new CookieOptions
+        {
+            HttpOnly = true,
+            Secure = true,
+            SameSite = SameSiteMode.Strict
+        });
 
-        var stringifier = token.ToString();
+        context.Response.Cookies.Append("refresh_token", accessTokenResponse2.RefreshToken, new CookieOptions
+        {
+            HttpOnly = true,
+            Secure = true,
+            SameSite = SameSiteMode.Strict
+        });
         
-        return Results.Redirect($"http://localhost:3000/dashboard?token={Uri.EscapeDataString(stringifier)}");
+        return Results.Redirect($"http://localhost:3000/dashboard");
 
         return Results.Ok();
 
