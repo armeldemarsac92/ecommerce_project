@@ -355,7 +355,7 @@ export const InventoryTableClient = () => {
                     </div>
                 )}
             </div>
-            <Modal isOpen={isOpen} onClose={onClose}>
+            <Modal isOpen={isOpen} onClose={onClose} hideCloseButton>
                 <ModalContent>
                     {(onClose) => (
                         <div>
@@ -373,7 +373,7 @@ export const InventoryTableClient = () => {
                     )}
                 </ModalContent>
             </Modal>
-            <Modal isOpen={isQuantityModalOpen} onClose={onQuantityModalClose}>
+            <Modal isOpen={isQuantityModalOpen} onClose={onQuantityModalClose} hideCloseButton>
                 <ModalContent>
                     {(onQuantityModalClose) => (
                         <div>

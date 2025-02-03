@@ -13,7 +13,6 @@ import {useProducts} from "@/hooks/swr/products/use-products";
 import {AddButton} from "@/components/ui/add-button";
 import {useInventories} from "@/hooks/swr/inventories/use-inventories";
 
-
 export default function CatalogClient() {
     const [filterValue, setFilterValue] = useState("");
     const [page, setPage] = useState(1);
@@ -23,12 +22,11 @@ export default function CatalogClient() {
     const { products, errorSWRProducts, loadingSWRProducts } = useProducts();
     const { inventories, errorSWRInventories, loadingSWRInventories } = useInventories();
 
-
     useEffect(() => {
-        if (errorSWRProducts && errorSWRInventories) {
+        if (errorSWRProducts || errorSWRInventories) {
             toast({ variant: "destructive", title: "Error", description: "An error occurred"})
         }
-    }, []);
+    }, [errorSWRProducts, errorSWRInventories, toast]);
 
     const hasSearchFilter = Boolean(filterValue);
 
@@ -38,7 +36,8 @@ export default function CatalogClient() {
 
             return {
                 ...product,
-                stock: inventory?.quantity || 0
+                stock: inventory?.quantity || 0,
+                image_url: product.image_url || 'https://placehold.co/300x300'
             };
         });
 
@@ -49,9 +48,16 @@ export default function CatalogClient() {
         }
 
         return filteredProducts;
-    }, [products, filterValue]);
+    }, [products, inventories, filterValue]);
 
     const pages = Math.ceil(filteredItems.length / rowsPerPage);
+
+    const paginatedItems = useMemo(() => {
+        const start = (page - 1) * rowsPerPage;
+        const end = start + rowsPerPage;
+
+        return filteredItems.slice(start, end);
+    }, [page, rowsPerPage, filteredItems]);
 
     const onNextPage = useCallback(() => {
         if (page < pages) {
@@ -82,7 +88,7 @@ export default function CatalogClient() {
     return (
         <div className="h-full">
             <div className="h-full flex flex-col">
-                {loadingSWRProducts && loadingSWRInventories ? (
+                {loadingSWRProducts || loadingSWRInventories ? (
                     <div className="h-full w-full flex justify-center">
                         <Spinner color="success" labelColor="success" />
                     </div>
@@ -91,17 +97,25 @@ export default function CatalogClient() {
                         <div className="m-4 flex flex-col gap-4">
                             <div className="flex justify-between gap-3 items-end">
                                 <SearchBar onClear={onClear} onValueChange={onSearchChange} value={filterValue}/>
-
                                 <div className="flex gap-3">
                                     <AddButton />
                                 </div>
                             </div>
+                            <div className="flex justify-between items-center">
+                                <span className="text-default-400 text-small">
+                                    Total {filteredItems.length} products
+                                </span>
+                                <span className="text-default-400 text-small">
+                                    Page {page} of {pages}
+                                </span>
+                            </div>
                         </div>
+
                         <div className="gap-5 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 p-4">
-                            {filteredItems.map((product, index) => (
+                            {paginatedItems.map((product) => (
                                 <Card
                                     shadow="sm"
-                                    key={index}
+                                    key={product.id}
                                     as={Link}
                                     href={`/dashboard/catalog/inventory/products/${product.id}`}
                                 >
@@ -111,7 +125,10 @@ export default function CatalogClient() {
                                             width="100%"
                                             alt={product.title}
                                             className="object-contain"
-                                            src={product.image_url || 'https://placehold.co/300x300'}
+                                            src={product.image_url && product.image_url.startsWith('http')
+                                                ? product.image_url
+                                                : 'https://placehold.co/300x300'
+                                            }
                                         />
                                     </CardBody>
                                     <CardFooter className="text-small justify-between">
@@ -129,6 +146,7 @@ export default function CatalogClient() {
                                 </Card>
                             ))}
                         </div>
+
                         <div className="py-2 px-2 flex justify-between items-center m-2">
                             <Pagination
                                 classNames={{
@@ -145,12 +163,24 @@ export default function CatalogClient() {
                                 onChange={setPage}
                             />
                             <div className="hidden sm:flex w-[30%] justify-end gap-2">
-                                <Button variant={"expandIcon"} iconPlacement={"left"} Icon={ChevronLeft} disabled={pages === 1} size="sm"
-                                        onClick={onPreviousPage}>
+                                <Button
+                                    variant={"expandIcon"}
+                                    iconPlacement={"left"}
+                                    Icon={ChevronLeft}
+                                    disabled={page === 1}
+                                    size="sm"
+                                    onClick={onPreviousPage}
+                                >
                                     Previous
                                 </Button>
-                                <Button variant={"expandIcon"} iconPlacement={"right"} Icon={ChevronRight} disabled={pages === 1} size="sm"
-                                        onClick={onNextPage}>
+                                <Button
+                                    variant={"expandIcon"}
+                                    iconPlacement={"right"}
+                                    Icon={ChevronRight}
+                                    disabled={page === pages}
+                                    size="sm"
+                                    onClick={onNextPage}
+                                >
                                     Next
                                 </Button>
                             </div>
