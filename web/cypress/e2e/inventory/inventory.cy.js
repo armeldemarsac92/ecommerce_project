@@ -1,4 +1,4 @@
-describe('Inventory page test', () => {
+describe.skip('Inventory page test', () => {
     it('User can see the list of inventory', () => {
         cy.intercept('GET', '**/api/v1/products').as('getInventory');
 

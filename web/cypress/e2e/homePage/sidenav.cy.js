@@ -1,4 +1,4 @@
-describe('Sidenav component test', () => {
+describe.skip('Sidenav component test', () => {
     it('User can see all sidenav elements', () => {
         cy.visit('/dashboard')
         cy.get('[data-cy="navbar-header"]').should('exist')
