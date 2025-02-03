@@ -1,7 +1,7 @@
 import useSWR from 'swr'
 import { axiosSWRFetcher } from "@/utils/fetcher";
 import { useEffect, useState } from "react";
-import {Product} from "@/types/product";
+import {Product} from "@/types/product/product";
 
 export const useProduct = (id: number) => {
     const { data, mutate, isLoading: loadingSWRProduct, error: errorSWRProduct } = useSWR(id ? `/products/${id}` : null, axiosSWRFetcher, {
@@ -12,9 +12,7 @@ export const useProduct = (id: number) => {
 
     const [product, setProduct] = useState<Product | null>(null);
 
-    useEffect(() => {
-        console.log(data);
-    }, [data]);
+
 
     useEffect(() => {
         if (data) {
