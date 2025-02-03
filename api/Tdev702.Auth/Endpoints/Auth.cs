@@ -1,4 +1,5 @@
 using System.Security.Claims;
+using MassTransit;
 using Microsoft.AspNetCore.Authentication.BearerToken;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.Data;
@@ -386,7 +387,19 @@ public static class AuthEndpoints
             throw new Exception("Failed to add external login");
         }
 
-        return Results.Ok(await tokenService.GetAccessTokenAsync(newUser));
+        var token = await tokenService.GetAccessTokenAsync(newUser);
+
+        var stringifier = token.ToString();
+        
+        context.Response.Cookies.Append("auth_token", stringifier, new CookieOptions
+        {
+            HttpOnly = true,
+            Secure = true,
+            SameSite = SameSiteMode.Strict
+        });
+        return Results.Redirect("http://localhost:3000/dashboard");
+
+        return Results.Ok();
 
     //     if (authParameters.IdentityProvider == "google")
     //     {
