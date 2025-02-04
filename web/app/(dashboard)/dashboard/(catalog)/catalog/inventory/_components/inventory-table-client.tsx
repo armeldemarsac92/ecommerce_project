@@ -5,7 +5,7 @@ import React, {useEffect, useMemo, useState, useCallback} from "react";
 import {columns} from "@/app/(dashboard)/dashboard/(catalog)/catalog/inventory/_data/data";
 import {SearchBar} from "@/components/ui/search-bar";
 import {Button} from "@/components/shadcn/button";
-import {ChevronLeft, ChevronRight, Edit, Ellipsis, Trash} from "lucide-react";
+import {ChevronRight, Edit, Ellipsis, Trash} from "lucide-react";
 import {DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger} from "@/components/shadcn/dropdown-menu";
 import {useProducts} from "@/hooks/swr/products/use-products";
 import {useToast} from "@/hooks/use-toast";

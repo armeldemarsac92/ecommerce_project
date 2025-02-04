@@ -1,7 +1,4 @@
 import {Card, CardContent, CardDescription, CardHeader, CardTitle} from "@/components/shadcn/card";
-import {Button} from "@/components/shadcn/button";
-import {Check} from "lucide-react";
-import {InputOTP, InputOTPGroup, InputOTPSlot} from "@/components/shadcn/input-otp";
 import {OTPForm} from "@/app/(authentication)/sign-in/(routes)/verify/_components/otp-form";
 
 export default function VerifySignInPage() {

@@ -14,23 +14,39 @@ import { ArrowRight } from "lucide-react";
 import { useState } from "react";
 import { Spinner } from "@nextui-org/spinner";
 import { useRouter } from "next/navigation";
-import {signinWithOAuth} from "@/actions/auth";
+import {signinWithOAuth, simpleLoginWithEmail} from "@/actions/auth";
 import {FcGoogle} from "react-icons/fc";
+import {useAuthContext} from "@/contexts/auth-context";
+import {useToast} from "@/hooks/use-toast";
 
 export const LoginForm = () => {
   const router = useRouter();
-  const [buttonIsLoading, setButtonIsLoading] = useState(false);
+
+  const {toast} = useToast();
+  const {updateAuthData, updateContextLoading, contextLoading} = useAuthContext();
 
 
-  const handleSubmit = () => {
-    setButtonIsLoading(true);
-    router.push("/sign-in/verify");
-  }
+  const [email, setEmail] = useState("");
 
   const handleOAuthLogin = async (provider: string) => {
-    const data = await signinWithOAuth(provider);
+    await signinWithOAuth(provider);
+  }
 
-    console.log(data);
+  const handleSimpleLoginWithEmail = async (email: string) => {
+    updateContextLoading(true)
+    updateAuthData({
+      current_email: email
+    })
+
+    const response = await simpleLoginWithEmail({email});
+
+    updateContextLoading(false)
+
+    if(response.status === 200) {
+      router.push("/sign-in/verify")
+    }else {
+      toast({ variant: "destructive", title: "An error was occurred", description: "Bad credentials" })
+    }
   }
 
   return (
@@ -54,19 +70,13 @@ export const LoginForm = () => {
               type="email"
               placeholder="m@example.com"
               required
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
             />
           </div>
-          {/*<div className="grid gap-1">
-            <div className="flex justify-between items-center">
-              <Label className={"text-xs"} htmlFor="password">Password</Label>
-              <Button className={"text-xs p-0 hover:text-secondary"} variant={"linkHover2"}>
-                Forgot your password?
-              </Button>
-            </div>
-            <Input id="password" type="password" placeholder={"*********"} required />
-          </div>*/}
-          <Button onClick={handleSubmit} variant={"expandIcon"} iconPlacement={"right"} Icon={<ArrowRight size={15} />} type="submit" className="w-full" disabled={buttonIsLoading}>
-            {buttonIsLoading ? <Spinner color={"success"} size={"sm"}/> : "Login"}
+
+          <Button onClick={() => {handleSimpleLoginWithEmail(email)}} variant={"expandIcon"} iconPlacement={"right"} Icon={<ArrowRight size={15} />} type="submit" className="w-full" disabled={contextLoading}>
+            {contextLoading ? <Spinner color={"success"} size={"sm"}/> : "Login"}
           </Button>
         </div>
       </CardContent>
