@@ -212,12 +212,19 @@ public class OrderService : IOrderService
         {
             var order = await GetByIdAsync(orderId, cancellationToken);
             if (!order.OrderItems.Any()) throw new BadRequestException($"Order {orderId} doesnt have any items.");
+            
+            _logger.LogInformation("Decrementing stock for order {orderId}", orderId);
             foreach (var orderProduct in order.OrderItems)
             {
                 await _inventoriesService.DecrementAsync((int)orderProduct.Quantity, (long)orderProduct.ProductId,
                     cancellationToken);
             }
+            _logger.LogInformation("Stock decremented for order {orderId}", orderId);
+
+            _logger.LogInformation("Creating payment intent for order {orderId}", orderId);
             var paymentIntent = await _stripePaymentIntentService.CreateAsync(request, null, cancellationToken);
+            _logger.LogInformation("Payment intent {paymentId} created for order {orderId}", paymentIntent.Id, orderId);
+            
             var updateOrderSqlRequest = new UpdateOrderSQLRequest() { Id = orderId, StripePaymentIntentId = paymentIntent.Id, PaymentStatus = "created"};
             var affectedRow = await _orderRepository.UpdateAsync(updateOrderSqlRequest, cancellationToken);
             if (affectedRow == 0) throw new NotFoundException($"Cannot create payment intent for order {orderId}, not found.");
