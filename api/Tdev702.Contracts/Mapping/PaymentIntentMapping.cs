@@ -5,11 +5,11 @@ namespace Tdev702.Contracts.Mapping;
 
 public static class PaymentIntentMapping
 {
-    public static PaymentIntentCreateOptions ToStripePaymentIntentOptions(this CreatePaymentRequest request, string customerId)
+    public static PaymentIntentCreateOptions ToStripePaymentIntentOptions(this CreatePaymentRequest request, string customerId, long amount)
     {
         return new PaymentIntentCreateOptions
         {
-            Amount = request.Amount,
+            Amount = amount,
             Currency = "eur",
             PaymentMethod = request.PaymentMethodId,
             Customer = customerId,

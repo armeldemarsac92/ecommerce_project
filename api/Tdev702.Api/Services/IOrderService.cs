@@ -23,6 +23,7 @@ public interface IOrderService
     Task UpdateOrderPaymentStatus(UpdateOrderSQLRequest updateOrderRequest,
         CancellationToken cancellationToken = default);
     Task<OrderSummaryResponse> UpdateAsync(long orderId, UpdateOrderRequest updateOrderRequest, CancellationToken cancellationToken = default);
+    Task DeleteAsync(long orderId, CancellationToken cancellationToken = default);
     Task<PaymentIntent> CreatePaymentAsync(long orderId, string userId, CreatePaymentRequest createPayment, CancellationToken cancellationToken = default);
 }
 public class OrderService : IOrderService
@@ -134,11 +135,18 @@ public class OrderService : IOrderService
     
     public async Task UpdateOrderPaymentStatus(UpdateOrderSQLRequest updateOrderRequest, CancellationToken cancellationToken)
     {
-        _logger.LogInformation("Updating order payment status {paymentStatus} for order with id: {orderId}", updateOrderRequest.PaymentStatus, updateOrderRequest.Id);
+        _logger.LogInformation("Updating order payment status to {paymentStatus} for order with id: {orderId}", updateOrderRequest.PaymentStatus, updateOrderRequest.Id);
         await _unitOfWork.BeginTransactionAsync(cancellationToken);
         try
         {
             await _orderRepository.UpdateAsync(updateOrderRequest, cancellationToken);
+            if (updateOrderRequest.PaymentStatus == "canceled")
+            {
+                var order = await _orderRepository.GetByIdAsync(updateOrderRequest.Id, cancellationToken);
+                if (order is null) throw new NotFoundException($"Order {updateOrderRequest.Id} not found.");
+                await RemoveProducts(order, new List<FullProductSQLResponse>(), cancellationToken);
+                await DeleteAsync(order.Id, cancellationToken); 
+            }
             await _unitOfWork.CommitAsync(cancellationToken);
             _logger.LogInformation("Order payment status updated successfully for order with id: {orderId}",
                 updateOrderRequest.Id);
@@ -176,7 +184,7 @@ public class OrderService : IOrderService
             await UpdateOrderPaymentIntent(cancellationToken, totalAmount, order);
 
             //we remove any products that have been removed from the order request from the SQL database
-            await RemoveDetachedProducts(cancellationToken, order, newProducts);
+            await RemoveProducts(order, newProducts, cancellationToken);
 
             //we update the link between the order and the products with the new prices and quantities
             var updateOrderProductsSqlRequest =
@@ -201,11 +209,30 @@ public class OrderService : IOrderService
         }
     }
 
+    public async Task DeleteAsync(long orderId, CancellationToken cancellationToken = default)
+    {
+        _logger.LogInformation("Deleting order: {orderId}", orderId);
+        
+        await _unitOfWork.BeginTransactionAsync(cancellationToken);
+        try
+        {
+            var affectedRows = await _orderRepository.DeleteAsync(orderId, cancellationToken);
+            if (affectedRows == 0) throw new NotFoundException("Delete failed");
+            await _unitOfWork.CommitAsync(cancellationToken);
+            _logger.LogInformation("Order deleted successfully with id: {orderId}", orderId);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogInformation("Error deleting order {orderId} : {message}", orderId, ex.Message);
+            await _unitOfWork.RollbackAsync(cancellationToken);
+            throw;
+        }
+    }
+
     public async Task<PaymentIntent> CreatePaymentAsync(long orderId, string userId, CreatePaymentRequest createPaymentRequest,
         CancellationToken cancellationToken = default)
     {
         _logger.LogInformation("Creating payment intent for order {orderId}", orderId);
-        var request = createPaymentRequest.ToStripePaymentIntentOptions(userId);
         await _unitOfWork.BeginTransactionAsync(cancellationToken);
 
         try
@@ -222,6 +249,7 @@ public class OrderService : IOrderService
             _logger.LogInformation("Stock decremented for order {orderId}", orderId);
 
             _logger.LogInformation("Creating payment intent for order {orderId}", orderId);
+            var request = createPaymentRequest.ToStripePaymentIntentOptions(userId, (long)order.TotalAmount);
             var paymentIntent = await _stripePaymentIntentService.CreateAsync(request, null, cancellationToken);
             _logger.LogInformation("Payment intent {paymentId} created for order {orderId}", paymentIntent.Id, orderId);
             
@@ -240,7 +268,7 @@ public class OrderService : IOrderService
         }
     }
 
-    private async Task RemoveDetachedProducts(CancellationToken cancellationToken, OrderSummarySQLResponse order, List<FullProductSQLResponse> newProducts)
+    private async Task RemoveProducts(OrderSummarySQLResponse order, List<FullProductSQLResponse> newProducts, CancellationToken cancellationToken = default)
     {
         //then we retrieve the old products linked to the order to see if some products have been removed
         var oldProductOrderList = await _orderProductRepository.GetAllByOrderIdAsync(order.Id, cancellationToken);
@@ -254,6 +282,12 @@ public class OrderService : IOrderService
         foreach (var productLink in productsLinksToRemove)
         {
             await _orderProductRepository.DeleteAsync(productLink.Id, cancellationToken);
+            await _inventoriesService.IncreamentAsync(productLink.Quantity, productLink.Id, cancellationToken);
+        }
+
+        foreach (var product in productsToRemove)
+        {
+            await _orderRepository.DeleteAsync(product.Id, cancellationToken);
         }
     }
 
