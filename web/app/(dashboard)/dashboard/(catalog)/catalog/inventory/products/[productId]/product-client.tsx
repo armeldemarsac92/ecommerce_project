@@ -173,7 +173,9 @@ export default function ProductClient({params}: {params: {productId: string}}) {
                             <Image
                                 width="100%"
                                 alt={product?.title ?? "No image"}
-                                src={product?.image_url || 'https://placehold.co/300x300'}
+                                src={product?.image_url && product?.image_url.startsWith('http')
+                                    ? product?.image_url : 'https://placehold.co/300x300'
+                                }
                             />
                         </div>
                     )}
