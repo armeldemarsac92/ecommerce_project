@@ -14,6 +14,13 @@ import {useCustomers} from "@/hooks/swr/customers/use-customers";
 import {Button} from "@/components/shadcn/button";
 import {ChevronLeft, ChevronRight} from "lucide-react";
 
+type PaymentStatus = 'processing' | 'pending' | 'succeeded' | 'failed' | 'canceled';
+
+type PaymentStatusColors = {
+    [payment in PaymentStatus]: string;
+};
+
+
 export const OrdersClient= () => {
     const [filterValue, setFilterValue] = useState("");
     const [page, setPage] = useState(1);
@@ -35,6 +42,14 @@ export const OrdersClient= () => {
     }, [customers, orders]);
 
     const hasSearchFilter = Boolean(filterValue);
+
+    const paymentStatusColors = {
+        processing: 'warning',
+        pending: 'default',
+        succeeded: 'success',
+        failed: 'danger',
+        canceled: 'default'
+    } as const;
 
     const getAvatarByUsername = (username: string) => {
         const sum = username.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
@@ -121,24 +136,27 @@ export const OrdersClient= () => {
                                 <div className={"grid grid-cols-6 w-full text-sm"}>
                                     <span>Order #{order.id}</span>
                                     <span>{order.createdAt ? new Date(order.createdAt).toISOString().split('T')[0] : "-"}</span>
-                                    <Link href={"/dashboard"} size={"sm"} className={"w-fit group flex items-center gap-x-2"}>
-                                        <Avatar className="w-8 h-8 rounded-lg object-contain" asChild>
-                                            <AvatarImage
-                                                src={getAvatarByUsername(order.customer.username)}
-                                                alt={order.customer.username}
-                                            />
-                                        </Avatar>
-                                        <span className="text-xs">{order.customer.username}</span>
-                                    </Link>
-                                    <span className="flex justify-end items-center">
-                                        <Chip size="sm"
-                                              color={`${order.paymentStatus === 'In progress' ? 'default' : order.paymentStatus === 'Shipped' ? 'warning' : 'success'}`}
-                                              variant="flat"
-                                        >
-                                            {order.paymentStatus}
-                                        </Chip>
-                                    </span>
-                                    <span className="text-right">{order.totalAmount.toFixed(2)}€</span>
+                                    <div className="flex space-x-14">
+                                        <Link href={"/dashboard"} size={"sm"} className={"w-fit group flex items-center gap-x-2"}>
+                                            <Avatar className="w-8 h-8 rounded-lg object-contain" asChild>
+                                                <AvatarImage
+                                                    src={getAvatarByUsername(order.customer.username)}
+                                                    alt={order.customer.username}
+                                                />
+                                            </Avatar>
+                                            <span className="text-xs">{order.customer.username}</span>
+                                        </Link>
+                                        <span className="flex justify-end items-center">
+                                            <Chip size="sm"
+                                                  color={paymentStatusColors[order.paymentStatus as PaymentStatus] || 'default'}
+                                                  className="text-xs"
+                                                  variant="flat"
+                                            >
+                                                {order.paymentStatus.toUpperCase()}
+                                            </Chip>
+                                        </span>
+                                        <span className="flex items-center">{order.totalAmount.toFixed(2)}€</span>
+                                    </div>
                                 </div>
                             }
                         >

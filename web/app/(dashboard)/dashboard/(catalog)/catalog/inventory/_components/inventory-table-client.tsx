@@ -14,25 +14,22 @@ import {Modal, ModalBody, ModalContent, ModalFooter, ModalHeader} from "@nextui-
 import {useInventories} from "@/hooks/swr/inventories/use-inventories";
 import {Input} from "@/components/shadcn/input";
 import {increamentProduct, substractProduct} from "@/actions/inventory";
+import { Label } from "@/components/shadcn/label"
+import { RadioGroup, RadioGroupItem } from "@/components/shadcn/radio-group"
 
 export const InventoryTableClient = () => {
     const [filterValue, setFilterValue] = useState("");
     const [rowsPerPage] = useState(10);
     const { toast } = useToast();
-    const [sortDescriptor, setSortDescriptor] = useState<SortDescriptor>({
-        column: "title",
-        direction: "ascending",
-    });
+    const [sortDescriptor, setSortDescriptor] = useState<SortDescriptor>({column: "title", direction: "ascending"});
     const {isOpen, onOpen, onClose} = useDisclosure();
     const {isOpen: isQuantityModalOpen, onOpen: onQuantityModalOpen, onClose: onQuantityModalClose} = useDisclosure();
     const [productIdToDelete, setProductIdToDelete] = useState<number|null>(null);
     const [page, setPage] = useState(1);
     const { products, refreshProducts, errorSWRProducts, loadingSWRProducts } = useProducts();
     const { inventories, refreshInventories, errorSWRInventories, loadingSWRInventories } = useInventories();
-    const [selectedInventory, setSelectedInventory] = useState<{
-        productId: number;
-        currentQuantity: number;
-    } | null>(null);
+    const [stockManageChoice, setStockManageChoice] = useState<string>("increase");
+    const [selectedInventory, setSelectedInventory] = useState<{ productId: number; currentQuantity: number; } | null>(null);
     const [quantityToAdd, setQuantityToAdd] = useState(0);
 
 
@@ -40,7 +37,8 @@ export const InventoryTableClient = () => {
       if (errorSWRProducts || errorSWRInventories) {
           toast({ variant: "destructive", title: "Error", description: "An error occurred"})
       }
-    }, []);
+
+    }, [inventories, products]);
 
     type Product = typeof products[0];
 
@@ -114,69 +112,46 @@ export const InventoryTableClient = () => {
         }
     };
 
-    const updateProductQuantity = (quantity: number) => {
-        if (selectedInventory) {
-            if (quantity > 0) {
-                increamentProduct(selectedInventory.productId, quantity).then(() => {
-                    refreshInventories().then(() => {
-                        onQuantityModalClose();
-                        toast({
-                            variant: "success",
-                            title: "Success",
-                            description: "Stock successfully updated"
-                        });
-                    })
-                        .catch(() => {
-                            toast({
-                                variant: "destructive",
-                                title: "Error",
-                                description: "An error occurred"
-                            });
-                        })
-                })
-                    .catch(() => {
-                        toast({
-                            variant: "destructive",
-                            title: "Error",
-                            description: "An error occurred"
-                        });
-                    })
+    const updateProductQuantity = async (quantity: number) => {
+        if (!selectedInventory) return;
+
+        try {
+            if (stockManageChoice === "increase") {
+                await increamentProduct(selectedInventory.productId, quantity);
+            } else if (stockManageChoice === "decrease") {
+                await substractProduct(selectedInventory.productId, Math.abs(quantity));
             }
-            else if (quantity < 0) {
-                substractProduct(selectedInventory.productId, Math.abs(quantity)).then(() => {
-                    refreshInventories().then(() => {
-                        onQuantityModalClose();
-                        toast({
-                            variant: "success",
-                            title: "Success",
-                            description: "Stock successfully updated"
-                        });
-                    })
-                        .catch(() => {
-                            toast({
-                                variant: "destructive",
-                                title: "Error",
-                                description: "An error occurred"
-                            });
-                        })
-                })
-                    .catch(() => {
-                        toast({
-                            variant: "destructive",
-                            title: "Error",
-                            description: "An error occurred"
-                        });
-                    })
-            }
-            else {
-                toast({
-                    variant: "destructive",
-                    title: "Error",
-                    description: "An error occurred"
-                });
-            }
+
+            await refreshInventories();
+            onQuantityModalClose();
+            setQuantityToAdd(0);
+            setSelectedInventory(null);
+            toast({
+                variant: "success",
+                title: "Success",
+                description: "Stock successfully updated"
+            });
+        } catch (error) {
+            toast({
+                variant: "destructive",
+                title: "Error",
+                description: "An error occurred"
+            });
         }
-    }
+    };
+
+    const calculateNewQuantity = () => {
+        const currentQuantity = selectedInventory?.currentQuantity ?? 0;
+
+        switch(stockManageChoice) {
+            case 'increase':
+                return currentQuantity + quantityToAdd;
+            case 'decrease':
+                return currentQuantity - quantityToAdd;
+            default:
+                return currentQuantity;
+        }
+    };
 
     const renderCell = useCallback((product: Product, columnKey: React.Key) => {
         const cellValue = product[columnKey as keyof Product];
@@ -315,6 +290,7 @@ export const InventoryTableClient = () => {
             <div className="h-full" data-cy="inventory-table">
                 {!loadingSWRProducts && !loadingSWRInventories ? (
                 <Table
+                    key={JSON.stringify(inventories)}
                     aria-label="Table of products"
                     isHeaderSticky
                     bottomContent={bottomContent}
@@ -387,14 +363,55 @@ export const InventoryTableClient = () => {
                                         </span>
                                     </div>
 
+                                    <RadioGroup
+                                        defaultValue="increase"
+                                        className="flex space-x-2"
+                                        onValueChange={(value) => setStockManageChoice(value)}>
+                                        <div className="flex items-center space-x-2">
+                                            <RadioGroupItem
+                                                value="increase"
+                                                id="increase-option"
+                                                className="border-gray-300"
+                                            />
+                                            <Label
+                                                htmlFor="option-option"
+                                                className="cursor-pointer"
+                                            >
+                                                Increase stock
+                                            </Label>
+                                        </div>
+                                        <div className="flex items-center space-x-2">
+                                            <RadioGroupItem
+                                                value="decrease"
+                                                id="decrease-option"
+                                                className="border-gray-300"
+                                            />
+                                            <Label
+                                                htmlFor="decrease-option"
+                                                className="cursor-pointer"
+                                            >
+                                                Decrease stock
+                                            </Label>
+                                        </div>
+                                    </RadioGroup>
                                     <div className="space-y-2">
                                         <Input
                                             type="number"
                                             value={quantityToAdd}
                                             onChange={(e) => {
                                                 const value = parseInt(e.target.value);
+                                                let decreaseValue = 0;
 
-                                                setQuantityToAdd(isNaN(value) ? 0 : value);
+                                                if (selectedInventory) {
+                                                    if (stockManageChoice === "decrease") {
+                                                        decreaseValue = selectedInventory.currentQuantity - parseInt(e.target.value)
+                                                    }
+                                                    if (parseInt(e.target.value) >= 0
+                                                        && selectedInventory?.currentQuantity >= 0
+                                                        && decreaseValue >= 0) {
+                                                        setQuantityToAdd(isNaN(value) ? 0 : value);
+                                                    }
+                                                }
                                             }}
                                             placeholder="Enter quantity to add or remove"
                                         />
@@ -406,7 +423,7 @@ export const InventoryTableClient = () => {
                                     <div className="flex items-center justify-between">
                                         <span>New Total:</span>
                                         <span className="font-bold">
-                                            {(selectedInventory?.currentQuantity ?? 0) + quantityToAdd}
+                                            {calculateNewQuantity()}
                                         </span>
                                     </div>
                                 </div>
