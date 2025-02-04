@@ -383,20 +383,8 @@ public static class AuthEndpoints
             
             var accessTokenResponse = await tokenService.GetAccessTokenAsync(user);
             
-            context.Response.Cookies.Append("access_token", accessTokenResponse.AccessToken, new CookieOptions
-            {
-                HttpOnly = true,
-                Secure = true,
-                SameSite = SameSiteMode.Strict
-            });
+            AddCookies(context, accessTokenResponse);
 
-            context.Response.Cookies.Append("refresh_token", accessTokenResponse.RefreshToken, new CookieOptions
-            {
-                HttpOnly = true,
-                Secure = true,
-                SameSite = SameSiteMode.Strict
-            });
-            
             return Results.Redirect($"http://localhost:3000/dashboard");
 
         }
@@ -412,52 +400,25 @@ public static class AuthEndpoints
 
         var accessTokenResponse2 = await tokenService.GetAccessTokenAsync(newUser);
             
-        context.Response.Cookies.Append("access_token", accessTokenResponse2.AccessToken, new CookieOptions
-        {
-            HttpOnly = true,
-            Secure = true,
-            SameSite = SameSiteMode.Strict
-        });
-
-        context.Response.Cookies.Append("refresh_token", accessTokenResponse2.RefreshToken, new CookieOptions
-        {
-            HttpOnly = true,
-            Secure = true,
-            SameSite = SameSiteMode.Strict
-        });
+        AddCookies(context, accessTokenResponse2);
         
         return Results.Redirect($"http://localhost:3000/dashboard");
-
-        return Results.Ok();
-
-    //     if (authParameters.IdentityProvider == "google")
-    //     {
-    //         var googleUser = await authService.GetGoogleUserInfoAsync(tokenResponse.AccessToken);
-    //         
-    //     }
-    //     
-    //     if (authParameters.IdentityProvider == "facebook")
-    //     {
-    //         var facebookUser = await authService.GetFacebookUserInfoAsync(tokenResponse.AccessToken);
-    //
-    //         var user = await userManager.FindByEmailAsync(facebookUser.Email);
-    //         if (user != null)
-    //         {
-    //             return Results.Ok(await tokenService.GetAccessTokenAsync(user));
-    //         }
-    //
-    //         var newUser = await userService.CreateUserAsync(new UserRecord(facebookUser.FirstName, facebookUser.LastName, facebookUser.Email, true, ""));
-    //
-    //         var info = new UserLoginInfo("Facebook", facebookUser.Id, "Facebook");
-    //         var addLoginResult = await userManager.AddLoginAsync(newUser, info);
-    //         if (!addLoginResult.Succeeded)
-    //         {
-    //             throw new Exception("Failed to add external login");
-    //         }
-    //
-    //         return Results.Ok(await tokenService.GetAccessTokenAsync(newUser));
-    //     }
-    //     
-    //     throw new BadRequestException("Invalid external login provider");
       }
+
+    private static void AddCookies(HttpContext context, AccessTokenResponse accessTokenResponse)
+    {
+        context.Response.Cookies.Append("access_token", accessTokenResponse.AccessToken, new CookieOptions
+        {
+            HttpOnly = false,
+            Secure = true,
+            SameSite = SameSiteMode.Strict
+        });
+
+        context.Response.Cookies.Append("refresh_token", accessTokenResponse.RefreshToken, new CookieOptions
+        {
+            HttpOnly = false,
+            Secure = true,
+            SameSite = SameSiteMode.Strict
+        });
+    }
 }

@@ -31,7 +31,7 @@ public class OrderSummaryResponse
 
 public class OrderItemResponse
 {
-    public int? ProductId { get; init; }
+    public long? ProductId { get; init; }
     public string? Title { get; init; }
     public int? Quantity { get; init; }
     public double? UnitPrice { get; init; }

@@ -32,6 +32,7 @@ public class OrderService : IOrderService
     private readonly IProductRepository _productRepository;
     private readonly IOrderProductRepository _orderProductRepository;
     private readonly IStripePaymentIntentService _stripePaymentIntentService;
+    private readonly IInventoriesService _inventoriesService;
     private readonly IUnitOfWork _unitOfWork;
 
 
@@ -41,7 +42,8 @@ public class OrderService : IOrderService
         IProductRepository productRepository, 
         IOrderProductRepository orderProductRepository, 
         IStripePaymentIntentService stripePaymentIntentService, 
-        IUnitOfWork unitOfWork)
+        IUnitOfWork unitOfWork, 
+        IInventoriesService inventoriesService)
     {
         _logger = logger;
         _orderRepository = orderRepository;
@@ -49,6 +51,7 @@ public class OrderService : IOrderService
         _orderProductRepository = orderProductRepository;
         _stripePaymentIntentService = stripePaymentIntentService;
         _unitOfWork = unitOfWork;
+        _inventoriesService = inventoriesService;
     }
     
     public async Task<OrderSummaryResponse> GetByIdAsync(long orderId, CancellationToken cancellationToken = default)
@@ -207,6 +210,13 @@ public class OrderService : IOrderService
 
         try
         {
+            var order = await GetByIdAsync(orderId, cancellationToken);
+            if (!order.OrderItems.Any()) throw new BadRequestException($"Order {orderId} doesnt have any items.");
+            foreach (var orderProduct in order.OrderItems)
+            {
+                await _inventoriesService.DecrementAsync((int)orderProduct.Quantity, (long)orderProduct.ProductId,
+                    cancellationToken);
+            }
             var paymentIntent = await _stripePaymentIntentService.CreateAsync(request, null, cancellationToken);
             var updateOrderSqlRequest = new UpdateOrderSQLRequest() { Id = orderId, StripePaymentIntentId = paymentIntent.Id, PaymentStatus = "created"};
             var affectedRow = await _orderRepository.UpdateAsync(updateOrderSqlRequest, cancellationToken);

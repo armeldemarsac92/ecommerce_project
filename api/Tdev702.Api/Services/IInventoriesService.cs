@@ -17,8 +17,8 @@ public interface IInventoriesService
     public Task<InventoryResponse> CreateAsync(CreateInventoryRequest createProductInventoryRequest, CancellationToken cancellationToken = default);
     public Task<InventoryResponse> UpdateAsync(long id, UpdateInventoryRequest updateProductInventoryRequest, CancellationToken cancellationToken = default);
     public Task DeleteAsync(long id ,CancellationToken cancellationToken = default);  
-    public Task<InventoryResponse> IncreamentAsync(long addedQuantity, long productId, CancellationToken cancellationToken = default);
-    public Task<InventoryResponse> SubstractAsync(long substractedQuantity ,long productId, CancellationToken cancellationToken = default);
+    public Task<InventoryResponse> IncreamentAsync(int addedQuantity, long productId, CancellationToken cancellationToken = default);
+    public Task<InventoryResponse> DecrementAsync(int substractedQuantity ,long productId, CancellationToken cancellationToken = default);
 }
 
 public class InventoriesService : IInventoriesService
@@ -125,7 +125,7 @@ public class InventoriesService : IInventoriesService
         }
     }
 
-    public async Task<InventoryResponse> IncreamentAsync(long addedQuantity,long productId,
+    public async Task<InventoryResponse> IncreamentAsync(int addedQuantity,long productId,
         CancellationToken cancellationToken = default)
     {   
         _logger.LogInformation("Increasing inventory quantity by {addedQuantity} for product id: {productId}", addedQuantity, productId);
@@ -155,7 +155,7 @@ public class InventoriesService : IInventoriesService
         }
     }
 
-    public async Task<InventoryResponse> SubstractAsync(long substractedQuantity, long productId,
+    public async Task<InventoryResponse> DecrementAsync(int substractedQuantity, long productId,
         CancellationToken cancellationToken = default)
     {
         _logger.LogInformation("Decreasing inventory quantity by {substractedQuantity} for product id: {productId}", substractedQuantity, productId);
