@@ -1,110 +1,95 @@
 "use client"
 
-import {
-    Table,
-    TableBody,
-    TableCell,
-    TableHead,
-    TableHeader,
-    TableRow,
-} from "@/components/shadcn/table"
+import {Table, TableBody, TableCell, TableHead, TableHeader, TableRow,} from "@/components/shadcn/table"
 import * as React from "react";
-import {Accordion, AccordionItem} from "@nextui-org/react";
+import {Accordion, AccordionItem, Pagination, Spinner} from "@nextui-org/react";
 import {Chip} from "@nextui-org/chip";
 import {Avatar, AvatarImage} from "@/components/shadcn/avatar";
 import {Link} from "@nextui-org/link";
 import {SearchBar} from "@/components/ui/search-bar";
 import {useToast} from "@/hooks/use-toast";
-import {useCallback, useMemo} from "react";
-
-type Product = {
-    id: number
-    name: string
-    quantity: number
-    price: number
-}
-
-type Order = {
-    id: number
-    date: string
-    customer: {
-        username: string
-        avatar: string
-    }
-    products: Product[]
-    total: number
-    status: "In progress" | "Shipped" | "Delivered"
-}
-
-const orders: Order[] = [
-    {
-        id: 1,
-        date: "2023-11-09",
-        customer: {
-            username: "Alice Dupont",
-            avatar: "https://ui.shadcn.com/avatars/02.png",
-        },
-        products: [
-            { id: 1, name: "Pomme de terre", quantity: 2, price: 19.99 },
-            { id: 2, name: "Red bull", quantity: 1, price: 49.99 },
-        ],
-        total: 89.97,
-        status: "In progress",
-    },
-    {
-        id: 2,
-        date: "2023-11-08",
-        customer: {
-            username: "Bob Martin",
-            avatar: "https://ui.shadcn.com/avatars/03.png",
-        },
-        products: [
-            { id: 3, name: "Pain au raisin", quantity: 1, price: 79.99 },
-        ],
-        total: 79.99,
-        status: "Shipped",
-    },
-    {
-        id: 3,
-        date: "2023-11-07",
-        customer: {
-            username: "Claire Dubois",
-            avatar: "https://ui.shadcn.com/avatars/04.png",
-        },
-        products: [
-            { id: 4, name: "Café", quantity: 1, price: 99.99 },
-            { id: 5, name: "Gingembre", quantity: 2, price: 14.99 },
-        ],
-        total: 129.97,
-        status: "Delivered",
-    },
-]
+import {useCallback, useEffect, useMemo, useState} from "react";
+import {useOrders} from "@/hooks/swr/orders/use-orders";
+import {useCustomers} from "@/hooks/swr/customers/use-customers";
+import {Button} from "@/components/shadcn/button";
+import {ChevronLeft, ChevronRight} from "lucide-react";
 
 export const OrdersClient= () => {
-    const [filterValue, setFilterValue] = React.useState("");
+    const [filterValue, setFilterValue] = useState("");
+    const [page, setPage] = useState(1);
+    const [rowsPerPage] = useState(10);
     const { toast } = useToast();
+    const { orders, loadingSWROrders, errorSWROrders } = useOrders();
+    const { customers, loadingSWRCustomers, errorSWRCustomers } = useCustomers();
+
+    const avatarUrls = [
+        "https://ui.shadcn.com/avatars/02.png",
+        "https://ui.shadcn.com/avatars/03.png",
+        "https://ui.shadcn.com/avatars/04.png"
+    ];
+
+    useEffect(() => {
+        if (errorSWRCustomers || errorSWROrders) {
+            toast({ variant: "destructive", title: "Error", description: "An error occurred"})
+        }
+    }, [customers, orders]);
 
     const hasSearchFilter = Boolean(filterValue);
 
-    const filteredItems= useMemo(() => {
+    const getAvatarByUsername = (username: string) => {
+        const sum = username.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+        const index = sum % avatarUrls.length;
+
+        return avatarUrls[index];
+    };
+
+    const filteredItems = useMemo(() => {
         let filteredOrders = [...orders].map(order => {
+            const matchingCustomer = customers.find(customer => customer.id === order.userId)
+
             return {
-                ...order
-            }
-        })
+                ...order,
+                customer: {
+                    username: matchingCustomer?.user_name || '-'
+                }
+            };
+        });
 
         if (hasSearchFilter) {
-            filteredOrders = filteredOrders.filter(order => {
-                order.customer.username.toLowerCase().includes(filterValue.toLowerCase());
-            })
+            filteredOrders = filteredOrders.filter((order) =>
+                order.customer.username.toLowerCase().startsWith(filterValue.toLowerCase())
+            );
         }
 
         return filteredOrders;
-    }, [orders, filterValue]);
+    }, [orders, customers, filterValue]);
+
+    const pages = Math.ceil(filteredItems.length / rowsPerPage);
+
+    const paginatedItems = useMemo(() => {
+        const start = (page - 1) * rowsPerPage;
+        const end = start + rowsPerPage;
+
+        return filteredItems.slice(start, end);
+    }, [page, rowsPerPage, filteredItems]);
+
+    const onNextPage = useCallback(() => {
+        if (page < pages) {
+            setPage(page + 1);
+        }
+    }, [page, pages]);
+
+    const onPreviousPage = useCallback(() => {
+        if (page > 1) {
+            setPage(page - 1);
+        }
+    }, [page]);
+
 
     const onSearchChange = useCallback((value: string) => {
         if (value) {
             setFilterValue(value);
+            setPage(1);
         } else {
             setFilterValue("");
         }
@@ -112,70 +97,126 @@ export const OrdersClient= () => {
 
     const onClear = useCallback(() => {
         setFilterValue("");
+        setPage(1);
     }, []);
 
     return (
-        <div className="w-full p-5 space-y-4">
-            <div>
-                <div className="flex justify-between gap-3 items-end">
-                    <SearchBar onClear={onClear} onValueChange={onSearchChange} value={filterValue} />
+        <>
+            {loadingSWROrders || loadingSWRCustomers ? (
+                <div className="h-full w-full flex justify-center">
+                    <Spinner color="success" labelColor="success" />
+                </div>) : (
+            <div className="w-full p-5 space-y-4">
+                <div>
+                    <div className="flex justify-between gap-3 items-end">
+                        <SearchBar onClear={onClear} onValueChange={onSearchChange} value={filterValue} />
+                    </div>
+                </div>
+                <Accordion className="w-full border rounded-md p-1 px-4">
+                    {paginatedItems.map((order) => (
+                        <AccordionItem
+                            key={order.id}
+                            textValue={`order-${order.id}`}
+                            title={
+                                <div className={"grid grid-cols-6 w-full text-sm"}>
+                                    <span>Order #{order.id}</span>
+                                    <span>{order.createdAt ? new Date(order.createdAt).toISOString().split('T')[0] : "-"}</span>
+                                    <Link href={"/dashboard"} size={"sm"} className={"w-fit group flex items-center gap-x-2"}>
+                                        <Avatar className="w-8 h-8 rounded-lg object-contain" asChild>
+                                            <AvatarImage
+                                                src={getAvatarByUsername(order.customer.username)}
+                                                alt={order.customer.username}
+                                            />
+                                        </Avatar>
+                                        <span className="text-xs">{order.customer.username}</span>
+                                    </Link>
+                                    <span className="flex justify-end items-center">
+                                        <Chip size="sm"
+                                              color={`${order.paymentStatus === 'In progress' ? 'default' : order.paymentStatus === 'Shipped' ? 'warning' : 'success'}`}
+                                              variant="flat"
+                                        >
+                                            {order.paymentStatus}
+                                        </Chip>
+                                    </span>
+                                    <span className="text-right">{order.totalAmount.toFixed(2)}€</span>
+                                </div>
+                            }
+                        >
+                            <Table>
+                                <TableHeader>
+                                    <TableRow>
+                                        <TableHead>Product</TableHead>
+                                        <TableHead>Quantity</TableHead>
+                                        <TableHead>Unit price</TableHead>
+                                        <TableHead className="text-right">Total</TableHead>
+                                    </TableRow>
+                                </TableHeader>
+                                <TableBody>
+                                    {order.orderItems.map((product) => (
+                                        <TableRow key={product.productId}>
+                                            <TableCell>{product.title}</TableCell>
+                                            <TableCell>{product.quantity ? (product.quantity) : "-"}</TableCell>
+                                            <TableCell>{product.unitPrice ? product.unitPrice + "€" : "-"}</TableCell>
+                                            <TableCell className="text-right">
+                                                {(product.quantity * product.unitPrice).toFixed(2)}€
+                                            </TableCell>
+                                        </TableRow>
+                                    ))}
+                                    <TableRow>
+                                        <TableCell
+                                            colSpan={3}
+                                            className="font-bold"
+                                        >
+                                            Order total
+                                        </TableCell>
+                                        <TableCell className="text-right font-bold">{order.totalAmount.toFixed(2)}€</TableCell>
+                                    </TableRow>
+                                </TableBody>
+                            </Table>
+                        </AccordionItem>
+                    ))}
+                </Accordion>
+
+                <div className="py-2 px-2 flex justify-between items-center m-2">
+                    <Pagination
+                        classNames={{
+                            cursor: "bg-secondary rounded-sm",
+                            prev: "rounded-sm",
+                            next: "rounded-sm",
+                        }}
+                        radius={"sm"}
+                        isCompact
+                        showControls
+                        showShadow
+                        page={page}
+                        total={pages}
+                        onChange={setPage}
+                    />
+                    <div className="hidden sm:flex w-[30%] justify-end gap-2">
+                        <Button
+                            variant={"expandIcon"}
+                            iconPlacement={"left"}
+                            Icon={ChevronLeft}
+                            disabled={page === 1}
+                            size="sm"
+                            onClick={onPreviousPage}
+                        >
+                            Previous
+                        </Button>
+                        <Button
+                            variant={"expandIcon"}
+                            iconPlacement={"right"}
+                            Icon={ChevronRight}
+                            disabled={page === pages}
+                            size="sm"
+                            onClick={onNextPage}
+                        >
+                            Next
+                        </Button>
+                    </div>
                 </div>
             </div>
-            <Accordion className="w-full border rounded-md p-1 px-4">
-                {orders.map((order) => (
-                    <AccordionItem
-                        key={order.id}
-                        value={`order-${order.id}`}
-                        title={
-                            <div className={"grid grid-cols-6 w-full text-sm"}>
-                                <span>Order #{order.id}</span>
-                                <span>{order.date}</span>
-                                <Link href={"/dashboard"} size={"sm"} className={"w-fit group flex items-center gap-x-2"}>
-                                    <Avatar className="w-8 h-8 rounded-lg object-contain" asChild>
-                                        <AvatarImage src={order.customer.avatar} alt={order.customer.username} />
-                                    </Avatar>
-                                    <span className={"group-hover:underline"}>{order.customer.username}</span>
-                                </Link>
-                                <span className="flex justify-end">
-                                    <Chip size="sm"
-                                          color={`${order.status === 'In progress' ? 'default' : order.status === 'Shipped' ? 'warning' : 'success'}`}
-                                          variant="flat">
-                                        {order.status}
-                                    </Chip>
-                                </span>
-                                <span className="text-right">{order.total.toFixed(2)}€</span>
-                            </div>
-                        }
-                    >
-                        <Table>
-                            <TableHeader>
-                                <TableRow>
-                                    <TableHead>Product</TableHead>
-                                    <TableHead>Quantity</TableHead>
-                                    <TableHead>Unit price</TableHead>
-                                    <TableHead className="text-right">Total</TableHead>
-                                </TableRow>
-                            </TableHeader>
-                            <TableBody>
-                                {order.products.map((product) => (
-                                    <TableRow key={product.id}>
-                                        <TableCell>{product.name}</TableCell>
-                                        <TableCell>{product.quantity}</TableCell>
-                                        <TableCell>{product.price.toFixed(2)}€</TableCell>
-                                        <TableCell className="text-right">
-                                            {(product.quantity * product.price).toFixed(2)}€
-                                        </TableCell>
-                                    </TableRow>
-                                ))}
-                                <TableRow>
-                                    <TableCell colSpan={3} className="font-bold">Order total</TableCell>
-                                    <TableCell className="text-right font-bold">{order.total.toFixed(2)}€</TableCell>
-                                </TableRow>
-                            </TableBody>
-                        </Table>
-                    </AccordionItem>
-                ))}
-            </Accordion>
-        </div>
+            )}
+        </>
     )
 }

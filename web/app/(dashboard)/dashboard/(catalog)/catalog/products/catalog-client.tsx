@@ -18,7 +18,6 @@ export default function CatalogClient() {
     const [page, setPage] = useState(1);
     const [rowsPerPage] = useState(10);
     const { toast } = useToast();
-
     const { products, errorSWRProducts, loadingSWRProducts } = useProducts();
     const { inventories, errorSWRInventories, loadingSWRInventories } = useInventories();
 
