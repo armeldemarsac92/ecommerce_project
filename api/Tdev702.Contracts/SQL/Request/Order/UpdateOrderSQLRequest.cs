@@ -8,4 +8,5 @@ public class UpdateOrderSQLRequest
     public string? StripeInvoiceId { get; set; }
     public string? PaymentStatus { get; set; }
     public double? TotalAmount { get; set; }
+    public string? StripePaymentIntentId { get; set; }
 }

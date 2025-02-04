@@ -17,6 +17,6 @@ public class User : IdentityUser
     [StringLength(50)]
     public required string LastName { get; set; }    
     
-    [StringLength(50)]
+    [StringLength(255)]
     public string? ProfilePicture { get; set; }
 }

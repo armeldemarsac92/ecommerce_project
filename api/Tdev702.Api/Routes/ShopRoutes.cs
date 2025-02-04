@@ -75,15 +75,11 @@ public static class ShopRoutes
     {
        
         public const string GetUserOrders = $"{Base}/orders/me";
+        public const string CreatePayment = $"{Base}/orders/{{orderId}}/payment";
         public const string GetAll = $"{Base}/orders";
         public const string GetById = $"{Base}/orders/{{orderId}}";
         public const string Create = $"{Base}/orders";
         public const string Update = $"{Base}/orders/{{orderId}}";
-    }
-
-    public static class Payments
-    {
-        public const string Create = $"{Base}/payments";
     }
 
     public static class PaymentMethods

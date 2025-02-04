@@ -162,7 +162,7 @@ public static class InventoryEndpoints
         long productId,
         CancellationToken cancellationToken)
     {
-        await inventoriesService.SubstractAsync(updateQuantityRequest.Quantity, productId, cancellationToken);
+        await inventoriesService.DecrementAsync(updateQuantityRequest.Quantity, productId, cancellationToken);
         return Results.NoContent();
     }
 }

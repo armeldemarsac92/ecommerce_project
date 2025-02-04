@@ -5,7 +5,7 @@ import React, {useEffect, useMemo, useState, useCallback} from "react";
 import {columns} from "@/app/(dashboard)/dashboard/(catalog)/catalog/inventory/_data/data";
 import {SearchBar} from "@/components/ui/search-bar";
 import {Button} from "@/components/shadcn/button";
-import {ChevronLeft, ChevronRight, Edit, Ellipsis, Trash} from "lucide-react";
+import {ChevronRight, Edit, Ellipsis, Trash} from "lucide-react";
 import {DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger} from "@/components/shadcn/dropdown-menu";
 import {useProducts} from "@/hooks/swr/products/use-products";
 import {useToast} from "@/hooks/use-toast";
@@ -274,10 +274,10 @@ export const InventoryTableClient = () => {
                     onChange={setPage}
                 />
                 <div className="hidden sm:flex w-[30%] justify-end gap-2">
-                    <Button variant={"expandIcon"} iconPlacement={"left"} Icon={ChevronLeft} disabled={pages === 1} size="sm" onClick={onPreviousPage}>
+                    <Button variant={"expandIcon"} iconPlacement={"left"} Icon={<ChevronRight size={15}/>} disabled={pages === 1} size="sm" onClick={onPreviousPage}>
                         Previous
                     </Button>
-                    <Button variant={"expandIcon" } iconPlacement={"right"} Icon={ChevronRight} disabled={pages === 1} size="sm" onClick={onNextPage}>
+                    <Button variant={"expandIcon" } iconPlacement={"right"} Icon={<ChevronRight size={15}/>} disabled={pages === 1} size="sm" onClick={onNextPage}>
                         Next
                     </Button>
                 </div>

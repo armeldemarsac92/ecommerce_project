@@ -165,7 +165,7 @@ export default function CatalogClient() {
                                 <Button
                                     variant={"expandIcon"}
                                     iconPlacement={"left"}
-                                    Icon={ChevronLeft}
+                                    Icon={<ChevronLeft size={15}/>}
                                     disabled={page === 1}
                                     size="sm"
                                     onClick={onPreviousPage}
@@ -175,7 +175,7 @@ export default function CatalogClient() {
                                 <Button
                                     variant={"expandIcon"}
                                     iconPlacement={"right"}
-                                    Icon={ChevronRight}
+                                    Icon={<ChevronRight size={15}/>}
                                     disabled={page === pages}
                                     size="sm"
                                     onClick={onNextPage}

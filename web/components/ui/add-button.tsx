@@ -8,7 +8,7 @@ export const AddButton = () => {
     return (
         <div className="relative">
             <Link href="/dashboard/catalog/inventory/products/search">
-                <Button variant={"expandIcon"} iconPlacement={"left"} Icon={Plus} size={"sm"}>
+                <Button variant={"expandIcon"} iconPlacement={"left"} Icon={<Plus size={15}/>} size={"sm"}>
                     Add product
                 </Button>
             </Link>

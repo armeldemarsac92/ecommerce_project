@@ -87,7 +87,7 @@ export default function LastOrders() {
         </ScrollShadow>
 
         <div className="absolute bottom-0 flex items-center justify-center w-full p-4 pt-2">
-          <Button className={"w-full"} variant="expandIcon" Icon={ArrowRight} iconPlacement="right">
+          <Button className={"w-full"} variant="expandIcon" Icon={<ArrowRight size={15}/>} iconPlacement="right">
             All Orders
           </Button>
         </div>
