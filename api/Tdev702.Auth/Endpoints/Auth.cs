@@ -375,6 +375,12 @@ public static class AuthEndpoints
         var user = await userManager.FindByEmailAsync(userInfos.Email);
         if (user != null)
         {
+            await userManager.UpdateAsync(new User()
+            {
+                Email = userInfos.Email, FirstName = userInfos.GivenName, LastName = userInfos.FamilyName,
+                ProfilePicture = userInfos.Picture
+            });
+            
             var accessTokenResponse = await tokenService.GetAccessTokenAsync(user);
             
             context.Response.Cookies.Append("access_token", accessTokenResponse.AccessToken, new CookieOptions
