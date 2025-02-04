@@ -1,5 +1,6 @@
 using Stripe;
 using Tdev702.Contracts.API.Request.Order;
+using Tdev702.Contracts.API.Request.Payment;
 using Tdev702.Contracts.API.Response;
 using Tdev702.Contracts.Exceptions;
 using Tdev702.Contracts.Mapping;
@@ -16,17 +17,13 @@ public interface IOrderService
 {
     Task<OrderSummaryResponse> GetByIdAsync(long orderId, CancellationToken cancellationToken = default);
     Task<OrderSummaryResponse> GetOrderByPaymentIntentIdAsync(string stripePaymentIntentId, CancellationToken cancellationToken = default);
-    
     Task<List<OrderSummaryResponse>> GetAllAsync(QueryOptions queryOptions, CancellationToken cancellationToken = default);
-    
     Task<List<OrderSummaryResponse>> GetAllByUserIdAsync(string userId, QueryOptions queryOptions, CancellationToken cancellationToken = default);
-    
     Task<OrderSummaryResponse> CreateAsync(CreateOrderRequest createOrderRequest, CancellationToken cancellationToken = default);
-
     Task UpdateOrderPaymentStatus(UpdateOrderSQLRequest updateOrderRequest,
         CancellationToken cancellationToken = default);
-    
     Task<OrderSummaryResponse> UpdateAsync(long orderId, UpdateOrderRequest updateOrderRequest, CancellationToken cancellationToken = default);
+    Task<PaymentIntent> CreatePaymentAsync(long orderId, string userId, CreatePaymentRequest createPayment, CancellationToken cancellationToken = default);
 }
 public class OrderService : IOrderService
 {
@@ -196,6 +193,31 @@ public class OrderService : IOrderService
         catch (Exception ex)
         {
             _logger.LogError("Failed to update order: {message}", ex.Message);
+            await _unitOfWork.RollbackAsync(cancellationToken);
+            throw;
+        }
+    }
+
+    public async Task<PaymentIntent> CreatePaymentAsync(long orderId, string userId, CreatePaymentRequest createPaymentRequest,
+        CancellationToken cancellationToken = default)
+    {
+        _logger.LogInformation("Creating payment intent for order {orderId}", orderId);
+        var request = createPaymentRequest.ToStripePaymentIntentOptions(userId);
+        await _unitOfWork.BeginTransactionAsync(cancellationToken);
+
+        try
+        {
+            var paymentIntent = await _stripePaymentIntentService.CreateAsync(request, null, cancellationToken);
+            var updateOrderSqlRequest = new UpdateOrderSQLRequest() { Id = orderId, StripePaymentIntentId = paymentIntent.Id, PaymentStatus = "created"};
+            var affectedRow = await _orderRepository.UpdateAsync(updateOrderSqlRequest, cancellationToken);
+            if (affectedRow == 0) throw new NotFoundException($"Cannot create payment intent for order {orderId}, not found.");
+            await _unitOfWork.CommitAsync(cancellationToken);
+            _logger.LogInformation("Payment intent created successfully for order {orderId}", orderId);
+            return paymentIntent;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError("Error creating payment intent for order {orderId}", orderId);
             await _unitOfWork.RollbackAsync(cancellationToken);
             throw;
         }

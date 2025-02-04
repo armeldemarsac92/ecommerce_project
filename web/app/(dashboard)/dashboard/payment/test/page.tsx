@@ -26,7 +26,7 @@ interface PaymentIntentResponse {
 }
 
 // Initialize Stripe with your publishable key
-const stripePromise = loadStripe('pk_test_51PBCp201Qg1bJcqnK18ZTSnPRSPvOmEXv6pOLtjZr1vu7vkFEGgiWKsUBrY9WebZ6LwjsxAKwhC1NzHz02EQkkhy00x7x2APcQ');
+const stripePromise = loadStripe('pk_test_51Qj3NQLx56XjlpN6w9erBverpJAb1Gl3MEaNlKNwUQJCG1kS1IkTE0b1h1jsnbMVBRAEncZiPrWfTiMV1od8zkZ2008LSooULv');
 
 const PaymentForm: React.FC<PaymentFormProps> = ({ orderId, amount, clientSecret }) => {
     const stripe = useStripe();

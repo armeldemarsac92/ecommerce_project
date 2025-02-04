@@ -44,10 +44,6 @@ public static class WebhookEndpoint
 
             switch (stripeEvent.Type)
             {
-                case("payment_intent.created"):
-                    await orderService.UpdateOrderPaymentStatus(new UpdateOrderSQLRequest { Id = order.Id, PaymentStatus = "created" }, cancellationToken);
-                    break;
-                
                 case("payment_intent.succeeded"):
                     await orderService.UpdateOrderPaymentStatus(new UpdateOrderSQLRequest { Id = order.Id, PaymentStatus = "succeeded" }, cancellationToken);
                     break;

@@ -346,7 +346,7 @@ public static class AuthEndpoints
 
         await securityService.StoreAuthState(authParameters);
         var loginUri = authService.BuildLoginUri(authParameters);
-        return Results.Redirect(loginUri);
+        return Results.Ok(loginUri);
     }
 
     private static async Task<IResult> Callback(

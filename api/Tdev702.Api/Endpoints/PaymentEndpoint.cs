@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Identity;
 using Stripe;
 using Tdev702.Api.Routes;
+using Tdev702.Api.Services;
 using Tdev702.Api.Utils;
 using Tdev702.Contracts.API.Request.Payment;
 using Tdev702.Contracts.Database;
@@ -17,7 +18,7 @@ public static class PaymentEndpoint
 
     public static IEndpointRouteBuilder MapPaymentEndpoints(this IEndpointRouteBuilder app)
     {
-        app.MapPost(ShopRoutes.Payments.Create, CreatePayment)
+        app.MapPost(ShopRoutes.Orders.CreatePayment, CreatePaymentIntent)
             .WithTags(Tags)
             .WithDescription("Create a new payment")
             .RequireAuthorization("Authenticated")
@@ -28,16 +29,15 @@ public static class PaymentEndpoint
         return app;
     }
 
-    private static async Task<IResult> CreatePayment(
+    private static async Task<IResult> CreatePaymentIntent(
         HttpContext context,
-        IStripePaymentIntentService stripePaymentIntentService,
+        IOrderService orderService,
         CreatePaymentRequest createPaymentRequest,
+        long orderId,
         CancellationToken cancellationToken)
     {
         var userId = context.GetUserStripeIdFromClaims();
-        var request = createPaymentRequest.ToStripePaymentIntentOptions(userId);
-        var paymentIntent = await stripePaymentIntentService.CreateAsync(request, null, cancellationToken);
-
+        var paymentIntent = await orderService.CreatePaymentAsync(orderId, userId, createPaymentRequest, cancellationToken);
         return Results.Ok(paymentIntent);
     }
 }
