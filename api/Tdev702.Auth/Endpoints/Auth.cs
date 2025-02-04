@@ -410,7 +410,7 @@ public static class AuthEndpoints
             throw new Exception("Failed to add external login");
         }
 
-        var accessTokenResponse2 = await tokenService.GetAccessTokenAsync(user);
+        var accessTokenResponse2 = await tokenService.GetAccessTokenAsync(newUser);
             
         context.Response.Cookies.Append("access_token", accessTokenResponse2.AccessToken, new CookieOptions
         {
