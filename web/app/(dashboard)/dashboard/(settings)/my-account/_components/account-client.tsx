@@ -42,7 +42,7 @@ export const AccountClient = () => {
               </div>
             </div>
 
-            <Button className={"text-xs"} size={"sm"} variant="expandIcon" Icon={Pencil} iconPlacement="right">
+            <Button className={"text-xs"} size={"sm"} variant="expandIcon" Icon={<Pencil size={15}/>} iconPlacement="right">
               {/*<Edit size={15} />*/}
               Modify
             </Button>
