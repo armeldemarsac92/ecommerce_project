@@ -12,7 +12,6 @@ public static class MessagingExtensions
         {
             x.AddConsumer<UpdateNutrimentsConsumer>();
             x.AddConsumer<CreateNutrimentsConsumer>();
-            x.AddConsumer<CreateInvoiceConsumer>();
     
             x.UsingInMemory((context, cfg) =>
             {
