@@ -1,8 +1,11 @@
+using MassTransit;
 using Stripe;
 using Tdev702.Api.Routes;
 using Tdev702.Api.Services;
 using Tdev702.Contracts.API.Request.Order;
+using Tdev702.Contracts.Messaging;
 using Tdev702.Contracts.SQL.Request.Order;
+using Tdev702.Stripe.SDK.Services;
 using StripeConfiguration = Tdev702.Contracts.Config.StripeConfiguration;
 
 namespace Tdev702.Api.Endpoints;
@@ -27,6 +30,8 @@ public static class WebhookEndpoint
         HttpContext context,
         StripeConfiguration configuration,
         IOrderService orderService,
+        IStripeChargeService chargeService,
+        IPublishEndpoint publishEndpoint,
         CancellationToken cancellationToken)
     {
         var signingSecret = configuration.PaymentWebhookSecret;
@@ -45,6 +50,7 @@ public static class WebhookEndpoint
             {
                 case("payment_intent.succeeded"):
                     await orderService.UpdateOrderPaymentStatus(new UpdateOrderSQLRequest { Id = order.Id, PaymentStatus = "succeeded" }, cancellationToken);
+                    await publishEndpoint.Publish(new CreateInvoiceTask() { order = order });
                     break;
                 
                 case("payment_intent.processing"):

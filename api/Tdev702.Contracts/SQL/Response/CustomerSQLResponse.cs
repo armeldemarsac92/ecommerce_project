@@ -19,6 +19,9 @@ public class CustomerSQLResponse
     [Column("PhoneNumber")]
     public string PhoneNumber { get; set; }
     
+    [Column("StripeId")]
+    public string StripeId { get; set; }
+    
     [Column("Role")]
     public string Role { get; set; }
     

@@ -14,6 +14,7 @@ public static class CustomerMapping
             Email = customerSqlResponse.Email,
             EmailConfirmed = customerSqlResponse.EmailConfirmed,
             PhoneNumber = customerSqlResponse.PhoneNumber,
+            StripeId = customerSqlResponse.StripeId,
             Role = customerSqlResponse.Role,
             LockoutEnabled = customerSqlResponse.LockoutEnabled
         };

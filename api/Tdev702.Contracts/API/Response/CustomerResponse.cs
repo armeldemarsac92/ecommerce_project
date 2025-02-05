@@ -20,6 +20,9 @@ public class CustomerResponse
     [JsonPropertyName("phone_number")]
     public string PhoneNumber { get; set; }
     
+    [JsonPropertyName("stripe_id")]
+    public string StripeId { get; set; }
+    
     [JsonPropertyName("role")]
     public string Role { get; set; }
     

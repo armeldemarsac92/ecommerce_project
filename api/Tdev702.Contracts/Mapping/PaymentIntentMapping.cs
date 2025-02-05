@@ -17,7 +17,8 @@ public static class PaymentIntentMapping
             AutomaticPaymentMethods = new PaymentIntentAutomaticPaymentMethodsOptions
             {
                 Enabled = true
-            }
+            },
+            
         };
     }
 }
