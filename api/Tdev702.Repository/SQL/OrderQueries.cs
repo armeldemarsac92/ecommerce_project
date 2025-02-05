@@ -57,9 +57,9 @@ public static class OrderQueries
        stripe_invoice_id = COALESCE(@StripeInvoiceId, stripe_invoice_id),
        updated_at = CURRENT_TIMESTAMP,
        stripe_payment_intent_id = COALESCE(@StripePaymentIntentId, stripe_payment_intent_id),
-       payment_status = COALESCE(@PaymentStatus, payment_status),
+       payment_status = COALESCE(@PaymentStatus::backoffice.payment_status, payment_status),
        total_amount = COALESCE(@TotalAmount, total_amount)
-   WHERE id = @OrderId;";
+   WHERE id = @Id;";
 
     public static string DeleteOrder = @"
    DELETE FROM backoffice.orders

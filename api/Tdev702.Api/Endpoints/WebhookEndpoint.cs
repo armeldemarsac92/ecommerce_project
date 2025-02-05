@@ -25,12 +25,11 @@ public static class WebhookEndpoint
 
     private static async Task<IResult> HandlePaymentEvent(
         HttpContext context,
-        IConfiguration configuration,
+        StripeConfiguration configuration,
         IOrderService orderService,
         CancellationToken cancellationToken)
     {
-        var stripeConfiguration = configuration.GetSection("stripe").Get<StripeConfiguration>() ?? throw new InvalidOperationException("Stripe configuration not found");
-        var signingSecret = stripeConfiguration.PaymentWebhookSecret;
+        var signingSecret = configuration.PaymentWebhookSecret;
             
         var stripeEvent = EventUtility.ConstructEvent(
             await new StreamReader(context.Request.Body).ReadToEndAsync(),

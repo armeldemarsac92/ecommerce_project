@@ -16,10 +16,6 @@ interface PaymentFormProps {
     clientSecret: string;
 }
 
-interface PaymentConfirmationResponse {
-    success: boolean;
-}
-
 interface PaymentIntentResponse {
     clientSecret: string;
     amount: number;
@@ -37,10 +33,7 @@ const PaymentForm: React.FC<PaymentFormProps> = ({ orderId, amount, clientSecret
 
     const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
-
-        if (!stripe || !elements) {
-            return;
-        }
+        if (!stripe || !elements) return;
 
         setLoading(true);
         setError(null);
@@ -50,34 +43,19 @@ const PaymentForm: React.FC<PaymentFormProps> = ({ orderId, amount, clientSecret
                 payment_method: {
                     card: elements.getElement(CardElement)!,
                     billing_details: {
-                        name: 'Test User', // You might want to make this dynamic
+                        name: 'Test User',
                     },
                 },
             });
 
             if (paymentError) {
-                throw paymentError;
+                setError(paymentError.message || 'An error occurred');
+                setSucceeded(false);
+            } else if (paymentIntent.status === 'succeeded') {
+                setSucceeded(true);
             }
-
-            // Payment successful, confirm with backend
-            const response = await fetch('http://localhost:5001/api/orders/payment/confirm', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    orderId,
-                    paymentIntentId: paymentIntent!.id,
-                }),
-            });
-
-            if (!response.ok) {
-                throw new Error('Failed to confirm payment with server');
-            }
-
-            const confirmationData: PaymentConfirmationResponse = await response.json();
-            console.log('Payment confirmation:', confirmationData);
-            setSucceeded(true);
         } catch (err) {
-            setError((err as Error).message || 'An error occurred during payment');
+            setError('Payment failed');
         } finally {
             setLoading(false);
         }
@@ -130,60 +108,69 @@ const PaymentForm: React.FC<PaymentFormProps> = ({ orderId, amount, clientSecret
 const CheckoutWrapper: React.FC = () => {
     const [clientSecret, setClientSecret] = useState<string>('');
     const [amount, setAmount] = useState<number>(0);
-    const orderId = 6; // For testing purposes
+    const [orderId, setOrderId] = useState<number>(6);
+    const [serverError, setServerError] = useState<string>('');
 
-    useEffect(() => {
-        const initPayment = async () => {
-            try {
-                const response = await fetch(`http://localhost:5001/api/orders/${orderId}/payment/intent`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                });
+    const handleOrderSubmit = async (id: number) => {
+        try {
+            const response = await fetch(`https://localhost:7143/api/v1/orders/${id}/payment`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    "payment_method_id": null
+                })
+            });
 
-                if (!response.ok) {
-                    throw new Error('Failed to initialize payment');
-                }
-
-                const data: PaymentIntentResponse = await response.json();
-                setClientSecret(data.clientSecret);
-                setAmount(data.amount);
-            } catch (err) {
-                console.log('Payment initialization failed:', err);
+            if (!response.ok) {
+                const errorData = await response.json();
+                setServerError(errorData.message || 'Failed to initialize payment');
+                return;
             }
-        };
 
-        initPayment();
-    }, [orderId]);
-
-    if (!clientSecret) {
-        return <div className="text-center p-4">Loading payment form...</div>;
-    }
+            const data: PaymentIntentResponse = await response.json();
+            setClientSecret(data.clientSecret);
+            setAmount(data.amount);
+            setServerError('');
+        } catch (err) {
+            setServerError('Payment initialization failed');
+        }
+    };
 
     return (
         <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
             <div className="w-full max-w-md bg-white p-6 rounded-lg shadow-md">
-                <h2 className="text-2xl font-bold mb-6">Complete Your Payment</h2>
-                <div className="mb-4">
-                    <p className="text-gray-600">Order #{orderId}</p>
-                    <p className="text-lg font-semibold">${amount}</p>
+                <div className="mb-6">
+                    <label className="block text-sm font-medium text-gray-700">Order Number</label>
+                    <input
+                        type="number"
+                        value={orderId}
+                        onChange={(e) => setOrderId(Number(e.target.value))}
+                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm"
+                    />
+                    <button
+                        onClick={() => handleOrderSubmit(orderId)}
+                        className="mt-2 w-full py-2 px-4 bg-blue-600 text-white rounded"
+                    >
+                        Load Order
+                    </button>
                 </div>
 
-                <Elements
-                    stripe={stripePromise}
-                    options={{
-                        clientSecret,
-                        appearance: {
-                            theme: 'stripe',
-                            variables: {
-                                colorPrimary: '#2563eb',
-                                colorBackground: '#ffffff',
-                                colorText: '#1f2937',
-                            },
-                        },
-                    }}
-                >
-                    <PaymentForm orderId={orderId} amount={amount} clientSecret={clientSecret} />
-                </Elements>
+                {serverError && (
+                    <div className="mb-4 p-3 text-sm text-red-600 bg-red-50 rounded">
+                        {serverError}
+                    </div>
+                )}
+
+                {clientSecret ? (
+                    <Elements
+                        stripe={stripePromise}
+                        options={{/*...*/}}
+                    >
+                        <PaymentForm orderId={orderId} amount={amount/100} clientSecret={clientSecret} />
+                    </Elements>
+                ) : (
+                    <div className="text-center p-4">Enter order number and click Load Order</div>
+                )}
             </div>
         </div>
     );

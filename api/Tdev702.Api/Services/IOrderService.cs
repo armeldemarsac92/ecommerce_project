@@ -2,9 +2,11 @@ using Stripe;
 using Tdev702.Contracts.API.Request.Order;
 using Tdev702.Contracts.API.Request.Payment;
 using Tdev702.Contracts.API.Response;
+using Tdev702.Contracts.Database;
 using Tdev702.Contracts.Exceptions;
 using Tdev702.Contracts.Mapping;
 using Tdev702.Contracts.SQL.Request.All;
+using Tdev702.Contracts.SQL.Request.Inventory;
 using Tdev702.Contracts.SQL.Request.Order;
 using Tdev702.Contracts.SQL.Response;
 using Tdev702.Repository.Context;
@@ -32,8 +34,8 @@ public class OrderService : IOrderService
     private readonly IOrderRepository _orderRepository;
     private readonly IProductRepository _productRepository;
     private readonly IOrderProductRepository _orderProductRepository;
+    private readonly IInventoryRepository _inventoryRepository;
     private readonly IStripePaymentIntentService _stripePaymentIntentService;
-    private readonly IInventoriesService _inventoriesService;
     private readonly IUnitOfWork _unitOfWork;
 
 
@@ -43,8 +45,8 @@ public class OrderService : IOrderService
         IProductRepository productRepository, 
         IOrderProductRepository orderProductRepository, 
         IStripePaymentIntentService stripePaymentIntentService, 
-        IUnitOfWork unitOfWork, 
-        IInventoriesService inventoriesService)
+        IUnitOfWork unitOfWork,
+        IInventoryRepository inventoryRepository)
     {
         _logger = logger;
         _orderRepository = orderRepository;
@@ -52,7 +54,7 @@ public class OrderService : IOrderService
         _orderProductRepository = orderProductRepository;
         _stripePaymentIntentService = stripePaymentIntentService;
         _unitOfWork = unitOfWork;
-        _inventoriesService = inventoriesService;
+        _inventoryRepository = inventoryRepository;
     }
     
     public async Task<OrderSummaryResponse> GetByIdAsync(long orderId, CancellationToken cancellationToken = default)
@@ -239,11 +241,12 @@ public class OrderService : IOrderService
         {
             var order = await GetByIdAsync(orderId, cancellationToken);
             if (!order.OrderItems.Any()) throw new BadRequestException($"Order {orderId} doesnt have any items.");
+            if (order.PaymentStatus == "succeeded") throw new BadRequestException($"Cannot create payment intent for an order with a succeeded payment status");
             
             _logger.LogInformation("Decrementing stock for order {orderId}", orderId);
             foreach (var orderProduct in order.OrderItems)
             {
-                await _inventoriesService.DecrementAsync((int)orderProduct.Quantity, (long)orderProduct.ProductId,
+                await DecrementAsync((int)orderProduct.Quantity, (long)orderProduct.ProductId,
                     cancellationToken);
             }
             _logger.LogInformation("Stock decremented for order {orderId}", orderId);
@@ -282,7 +285,7 @@ public class OrderService : IOrderService
         foreach (var productLink in productsLinksToRemove)
         {
             await _orderProductRepository.DeleteAsync(productLink.Id, cancellationToken);
-            await _inventoriesService.IncreamentAsync(productLink.Quantity, productLink.Id, cancellationToken);
+            await IncreamentAsync(productLink.Quantity, productLink.Id, cancellationToken);
         }
 
         foreach (var product in productsToRemove)
@@ -307,5 +310,43 @@ public class OrderService : IOrderService
                 null, 
                 cancellationToken);
         }
+    }
+    
+    private async Task DecrementAsync(int substractedQuantity, long productId,
+        CancellationToken cancellationToken = default)
+    {
+        _logger.LogInformation("Decreasing inventory quantity by {substractedQuantity} for product id: {productId}", substractedQuantity, productId);
+        var inventory = await _inventoryRepository.GetInventoryByProductIdAsync(productId, cancellationToken);
+        if (inventory.Quantity < substractedQuantity) throw new BadRequestException($"Substracted Quantity ({substractedQuantity}) is superior to the actual quantity ({inventory.Quantity})");
+        var newQuantity = inventory.Quantity - substractedQuantity;
+        var sqlRequest = new UpdateInventorySQLRequest()
+        {
+            Id = inventory.Id,
+            Quantity = newQuantity,
+        };
+
+        var affectedRows = await _inventoryRepository.UpdateAsync(sqlRequest, cancellationToken);
+        if (affectedRows == 0) throw new NotFoundException($"Inventory for the following product: {productId} not found");
+        var updatedRow = await _inventoryRepository.GetByIdAsync(inventory.Id, cancellationToken);
+        _logger.LogInformation("Inventory quantity decreased by {substractedQuantity} for product id: {productId} successfully.", substractedQuantity, productId);
+    }
+    
+    private async Task IncreamentAsync(int addedQuantity,long productId,
+        CancellationToken cancellationToken = default)
+    {   
+        _logger.LogInformation("Increasing inventory quantity by {addedQuantity} for product id: {productId}", addedQuantity, productId);
+        var inventory = await _inventoryRepository.GetInventoryByProductIdAsync(productId, cancellationToken);
+        var newQuantity = inventory.Quantity + addedQuantity;
+        var sqlRequest = new UpdateInventorySQLRequest()
+        {
+            Id = inventory.Id,
+            Quantity = newQuantity,
+        };
+        
+        var affectedRows = await _inventoryRepository.UpdateAsync(sqlRequest, cancellationToken);
+        if (affectedRows == 0) throw new NotFoundException($"Inventory for the following product: {productId} not found");
+        var updatedRow = await _inventoryRepository.GetByIdAsync(inventory.Id, cancellationToken);
+        await _unitOfWork.CommitAsync(cancellationToken);
+        _logger.LogInformation("Inventory quantity increased by {addedQuantity} for product id: {productId} successfully.", addedQuantity, productId);
     }
 }

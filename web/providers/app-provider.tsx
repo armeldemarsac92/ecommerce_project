@@ -3,7 +3,7 @@
 
 import { useState, useEffect } from "react";
 import Cookies from 'js-cookie';
-import {jwtDecode} from 'jwt-decode';
+// import {jwtDecode} from 'jwt-decode';
 import {AppContext, AuthenticatedUser, IAuthTokens} from "@/contexts/app-context";
 
 export function AppProvider({ children }: { children: React.ReactNode }) {
@@ -37,9 +37,9 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
 
         if (token && !isLoading) {
             try {
-                const decoded = jwtDecode<AuthenticatedUser>(token);
-
-                setAuthenticatedUser(decoded);
+                // const decoded = jwtDecode<AuthenticatedUser>(token);
+                //
+                // setAuthenticatedUser(decoded);
             } catch (error) {
                 console.error('Invalid token:', error);
                 logout();

@@ -9,12 +9,11 @@ public static class PaymentIntentMapping
     {
         return new PaymentIntentCreateOptions
         {
-            Amount = amount,
+            Amount = amount*100,
             Currency = "eur",
             PaymentMethod = request.PaymentMethodId,
             Customer = customerId,
             Confirm = request.PaymentMethodId != null,
-            PaymentMethodTypes = new List<string> { "card" },
             AutomaticPaymentMethods = new PaymentIntentAutomaticPaymentMethodsOptions
             {
                 Enabled = true
