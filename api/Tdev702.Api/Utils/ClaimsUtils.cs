@@ -12,6 +12,14 @@ public static class ClaimsUtils
         return userId;
     }
     
+    public static string GetUserRoleFromClaims(this HttpContext context)
+    {
+        var userRole = context.User.FindFirst(c => c.Type == ClaimTypes.Role)?.Value;
+        if (string.IsNullOrEmpty(userRole))
+            throw new InvalidOperationException("User role not found in claims");
+        return userRole;
+    }
+    
     public static string GetUserStripeIdFromClaims(this HttpContext context)
     {
         var stripeId = context.User.FindFirst(c => c.Type == "stripe_id")?.Value;

@@ -21,7 +21,7 @@ public static class PaymentEndpoint
         app.MapPost(ShopRoutes.Orders.CreatePayment, CreatePaymentIntent)
             .WithTags(Tags)
             .WithDescription("Create a new payment")
-            // .RequireAuthorization("Authenticated")
+            .RequireAuthorization("Authenticated")
             .Accepts<CreatePaymentRequest>(ContentType)
             .Produces<PaymentIntent>(200)
             .Produces(400);
@@ -36,8 +36,7 @@ public static class PaymentEndpoint
         long orderId,
         CancellationToken cancellationToken)
     {
-        // var userId = context.GetUserStripeIdFromClaims();
-        var userId = "cus_RhlWjl7AUz7B06";
+        var userId = context.GetUserStripeIdFromClaims();
         var paymentIntent = await orderService.CreatePaymentAsync(orderId, userId, createPaymentRequest, cancellationToken);
         return Results.Ok(paymentIntent);
     }
