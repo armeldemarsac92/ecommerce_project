@@ -1,41 +1,64 @@
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json.Serialization;
 
 namespace Tdev702.Contracts.API.Response;
 
 public class OrderSummaryResponse
 {
-    [Column("order_id")]
+    [JsonPropertyName("order_id")]
     public required int Id { get; init; }
 
-    [Column("user_id")] 
+    [JsonPropertyName("user_id")] 
     public required string UserId { get; init; }
 
-    [Column("payment_status")]
-    public required string PaymentStatus { get; init; }
+    [JsonPropertyName("stripe_payment_status")]
+    public required string StripePaymentStatus { get; init; }    
+    
+    [JsonPropertyName("stripe_session_status")]
+    public required string StripeSessionStatus { get; init; }
 
-    [Column("total_amount")]
+    [JsonPropertyName("total_amount")]
     public required double TotalAmount { get; init; }
 
-    [Column("stripe_invoice_id")]
+    [JsonPropertyName("stripe_invoice_id")]
     public string? StripeInvoiceId { get; init; }
 
-    [Column("stripe_payment_intent_id")]
-    public string? StripePaymentIntentId { get; init; }
+    [JsonPropertyName("stripe_payment_intent_id")]
+    public string? StripeSessionId { get; init; }
 
-    [Column("created_at")]
+    [JsonPropertyName("created_at")]
     public required DateTime CreatedAt { get; init; }
 
-    [Column("order_items")]
+    [JsonPropertyName("order_items")]
     public OrderItemResponse[]? OrderItems { get; init; }
 }
 
 public class OrderItemResponse
 {
+    [JsonPropertyName("product_id")]
     public long? ProductId { get; init; }
+    
+    [JsonPropertyName("title")]
     public string? Title { get; init; }
+    
+    [JsonPropertyName("description")]
+    public string? Description { get; init; }
+    
+    [JsonPropertyName("picture")]
+    public string? ImageUrl { get; init; }
+    
+    [JsonPropertyName("quantity")]
     public int? Quantity { get; init; }
+    
+    [JsonPropertyName("unit_price")]
     public double? UnitPrice { get; init; }
+    
+    [JsonPropertyName("subtotal")]
     public double? Subtotal { get; init; }
+    
+    [JsonPropertyName("brand")]
     public string? Brand { get; init; }
+    
+    [JsonPropertyName("category")]
     public string? Category { get; init; }
 }

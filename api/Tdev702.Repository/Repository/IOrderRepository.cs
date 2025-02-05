@@ -13,7 +13,7 @@ namespace Tdev702.Repository.Repository;
 public interface IOrderRepository
 {
     public Task<OrderSummarySQLResponse?> GetByIdAsync(long id, CancellationToken cancellationToken = default);
-    public Task<OrderSummarySQLResponse?> GetByPaymentIntentIdAsync(string stripePaymentIntentId, CancellationToken cancellationToken = default);
+    public Task<OrderSummarySQLResponse?> GetBySessionIdAsync(string stripeSessionId, CancellationToken cancellationToken = default);
     public Task<List<OrderSummarySQLResponse>> GetAllAsync(QueryOptions queryOptions, CancellationToken cancellationToken = default);
     public Task<List<OrderSummarySQLResponse>> GetAllByUserIdAsync(string userId, QueryOptions queryOptions,
         CancellationToken cancellationToken = default);
@@ -36,9 +36,9 @@ public class OrderRepository : IOrderRepository
        return await _dbContext.QueryFirstOrDefaultAsync<OrderSummarySQLResponse>(OrderQueries.GetOrderById, new { OrderId = id }, cancellationToken);
    }
 
-   public async Task<OrderSummarySQLResponse?> GetByPaymentIntentIdAsync(string stripePaymentIntentId, CancellationToken cancellationToken = default)
+   public async Task<OrderSummarySQLResponse?> GetBySessionIdAsync(string stripeSessionId, CancellationToken cancellationToken = default)
    {
-       return await _dbContext.QueryFirstOrDefaultAsync<OrderSummarySQLResponse>(OrderQueries.GetOrderByIntentId, new { StripePaymentIntentId = stripePaymentIntentId }, cancellationToken);
+       return await _dbContext.QueryFirstOrDefaultAsync<OrderSummarySQLResponse>(OrderQueries.GetOrderBySessionId, new { StripeSessionId = stripeSessionId }, cancellationToken);
    }
 
    public async Task<List<OrderSummarySQLResponse>> GetAllByUserIdAsync(string userId, QueryOptions queryOptions, CancellationToken cancellationToken = default)

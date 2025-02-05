@@ -67,6 +67,7 @@ public static class ShopRoutes
        
         public const string GetUserOrders = $"{Base}/orders/me";
         public const string CreatePayment = $"{Base}/orders/{{orderId}}/payment";
+        public const string CreateSession = $"{Base}/orders/{{orderId}}/session";
         public const string GetAll = $"{Base}/orders";
         public const string GetById = $"{Base}/orders/{{orderId}}";
         public const string GetInvoice = $"{Base}/orders/{{orderId}}/invoice";
@@ -84,5 +85,6 @@ public static class ShopRoutes
     public static class Webhooks
     {
         public const string PaymentIntent = $"{Base}/webhooks/payment_intent";
+        public const string Session = $"{Base}/webhooks/session";
     }
 }

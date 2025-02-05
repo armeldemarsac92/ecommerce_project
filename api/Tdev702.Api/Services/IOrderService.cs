@@ -1,4 +1,5 @@
 using Stripe;
+using Stripe.Checkout;
 using Tdev702.Contracts.API.Request.Order;
 using Tdev702.Contracts.API.Request.Payment;
 using Tdev702.Contracts.API.Response;
@@ -26,8 +27,9 @@ public interface IOrderService
         CancellationToken cancellationToken = default);
     Task<OrderSummaryResponse> UpdateAsync(long orderId, UpdateOrderRequest updateOrderRequest, CancellationToken cancellationToken = default);
     Task DeleteAsync(long orderId, CancellationToken cancellationToken = default);
-    Task<PaymentIntent> CreatePaymentAsync(long orderId, string userId, CreatePaymentRequest createPayment, CancellationToken cancellationToken = default);
+    // Task<PaymentIntent> CreatePaymentAsync(long orderId, string userId, CreatePaymentRequest createPayment, CancellationToken cancellationToken = default);
     Task<string> GetOrderInvoice(long orderId, CancellationToken cancellationToken);
+    Task<Session> CreateSessionAsync(long orderId, string stripeCustomerId, CancellationToken cancellationToken);
 }
 public class OrderService : IOrderService
 {
@@ -38,6 +40,7 @@ public class OrderService : IOrderService
     private readonly IInventoryRepository _inventoryRepository;
     private readonly IStripePaymentIntentService _stripePaymentIntentService;
     private readonly IStripeInvoiceService _stripeInvoicesService;
+    private readonly IStripeSessionService _stripeSessionService;
     private readonly IUnitOfWork _unitOfWork;
 
 
@@ -49,7 +52,8 @@ public class OrderService : IOrderService
         IStripePaymentIntentService stripePaymentIntentService, 
         IUnitOfWork unitOfWork,
         IInventoryRepository inventoryRepository, 
-        IStripeInvoiceService stripeInvoicesService)
+        IStripeInvoiceService stripeInvoicesService, 
+        IStripeSessionService stripeSessionService)
     {
         _logger = logger;
         _orderRepository = orderRepository;
@@ -59,6 +63,7 @@ public class OrderService : IOrderService
         _unitOfWork = unitOfWork;
         _inventoryRepository = inventoryRepository;
         _stripeInvoicesService = stripeInvoicesService;
+        _stripeSessionService = stripeSessionService;
     }
     
     public async Task<OrderSummaryResponse> GetByIdAsync(long orderId, CancellationToken cancellationToken = default)
@@ -72,7 +77,7 @@ public class OrderService : IOrderService
     public async Task<OrderSummaryResponse> GetOrderByPaymentIntentIdAsync(string stripePaymentIntentId, CancellationToken cancellationToken = default)
     {
         _logger.LogInformation("Getting order with payment intent id: {stripePaymentIntentId}", stripePaymentIntentId);
-        var order = await _orderRepository.GetByPaymentIntentIdAsync(stripePaymentIntentId, cancellationToken);
+        var order = await _orderRepository.GetBySessionIdAsync(stripePaymentIntentId, cancellationToken);
         if(order is null) throw new NotFoundException($"Order with payment intent {stripePaymentIntentId} not found");
         return order.MapToOrderSummary();
     }
@@ -110,7 +115,8 @@ public class OrderService : IOrderService
         
         //we prepare the order data for insertion into the SQL database
         var createOrderSqlRequest = createOrderRequest.MapToCreateOrderRequest(totalAmount);
-        createOrderSqlRequest.PaymentStatus = "draft";
+        createOrderSqlRequest.StripePaymentStatus = "no_payment_required";
+        createOrderSqlRequest.StripeSessionsStatus = "draft";
 
         await _unitOfWork.BeginTransactionAsync(cancellationToken);
         try
@@ -141,12 +147,12 @@ public class OrderService : IOrderService
     
     public async Task UpdateOrderPaymentStatus(UpdateOrderSQLRequest updateOrderRequest, CancellationToken cancellationToken)
     {
-        _logger.LogInformation("Updating order payment status to {paymentStatus} for order with id: {orderId}", updateOrderRequest.PaymentStatus, updateOrderRequest.Id);
+        _logger.LogInformation("Updating order payment status to {paymentStatus} for order with id: {orderId}", updateOrderRequest.StripePaymentStatus, updateOrderRequest.Id);
         await _unitOfWork.BeginTransactionAsync(cancellationToken);
         try
         {
             await _orderRepository.UpdateAsync(updateOrderRequest, cancellationToken);
-            if (updateOrderRequest.PaymentStatus == "canceled")
+            if (updateOrderRequest.StripeSessionStatus == "expired")
             {
                 var order = await _orderRepository.GetByIdAsync(updateOrderRequest.Id, cancellationToken);
                 if (order is null) throw new NotFoundException($"Order {updateOrderRequest.Id} not found.");
@@ -172,7 +178,7 @@ public class OrderService : IOrderService
         //first we retrieve the order
         var order = await _orderRepository.GetByIdAsync(orderId, cancellationToken);
         if (order is null) throw new NotFoundException($"Order {orderId} not found");
-        if (order.PaymentStatus is "succeeded") throw new BadRequestException("Cannot update an order with a succeeded payment status");
+        if (order.StripeSessionStatus is "complete") throw new BadRequestException("Cannot update an order with a completed session.");
         
         //then we retrieve the products linked to the order request to ensure the prices are up to date
         var newProducts =
@@ -234,38 +240,123 @@ public class OrderService : IOrderService
             throw;
         }
     }
-
-    public async Task<PaymentIntent> CreatePaymentAsync(long orderId, string userId, CreatePaymentRequest createPaymentRequest,
-        CancellationToken cancellationToken = default)
+    //
+    // public async Task<PaymentIntent> CreatePaymentAsync(long orderId, string userId, CreatePaymentRequest createPaymentRequest,
+    //     CancellationToken cancellationToken = default)
+    // {
+    //     _logger.LogInformation("Creating payment intent for order {orderId}", orderId);
+    //     await _unitOfWork.BeginTransactionAsync(cancellationToken);
+    //
+    //     try
+    //     {
+    //         var order = await GetByIdAsync(orderId, cancellationToken);
+    //         if (!order.OrderItems.Any()) throw new BadRequestException($"Order {orderId} doesnt have any items.");
+    //         if (order.PaymentStatus == "succeeded") throw new BadRequestException($"Cannot create payment intent for an order with a succeeded payment status");
+    //         
+    //         _logger.LogInformation("Decrementing stock for order {orderId}", orderId);
+    //         foreach (var orderProduct in order.OrderItems)
+    //         {
+    //             await DecrementAsync((int)orderProduct.Quantity, (long)orderProduct.ProductId,
+    //                 cancellationToken);
+    //         }
+    //         _logger.LogInformation("Stock decremented for order {orderId}", orderId);
+    //
+    //         _logger.LogInformation("Creating payment intent for order {orderId}", orderId);
+    //         var request = createPaymentRequest.ToStripePaymentIntentOptions(userId, (long)order.TotalAmount);
+    //         var paymentIntent = await _stripePaymentIntentService.CreateAsync(request, null, cancellationToken);
+    //         _logger.LogInformation("Payment intent {paymentId} created for order {orderId}", paymentIntent.Id, orderId);
+    //         
+    //         var updateOrderSqlRequest = new UpdateOrderSQLRequest() { Id = orderId, StripeSessionId = paymentIntent.Id, PaymentStatus = "created"};
+    //         var affectedRow = await _orderRepository.UpdateAsync(updateOrderSqlRequest, cancellationToken);
+    //         if (affectedRow == 0) throw new NotFoundException($"Cannot create payment intent for order {orderId}, not found.");
+    //         await _unitOfWork.CommitAsync(cancellationToken);
+    //         _logger.LogInformation("Payment intent created successfully for order {orderId}", orderId);
+    //         return paymentIntent;
+    //     }
+    //     catch (Exception ex)
+    //     {
+    //         _logger.LogError("Error creating payment intent for order {orderId}", orderId);
+    //         await _unitOfWork.RollbackAsync(cancellationToken);
+    //         throw;
+    //     }
+    // }
+    
+    public async Task<Session> CreateSessionAsync(long orderId, string stripeCustomerId,
+        CancellationToken cancellationToken)
     {
-        _logger.LogInformation("Creating payment intent for order {orderId}", orderId);
+        _logger.LogInformation("Creating payment session for order {orderId}", orderId);
         await _unitOfWork.BeginTransactionAsync(cancellationToken);
 
         try
         {
             var order = await GetByIdAsync(orderId, cancellationToken);
             if (!order.OrderItems.Any()) throw new BadRequestException($"Order {orderId} doesnt have any items.");
-            if (order.PaymentStatus == "succeeded") throw new BadRequestException($"Cannot create payment intent for an order with a succeeded payment status");
+            if (order.StripeSessionStatus == "complete") throw new BadRequestException($"Cannot create payment session for an order with a complete session status");
+
+            var domain = "http://localhost:3000";
+            var sessionRequest = new SessionCreateOptions()
+            {
+                Mode = "payment",
+                ClientReferenceId = orderId.ToString(),
+                SuccessUrl = $"{domain}/success?session_id={{CHECKOUT_SESSION_ID}}",
+                CancelUrl = $"{domain}/cancel",
+                Customer = stripeCustomerId,
+                BillingAddressCollection = "required",
+                ShippingAddressCollection = new SessionShippingAddressCollectionOptions
+                {
+                    AllowedCountries = new List<string> { "FR" }
+                },
+                CustomerUpdate = new SessionCustomerUpdateOptions
+                {
+                    Address = "auto",
+                    Shipping = "auto"
+                },                
+                InvoiceCreation = new SessionInvoiceCreationOptions
+                {
+                    Enabled = true
+                },
+                AutomaticTax = new SessionAutomaticTaxOptions()
+                {
+                    Enabled = true,
+                    
+                },
+                LineItems = new List<SessionLineItemOptions>()
+            };
             
             _logger.LogInformation("Decrementing stock for order {orderId}", orderId);
             foreach (var orderProduct in order.OrderItems)
             {
+                sessionRequest.LineItems.Add(new SessionLineItemOptions()
+                {
+                    PriceData = new SessionLineItemPriceDataOptions()
+                    {
+                        UnitAmount = (long)orderProduct.UnitPrice * 100,
+                        Currency = "eur",
+                        ProductData = new SessionLineItemPriceDataProductDataOptions()
+                        {
+                            Name = orderProduct.Title,
+                            Description = orderProduct.Description,
+                            Images = new List<string> { orderProduct.ImageUrl }
+                        }
+                    },
+                    Quantity = (int)orderProduct.Quantity
+                });
+                
                 await DecrementAsync((int)orderProduct.Quantity, (long)orderProduct.ProductId,
                     cancellationToken);
             }
             _logger.LogInformation("Stock decremented for order {orderId}", orderId);
 
-            _logger.LogInformation("Creating payment intent for order {orderId}", orderId);
-            var request = createPaymentRequest.ToStripePaymentIntentOptions(userId, (long)order.TotalAmount);
-            var paymentIntent = await _stripePaymentIntentService.CreateAsync(request, null, cancellationToken);
-            _logger.LogInformation("Payment intent {paymentId} created for order {orderId}", paymentIntent.Id, orderId);
+            _logger.LogInformation("Creating payment session for order {orderId}", orderId);
+            var session = await _stripeSessionService.CreateAsync(sessionRequest, null, cancellationToken);
+            _logger.LogInformation("Payment session {paymentId} created for order {orderId}", session.Id, orderId);
             
-            var updateOrderSqlRequest = new UpdateOrderSQLRequest() { Id = orderId, StripePaymentIntentId = paymentIntent.Id, PaymentStatus = "created"};
+            var updateOrderSqlRequest = new UpdateOrderSQLRequest() { Id = orderId, StripeSessionId = session.Id, StripeSessionStatus = "open"};
             var affectedRow = await _orderRepository.UpdateAsync(updateOrderSqlRequest, cancellationToken);
-            if (affectedRow == 0) throw new NotFoundException($"Cannot create payment intent for order {orderId}, not found.");
+            if (affectedRow == 0) throw new NotFoundException($"Cannot create payment session for order {orderId}, not found.");
             await _unitOfWork.CommitAsync(cancellationToken);
             _logger.LogInformation("Payment intent created successfully for order {orderId}", orderId);
-            return paymentIntent;
+            return session;
         }
         catch (Exception ex)
         {
@@ -278,12 +369,14 @@ public class OrderService : IOrderService
     public async Task<string> GetOrderInvoice(long orderId, CancellationToken cancellationToken)
     {
         var order = await GetByIdAsync(orderId, cancellationToken);
-        if (order.PaymentStatus != "succeeded")
+        if (order.StripePaymentStatus != "paid")
             throw new BadRequestException($"Order {orderId} is not paid yet, hence no invoice is available.");
         if (order.StripeInvoiceId is null) throw new BadRequestException($"Order {orderId} has no invoice attached.");
         var invoice = await _stripeInvoicesService.GetAsync(order.StripeInvoiceId, null, null, cancellationToken);
         return invoice.InvoicePdf;
     }
+
+
 
     private async Task RemoveProducts(OrderSummarySQLResponse order, List<FullProductSQLResponse> newProducts, CancellationToken cancellationToken = default)
     {
@@ -312,10 +405,10 @@ public class OrderService : IOrderService
         OrderSummarySQLResponse order)
     {
         //if the new total amount is different from the current one, we update the payment intent amount
-        if (Math.Abs(totalAmount - order.TotalAmount) > 1 && !string.IsNullOrEmpty(order.StripePaymentIntentId))
+        if (Math.Abs(totalAmount - order.TotalAmount) > 1 && !string.IsNullOrEmpty(order.StripeSessionId))
         {
             await _stripePaymentIntentService.UpdateAsync(
-                order.StripePaymentIntentId, 
+                order.StripeSessionId, 
                 new PaymentIntentUpdateOptions()
                 {
                     Amount = (long)(totalAmount * 100), 

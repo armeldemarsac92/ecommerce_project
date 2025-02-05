@@ -28,11 +28,11 @@ services.AddSecurityPolicies();
 services.AddMessaging();
 services.AddCors(options =>
 {
-    options.AddPolicy("AllowAll", builder =>
+    options.AddDefaultPolicy(policy =>
     {
-        builder.AllowAnyOrigin()
-            .AllowAnyMethod()
-            .AllowAnyHeader();
+        policy.WithOrigins("http://localhost:3000")
+            .AllowAnyHeader()
+            .AllowAnyMethod();
     });
 });
 
@@ -55,7 +55,7 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-app.UseCors("AllowAll");
+app.UseCors();
 
 app.UseAuthentication();   
 app.UseAuthorization();

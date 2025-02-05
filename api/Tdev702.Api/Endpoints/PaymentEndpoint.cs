@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Identity;
 using Stripe;
+using Stripe.Checkout;
 using Tdev702.Api.Routes;
 using Tdev702.Api.Services;
 using Tdev702.Api.Utils;
@@ -13,31 +14,48 @@ namespace Tdev702.Api.Endpoints;
 
 public static class PaymentEndpoint
 {
-    private const string ContentType = "application/json";
     private const string Tags = "Payments";
 
     public static IEndpointRouteBuilder MapPaymentEndpoints(this IEndpointRouteBuilder app)
     {
-        app.MapPost(ShopRoutes.Orders.CreatePayment, CreatePaymentIntent)
+        // app.MapPost(ShopRoutes.Orders.CreatePayment, CreatePaymentIntent)
+        //     .WithTags(Tags)
+        //     .WithDescription("Create a new payment")
+        //     .RequireAuthorization("Authenticated")
+        //     .Accepts<CreatePaymentRequest>(ContentType)
+        //     .Produces<PaymentIntent>(200)
+        //     .Produces(400);
+                
+        app.MapPost(ShopRoutes.Orders.CreateSession, CreatePaymentSession)
             .WithTags(Tags)
-            .WithDescription("Create a new payment")
-            .RequireAuthorization("Authenticated")
-            .Accepts<CreatePaymentRequest>(ContentType)
-            .Produces<PaymentIntent>(200)
+            .WithDescription("Create a new payment session")
+            // .RequireAuthorization("Authenticated")
+            .Produces<Session>(200)
             .Produces(400);
         
         return app;
     }
 
-    private static async Task<IResult> CreatePaymentIntent(
+    // private static async Task<IResult> CreatePaymentIntent(
+    //     HttpContext context,
+    //     IOrderService orderService,
+    //     CreatePaymentRequest createPaymentRequest,
+    //     long orderId,
+    //     CancellationToken cancellationToken)
+    // {
+    //     var userId = context.GetUserStripeIdFromClaims();
+    //     var paymentIntent = await orderService.CreatePaymentAsync(orderId, userId, createPaymentRequest, cancellationToken);
+    //     return Results.Ok(paymentIntent);
+    // }
+    private static async Task<IResult> CreatePaymentSession(
         HttpContext context,
         IOrderService orderService,
-        CreatePaymentRequest createPaymentRequest,
         long orderId,
         CancellationToken cancellationToken)
     {
-        var userId = context.GetUserStripeIdFromClaims();
-        var paymentIntent = await orderService.CreatePaymentAsync(orderId, userId, createPaymentRequest, cancellationToken);
+        // var userId = context.GetUserStripeIdFromClaims();
+        var userId = "cus_RhlWjl7AUz7B06";
+        var paymentIntent = await orderService.CreateSessionAsync(orderId, userId, cancellationToken);
         return Results.Ok(paymentIntent);
     }
 }

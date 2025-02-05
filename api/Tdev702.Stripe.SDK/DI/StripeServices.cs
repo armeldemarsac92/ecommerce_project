@@ -1,5 +1,6 @@
 using Microsoft.Extensions.DependencyInjection;
 using Stripe;
+using Stripe.Checkout;
 using Tdev702.Stripe.SDK.Services;
 
 namespace Tdev702.Stripe.SDK.DI;
@@ -18,6 +19,7 @@ public static class StripeServices
         services.AddScoped<PaymentIntentService>();
         services.AddScoped<ChargeService>();
         services.AddScoped<InvoiceItemService>();
+        services.AddScoped<SessionService>();
         
         //Configure Stripe.net library implementations
         services.AddScoped<IStripeInvoiceService, StripeInvoiceService>();
@@ -27,6 +29,7 @@ public static class StripeServices
         services.AddScoped<IStripeCustomerPaymentMethodService, StripeCustomerPaymentMethodService>();
         services.AddScoped<IStripePaymentIntentService, StripePaymentIntentService>();
         services.AddScoped<IStripeChargeService, StripeChargeService>();
+        services.AddScoped<IStripeSessionService, StripeSessionService>();
         
         return services;
     }

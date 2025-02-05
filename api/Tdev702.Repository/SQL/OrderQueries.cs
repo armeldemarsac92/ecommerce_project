@@ -7,10 +7,10 @@ public static class OrderQueries
    FROM backoffice.vw_orders_summary
    WHERE id = @OrderId;";
     
-    public static string GetOrderByIntentId = @"
+    public static string GetOrderBySessionId = @"
    SELECT *
    FROM backoffice.vw_orders_summary
-   WHERE stripe_payment_intent_id = @StripePaymentIntentId;";
+   WHERE stripe_session_id = @StripeSessionId;";
 
     public static string GetAllOrders = @"
    SELECT *
@@ -37,16 +37,18 @@ public static class OrderQueries
        stripe_invoice_id, 
        updated_at, 
        created_at, 
-       stripe_payment_intent_id,
-       payment_status,
+       stripe_session_id,
+       stripe_payment_status,
+       stripe_session_status,
        total_amount)
    VALUES (
        @UserId, 
        @StripeInvoiceId, 
        CURRENT_TIMESTAMP, 
        CURRENT_TIMESTAMP, 
-       @StripePaymentIntentId, 
-       @PaymentStatus::backoffice.payment_status,
+       @StripeSessionId, 
+       @StripePaymentStatus::backoffice.payment_status,
+       @StripeSessionStatus::backoffice.session_status,
        @TotalAmount)
    RETURNING id;";
 
@@ -56,8 +58,9 @@ public static class OrderQueries
        user_id = COALESCE(@UserId, user_id),
        stripe_invoice_id = COALESCE(@StripeInvoiceId, stripe_invoice_id),
        updated_at = CURRENT_TIMESTAMP,
-       stripe_payment_intent_id = COALESCE(@StripePaymentIntentId, stripe_payment_intent_id),
-       payment_status = COALESCE(@PaymentStatus::backoffice.payment_status, payment_status),
+       stripe_session_id = COALESCE(@StripeSessionId, stripe_session_id),
+       stripe_payment_status = COALESCE(@StripePaymentStatus::backoffice.payment_status, stripe_payment_status),
+       stripe_session_status = COALESCE(@StripeSessionStatus::backoffice.session_status, stripe_session_status),
        total_amount = COALESCE(@TotalAmount, total_amount)
    WHERE id = @Id;";
 

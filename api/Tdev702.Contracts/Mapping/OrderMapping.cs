@@ -36,10 +36,11 @@ public static class OrderMapping
         {
             Id = orderSql.Id,
             UserId = orderSql.UserId,
-            PaymentStatus = orderSql.PaymentStatus,
+            StripePaymentStatus = orderSql.StripePaymentStatus,
+            StripeSessionStatus = orderSql.StripeSessionStatus,
             TotalAmount = orderSql.TotalAmount,
             StripeInvoiceId = orderSql.StripeInvoiceId,
-            StripePaymentIntentId = orderSql.StripePaymentIntentId,
+            StripeSessionId = orderSql.StripeSessionId,
             CreatedAt = orderSql.CreatedAt,
             OrderItems = orderSql.OrderItems?
                 .Where(item => item.ProductId != null)
@@ -48,6 +49,8 @@ public static class OrderMapping
                     ProductId = item.ProductId!.Value,
                     Title = item.Title,
                     Quantity = item.Quantity!.Value,
+                    Description = item.Description,
+                    ImageUrl = item.Picture,
                     UnitPrice = item.UnitPrice!.Value,
                     Subtotal = item.Subtotal!.Value,
                     Brand = item.Brand,
@@ -68,8 +71,6 @@ public static class OrderMapping
         {
             UserId = createOrderRequest.UserId,
             TotalAmount = totalAmount,
-            
-            StripeInvoiceId = createOrderRequest.StripeInvoiceId
         };
     }
 
@@ -78,9 +79,7 @@ public static class OrderMapping
         return new UpdateOrderSQLRequest
         {
             Id = orderId,
-            PaymentStatus = updateOrderRequest.PaymentStatus,
             TotalAmount = totalAmount, //the total amount should be calculated based on the updated products, not be passed as a parameter, hence the syntax
-            StripeInvoiceId = updateOrderRequest.StripeInvoiceId
         };
     }
     

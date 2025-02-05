@@ -11,8 +11,11 @@ public class OrderSummarySQLResponse
     [Column("user_id")] 
     public required string UserId { get; init; }
 
-    [Column("payment_status")]
-    public required string PaymentStatus { get; init; }
+    [Column("stripe_payment_status")]
+    public required string StripePaymentStatus { get; init; }   
+    
+    [Column("stripe_session_status")]
+    public required string StripeSessionStatus { get; init; }
 
     [Column("total_amount")]
     public required double TotalAmount { get; init; }
@@ -20,8 +23,8 @@ public class OrderSummarySQLResponse
     [Column("stripe_invoice_id")]
     public string? StripeInvoiceId { get; init; }
 
-    [Column("stripe_payment_intent_id")]
-    public string? StripePaymentIntentId { get; init; }
+    [Column("stripe_session_id")]
+    public string? StripeSessionId { get; init; }
 
     [Column("created_at")]
     public required DateTime CreatedAt { get; init; }
@@ -37,6 +40,12 @@ public class OrderItem
     
     [JsonPropertyName("title")]
     public string? Title { get; init; }
+    
+    [JsonPropertyName("description")]
+    public string? Description { get; init; }
+    
+    [JsonPropertyName("picture")]
+    public string? Picture { get; init; }
     
     [JsonPropertyName("quantity")]
     public int? Quantity { get; init; }
