@@ -27,6 +27,7 @@ public interface IOrderService
     Task<OrderSummaryResponse> UpdateAsync(long orderId, UpdateOrderRequest updateOrderRequest, CancellationToken cancellationToken = default);
     Task DeleteAsync(long orderId, CancellationToken cancellationToken = default);
     Task<PaymentIntent> CreatePaymentAsync(long orderId, string userId, CreatePaymentRequest createPayment, CancellationToken cancellationToken = default);
+    Task<string> GetOrderInvoice(long orderId, CancellationToken cancellationToken);
 }
 public class OrderService : IOrderService
 {
@@ -36,6 +37,7 @@ public class OrderService : IOrderService
     private readonly IOrderProductRepository _orderProductRepository;
     private readonly IInventoryRepository _inventoryRepository;
     private readonly IStripePaymentIntentService _stripePaymentIntentService;
+    private readonly IStripeInvoiceService _stripeInvoicesService;
     private readonly IUnitOfWork _unitOfWork;
 
 
@@ -46,7 +48,8 @@ public class OrderService : IOrderService
         IOrderProductRepository orderProductRepository, 
         IStripePaymentIntentService stripePaymentIntentService, 
         IUnitOfWork unitOfWork,
-        IInventoryRepository inventoryRepository)
+        IInventoryRepository inventoryRepository, 
+        IStripeInvoiceService stripeInvoicesService)
     {
         _logger = logger;
         _orderRepository = orderRepository;
@@ -55,6 +58,7 @@ public class OrderService : IOrderService
         _stripePaymentIntentService = stripePaymentIntentService;
         _unitOfWork = unitOfWork;
         _inventoryRepository = inventoryRepository;
+        _stripeInvoicesService = stripeInvoicesService;
     }
     
     public async Task<OrderSummaryResponse> GetByIdAsync(long orderId, CancellationToken cancellationToken = default)
@@ -269,6 +273,16 @@ public class OrderService : IOrderService
             await _unitOfWork.RollbackAsync(cancellationToken);
             throw;
         }
+    }
+
+    public async Task<string> GetOrderInvoice(long orderId, CancellationToken cancellationToken)
+    {
+        var order = await GetByIdAsync(orderId, cancellationToken);
+        if (order.PaymentStatus != "succeeded")
+            throw new BadRequestException($"Order {orderId} is not paid yet, hence no invoice is available.");
+        if (order.StripeInvoiceId is null) throw new BadRequestException($"Order {orderId} has no invoice attached.");
+        var invoice = await _stripeInvoicesService.GetAsync(order.StripeInvoiceId, null, null, cancellationToken);
+        return invoice.InvoicePdf;
     }
 
     private async Task RemoveProducts(OrderSummarySQLResponse order, List<FullProductSQLResponse> newProducts, CancellationToken cancellationToken = default)

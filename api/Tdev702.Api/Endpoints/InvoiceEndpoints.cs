@@ -1,5 +1,6 @@
 using Stripe;
 using Tdev702.Api.Routes;
+using Tdev702.Api.Services;
 using Tdev702.Stripe.SDK.Services;
 
 namespace Tdev702.Api.Endpoints;
@@ -11,34 +12,10 @@ public static class InvoiceEndpoints
     
     public static IEndpointRouteBuilder MapInvoiceEndpoints(this IEndpointRouteBuilder app)
     {
-        app.MapGet(ShopRoutes.Invoices.GetById, GetInvoice)
+        app.MapGet(ShopRoutes.Orders.GetInvoice, GetInvoice)
             .WithTags(Tags)
-            .WithDescription("Get an invoice by ID")
-            .RequireAuthorization("Authenticated")
-            .Produces<Invoice>(200)
-            .Produces(404);
-        
-        app.MapPost(ShopRoutes.Invoices.Create, CreateInvoice)
-            .WithTags(Tags)
-            .WithDescription("Create a new invoice")
-            .RequireAuthorization("Authenticated")
-            .Accepts<InvoiceCreateOptions>(ContentType)
-            .Produces<Invoice>(200)
-            .Produces(400);
-        
-        app.MapPut(ShopRoutes.Invoices.Update, UpdateInvoice)
-            .WithTags(Tags)
-            .WithDescription("Update an existing invoice")
-            .RequireAuthorization("Authenticated")
-            .Accepts<InvoiceUpdateOptions>(ContentType)
-            .Produces<Invoice>(200)
-            .Produces(404);
-        
-        app.MapDelete(ShopRoutes.Invoices.Delete, DeleteInvoice)
-            .WithTags(Tags)
-            .WithDescription("Delete an invoice")
-            .RequireAuthorization("Admin")
-            .Produces(204)
+            .WithDescription("Get an invoice by its parent order id.")
+            // .RequireAuthorization("Authenticated")
             .Produces(404);
         
         return app;
@@ -46,61 +23,12 @@ public static class InvoiceEndpoints
     
     private static async Task<IResult> GetInvoice(
         HttpContext context,
-        IStripeInvoiceService stripeInvoiceService,
-        string id,
-        CancellationToken cancellationToken)
-    {   
-        var invoice = await stripeInvoiceService.GetAsync(
-            id,
-            null, 
-            null,  
-            cancellationToken);
-            
-        return Results.Ok(invoice);
-    }
-    
-    private static async Task<IResult> CreateInvoice(
-        HttpContext context,
-        IStripeInvoiceService stripeInvoiceService,
-        InvoiceCreateOptions invoiceOptions,
+        IOrderService orderService,
+        long orderId,
         CancellationToken cancellationToken)
     {
-        var invoice = await stripeInvoiceService.CreateAsync(
-            invoiceOptions,
-            null, 
-            cancellationToken);
+        var invoice = await orderService.GetOrderInvoice(orderId, cancellationToken);
             
         return Results.Ok(invoice);
-    }
-
-    private static async Task<IResult> UpdateInvoice(
-        HttpContext context,
-        IStripeInvoiceService stripeInvoiceService,
-        string id,
-        InvoiceUpdateOptions invoiceOptions,
-        CancellationToken cancellationToken)
-    {
-        var invoice = await stripeInvoiceService.UpdateAsync(
-            id,
-            invoiceOptions,
-            null, 
-            cancellationToken);
-            
-        return Results.Ok(invoice);
-    }
-
-    private static async Task<IResult> DeleteInvoice(
-        HttpContext context,
-        IStripeInvoiceService stripeInvoiceService,
-        string id,
-        CancellationToken cancellationToken)
-    {
-        await stripeInvoiceService.DeleteAsync(
-            id,
-            null, // options
-            null, // requestOptions
-            cancellationToken);
-            
-        return Results.NoContent();
     }
 }

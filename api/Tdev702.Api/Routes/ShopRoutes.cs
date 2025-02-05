@@ -62,15 +62,6 @@ public static class ShopRoutes
         public const string GetAll = $"{Base}/customers";
     }
     
-    public static class Invoices
-    {
-        public const string GetById = $"{Base}/invoices/{{id}}";
-        public const string GetAll = $"{Base}/invoices";
-        public const string Create = $"{Base}/invoices";
-        public const string Update = $"{Base}/invoices/{{id}}";
-        public const string Delete = $"{Base}/invoices/{{id}}";
-    }
-
     public static class Orders
     {
        
@@ -78,6 +69,7 @@ public static class ShopRoutes
         public const string CreatePayment = $"{Base}/orders/{{orderId}}/payment";
         public const string GetAll = $"{Base}/orders";
         public const string GetById = $"{Base}/orders/{{orderId}}";
+        public const string GetInvoice = $"{Base}/orders/{{orderId}}/invoice";
         public const string Create = $"{Base}/orders";
         public const string Update = $"{Base}/orders/{{orderId}}";
     }
