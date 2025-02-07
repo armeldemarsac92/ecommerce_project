@@ -30,15 +30,12 @@ import {
 import * as React from "react";
 import { useRouter } from "next/navigation";
 import axios from "axios";
+import {AuthenticatedUser} from "@/contexts/app-context";
 
 export function NavUser({
   user,
 }: {
-  user: {
-    name: string
-    email: string
-    avatar: string
-  }
+  user: AuthenticatedUser
 }) {
   const { isMobile } = useSidebar();
 
@@ -64,17 +61,15 @@ export function NavUser({
       <SidebarMenuItem>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <SidebarMenuButton
-              size="lg"
-            >
+            <SidebarMenuButton size="lg">
               <div className={"relative inline-block"}>
                   <Avatar className="w-8 h-8 rounded-lg object-contain" asChild>
-                    <AvatarImage src={user.avatar} alt={user.name} />
+                    <AvatarImage src={"https://ui.shadcn.com/avatars/02.png"} alt={"Avatar user"} />
                     {/*<AvatarFallback className="rounded-full">CN</AvatarFallback>*/}
                   </Avatar>
               </div>
               <div className="grid flex-1 text-left text-sm leading-tight group-data-[collapsible=icon]:hidden">
-                <span className="truncate font-semibold">{user.name}</span>
+                <span className="truncate font-semibold">{user.given_name}</span>
                 <span className="truncate text-xs">{user.email}</span>
               </div>
               <ChevronsUpDown className="group-data-[collapsible=icon]:hidden ml-auto mt-0.5" />
@@ -89,11 +84,11 @@ export function NavUser({
             <DropdownMenuLabel className="p-0 font-normal">
               <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
                 <Avatar className="h-8 w-8 rounded-lg">
-                  <AvatarImage src={user.avatar} alt={user.name} />
+                  <AvatarImage src={"https://ui.shadcn.com/avatars/02.png"} alt={"Avatar user"} />
                   <AvatarFallback className="rounded-lg">CN</AvatarFallback>
                 </Avatar>
                 <div className="grid flex-1 text-left text-sm leading-tight">
-                  <span className="truncate font-semibold">{user.name}</span>
+                  <span className="truncate font-semibold">{user.given_name}</span>
                   <span className="truncate text-xs">{user.email}</span>
                 </div>
               </div>
