@@ -1,6 +1,6 @@
 "use client"
 
-import { ChartNoAxesCombined, CreditCard, Grid3x3, Newspaper, PackageSearch, PanelsTopLeft, UsersRound } from "lucide-react";
+import { ChartNoAxesCombined, CreditCard, Grid3x3, PackageSearch, PanelsTopLeft, UsersRound } from "lucide-react";
 import { NavMain } from "@/components/ui/sidebar/nav-main";
 import { NavUser } from "@/components/ui/sidebar/nav-user";
 import {
@@ -62,11 +62,6 @@ const data = {
       title: "Orders",
       url: "/dashboard/sales/orders",
       icon: CreditCard,
-    },
-    {
-      title: "Invoices",
-      url: "/dashboard/sales/invoices",
-      icon: Newspaper,
     }
   ],
 };

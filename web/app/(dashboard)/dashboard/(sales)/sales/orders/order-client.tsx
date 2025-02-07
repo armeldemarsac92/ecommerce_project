@@ -13,13 +13,9 @@ import {useOrders} from "@/hooks/swr/orders/use-orders";
 import {useCustomers} from "@/hooks/swr/customers/use-customers";
 import {Button} from "@/components/shadcn/button";
 import {ChevronLeft, ChevronRight} from "lucide-react";
+import {getInvoiceById} from "@/actions/invoice";
 
-type PaymentStatus = 'processing' | 'pending' | 'succeeded' | 'failed' | 'canceled';
-
-type PaymentStatusColors = {
-    [payment in PaymentStatus]: string;
-};
-
+type PaymentStatus = 'draft' | 'paid' | 'unpaid';
 
 export const OrdersClient= () => {
     const [filterValue, setFilterValue] = useState("");
@@ -28,6 +24,11 @@ export const OrdersClient= () => {
     const { toast } = useToast();
     const { orders, loadingSWROrders, errorSWROrders } = useOrders();
     const { customers, loadingSWRCustomers, errorSWRCustomers } = useCustomers();
+    const paymentStatusColors = {
+        draft: 'default',
+        paid: 'success',
+        unpaid: 'danger',
+    } as const;
 
     const avatarUrls = [
         "https://ui.shadcn.com/avatars/02.png",
@@ -39,17 +40,9 @@ export const OrdersClient= () => {
         if (errorSWRCustomers || errorSWROrders) {
             toast({ variant: "destructive", title: "Error", description: "An error occurred"})
         }
-    }, [customers, orders]);
+    }, [errorSWRCustomers, errorSWROrders]);
 
     const hasSearchFilter = Boolean(filterValue);
-
-    const paymentStatusColors = {
-        processing: 'warning',
-        pending: 'default',
-        succeeded: 'success',
-        failed: 'danger',
-        canceled: 'default'
-    } as const;
 
     const getAvatarByUsername = (username: string) => {
         const sum = username.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
@@ -60,7 +53,7 @@ export const OrdersClient= () => {
 
     const filteredItems = useMemo(() => {
         let filteredOrders = [...orders].map(order => {
-            const matchingCustomer = customers.find(customer => customer.id === order.userId)
+            const matchingCustomer = customers.find(customer => customer.id === order.user_id)
 
             return {
                 ...order,
@@ -115,6 +108,16 @@ export const OrdersClient= () => {
         setPage(1);
     }, []);
 
+    const downloadInvoice = (orderId: number) => {
+        getInvoiceById(orderId).then((response) => {
+            window.open(response.data, '_blank');
+            toast({ variant: "success", title: "Success", description: "Invoice downloaded"})
+        })
+        .catch(() => {
+            toast({ variant: "destructive", title: "Error", description: "An error occurred"})
+        })
+    }
+
     return (
         <>
             {loadingSWROrders || loadingSWRCustomers ? (
@@ -130,12 +133,12 @@ export const OrdersClient= () => {
                 <Accordion className="w-full border rounded-md p-1 px-4">
                     {paginatedItems.map((order) => (
                         <AccordionItem
-                            key={order.id}
-                            textValue={`order-${order.id}`}
+                            key={order.order_id}
+                            textValue={`order-${order.order_id}`}
                             title={
                                 <div className={"grid grid-cols-6 w-full text-sm"}>
-                                    <span>Order #{order.id}</span>
-                                    <span>{order.createdAt ? new Date(order.createdAt).toISOString().split('T')[0] : "-"}</span>
+                                    <span>Order #{order.order_id}</span>
+                                    <span>{order.created_at ? new Date(order.created_at).toISOString().split('T')[0] : "-"}</span>
                                     <div className="flex space-x-14">
                                         <Link href={"/dashboard"} size={"sm"} className={"w-fit group flex items-center gap-x-2"}>
                                             <Avatar className="w-8 h-8 rounded-lg object-contain" asChild>
@@ -148,18 +151,28 @@ export const OrdersClient= () => {
                                         </Link>
                                         <span className="flex justify-end items-center">
                                             <Chip size="sm"
-                                                  color={paymentStatusColors[order.paymentStatus as PaymentStatus] || 'default'}
+                                                  color={paymentStatusColors[order.stripe_payment_status as PaymentStatus] || 'default'}
                                                   className="text-xs"
                                                   variant="flat"
                                             >
-                                                {order.paymentStatus.toUpperCase()}
+                                            {order.stripe_payment_status!= null ? order.stripe_payment_status.toUpperCase() : 'DRAFT'}
                                             </Chip>
                                         </span>
-                                        <span className="flex items-center">{order.totalAmount.toFixed(2)}€</span>
+                                        <span className="flex items-center">{order.total_amount.toFixed(2)}€</span>
                                     </div>
                                 </div>
                             }
                         >
+                            <div className="flex items-end float-end">
+                                <Button
+                                    className="rounded-full bg-secondary text-white m-2"
+                                    disabled={order.stripe_payment_status !== 'paid'}
+                                    onClick={() => downloadInvoice(order.order_id)}
+                                    size="sm"
+                                >
+                                    Download invoice
+                                </Button>
+                            </div>
                             <Table>
                                 <TableHeader>
                                     <TableRow>
@@ -170,13 +183,13 @@ export const OrdersClient= () => {
                                     </TableRow>
                                 </TableHeader>
                                 <TableBody>
-                                    {order.orderItems.map((product) => (
-                                        <TableRow key={product.productId}>
+                                    {order.order_items.map((product) => (
+                                        <TableRow key={product.product_id}>
                                             <TableCell>{product.title}</TableCell>
                                             <TableCell>{product.quantity ? (product.quantity) : "-"}</TableCell>
-                                            <TableCell>{product.unitPrice ? product.unitPrice + "€" : "-"}</TableCell>
+                                            <TableCell>{product.unit_price ? product.unit_price + "€" : "-"}</TableCell>
                                             <TableCell className="text-right">
-                                                {(product.quantity * product.unitPrice).toFixed(2)}€
+                                                {(product.quantity * product.unit_price).toFixed(2)}€
                                             </TableCell>
                                         </TableRow>
                                     ))}
@@ -187,7 +200,7 @@ export const OrdersClient= () => {
                                         >
                                             Order total
                                         </TableCell>
-                                        <TableCell className="text-right font-bold">{order.totalAmount.toFixed(2)}€</TableCell>
+                                        <TableCell className="text-right font-bold">{order.total_amount.toFixed(2)}€</TableCell>
                                     </TableRow>
                                 </TableBody>
                             </Table>
@@ -214,7 +227,7 @@ export const OrdersClient= () => {
                         <Button
                             variant={"expandIcon"}
                             iconPlacement={"left"}
-                            Icon={ChevronLeft}
+                            Icon={<ChevronLeft size={15}/>}
                             disabled={page === 1}
                             size="sm"
                             onClick={onPreviousPage}
@@ -224,7 +237,7 @@ export const OrdersClient= () => {
                         <Button
                             variant={"expandIcon"}
                             iconPlacement={"right"}
-                            Icon={ChevronRight}
+                            Icon={<ChevronRight size={15}/>}
                             disabled={page === pages}
                             size="sm"
                             onClick={onNextPage}
