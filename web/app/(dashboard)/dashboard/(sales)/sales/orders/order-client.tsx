@@ -13,8 +13,9 @@ import {useOrders} from "@/hooks/swr/orders/use-orders";
 import {useCustomers} from "@/hooks/swr/customers/use-customers";
 import {Button} from "@/components/shadcn/button";
 import {ChevronLeft, ChevronRight} from "lucide-react";
+import {getInvoiceById} from "@/actions/invoice";
 
-type PaymentStatus = 'processing' | 'pending' | 'succeeded' | 'failed' | 'canceled';
+type PaymentStatus = 'draft' | 'paid' | 'unpaid';
 
 export const OrdersClient= () => {
     const [filterValue, setFilterValue] = useState("");
@@ -24,11 +25,9 @@ export const OrdersClient= () => {
     const { orders, loadingSWROrders, errorSWROrders } = useOrders();
     const { customers, loadingSWRCustomers, errorSWRCustomers } = useCustomers();
     const paymentStatusColors = {
-        processing: 'warning',
-        pending: 'default',
-        succeeded: 'success',
-        failed: 'danger',
-        canceled: 'default'
+        draft: 'default',
+        paid: 'success',
+        unpaid: 'danger',
     } as const;
 
     const avatarUrls = [
@@ -109,6 +108,16 @@ export const OrdersClient= () => {
         setPage(1);
     }, []);
 
+    const downloadInvoice = (orderId: number) => {
+        getInvoiceById(orderId).then((response) => {
+            window.open(response.data, '_blank');
+            toast({ variant: "success", title: "Success", description: "Invoice downloaded"})
+        })
+        .catch(() => {
+            toast({ variant: "destructive", title: "Error", description: "An error occurred"})
+        })
+    }
+
     return (
         <>
             {loadingSWROrders || loadingSWRCustomers ? (
@@ -154,6 +163,16 @@ export const OrdersClient= () => {
                                 </div>
                             }
                         >
+                            <div className="flex items-end float-end">
+                                <Button
+                                    className="rounded-full bg-secondary text-white m-2"
+                                    disabled={order.stripe_payment_status !== 'paid'}
+                                    onClick={() => downloadInvoice(order.order_id)}
+                                    size="sm"
+                                >
+                                    Download invoice
+                                </Button>
+                            </div>
                             <Table>
                                 <TableHeader>
                                     <TableRow>
