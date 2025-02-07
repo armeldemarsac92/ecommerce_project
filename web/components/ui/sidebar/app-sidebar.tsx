@@ -12,14 +12,16 @@ import {
 } from "@/components/shadcn/sidebar";
 import { Logo } from "@/components/icons";
 import { Link } from "@nextui-org/link";
+import {useAppContext} from "@/contexts/app-context";
+import {Spinner} from "@nextui-org/react";
 
 // This is sample data.
 const data = {
-  user: {
+  /*user: {
     name: "Jesko",
     email: "developer@miammiam.com",
     avatar: "https://ui.shadcn.com/avatars/02.png",
-  },
+  },*/
 
   dashboard_nav: [
     {
@@ -70,6 +72,8 @@ const data = {
 };
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+  const { authenticated_user, isAuthenticated } = useAppContext();
+
   return (
     <Sidebar collapsible="icon" {...props}>
       <SidebarHeader className={"flex-row items-center gap-x-3"} data-cy="navbar-header">
@@ -90,7 +94,11 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       </SidebarContent>
 
       <SidebarFooter data-cy="navbar-footer">
-        <NavUser user={data.user} />
+        {authenticated_user ? (
+            <NavUser user={authenticated_user} />
+        ): (
+            <Spinner size={"sm"}/>
+        )}
       </SidebarFooter>
       <SidebarRail />
     </Sidebar>

@@ -3,7 +3,7 @@
 
 import { useState, useEffect } from "react";
 import Cookies from 'js-cookie';
-// import {jwtDecode} from 'jwt-decode';
+import {jwtDecode} from 'jwt-decode';
 import {AppContext, AuthenticatedUser, IAuthTokens} from "@/contexts/app-context";
 
 export function AppProvider({ children }: { children: React.ReactNode }) {
@@ -13,12 +13,16 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     const storeTokens = (tokens: IAuthTokens) => {
         Cookies.set('access_token', tokens.accessToken, {
             expires: tokens.expiresIn / (24 * 60 * 60),
-            secure: process.env.NODE_ENV === 'production',
+            path: '/',
+            httpOnly: false
+            /*secure: process.env.NODE_ENV === 'production',*/
         });
 
         Cookies.set('refresh_token', tokens.refreshToken, {
             expires: 7,
-            secure: process.env.NODE_ENV === 'production',
+            path: '/',
+            httpOnly: false
+            /*secure: process.env.NODE_ENV === 'production',*/
         });
 
         setIsLoading(true)
@@ -33,19 +37,34 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     const getAccessToken = () => Cookies.get('access_token') || null;
 
     useEffect(() => {
-        const token = Cookies.get('access_token');
-
-        if (token && !isLoading) {
+        const checkAuth = () => {
             try {
-                // const decoded = jwtDecode<AuthenticatedUser>(token);
-                //
-                // setAuthenticatedUser(decoded);
+                const token = Cookies.get('access_token');
+                console.log("Token from cookie:", token); // Pour debug
+
+                if (!token) {
+                    setIsLoading(false);
+                    return;
+                }
+
+                const decoded = jwtDecode<AuthenticatedUser>(token);
+                console.log("Decoded token:", decoded); // Pour debug
+
+                setAuthenticatedUser({
+                    email: decoded.email,
+                    email_verified: decoded.email_verified,
+                    family_name: decoded.family_name,
+                    given_name: decoded.given_name,
+                });
             } catch (error) {
-                console.error('Invalid token:', error);
+                console.error('Auth check failed:', error);
                 logout();
+            } finally {
+                setIsLoading(false);
             }
-        }
-        setIsLoading(false);
+        };
+
+        checkAuth();
     }, []);
 
     return (

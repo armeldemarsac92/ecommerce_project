@@ -3,9 +3,11 @@
 import { createContext, useContext } from "react";
 
 export type AuthenticatedUser = {
-  user_id: string;
   email: string;
-  role: string;
+  email_verified: boolean;
+  family_name: string;
+  given_name: string;
+  role?: string;
 }
 
 export interface IAuthTokens {
