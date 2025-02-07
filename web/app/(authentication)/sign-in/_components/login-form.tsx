@@ -45,7 +45,7 @@ export const LoginForm = () => {
     if(response.status === 200) {
       router.push("/sign-in/verify")
     }else {
-      toast({ variant: "destructive", title: "An error was occurred", description: "Bad credentials" })
+      toast({ variant: "destructive", title: "An error was occurred", description: "Bad OTP code" })
     }
   }
 

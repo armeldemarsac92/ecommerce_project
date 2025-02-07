@@ -7,13 +7,6 @@ import {useEffect} from "react";
 import {useAppContext} from "@/contexts/app-context";
 
 export function UsersNumberCard() {
-    const {authenticated_user, isAuthenticated} = useAppContext();
-
-    useEffect(() => {
-        console.log(authenticated_user)
-        console.log(isAuthenticated)
-    }, [authenticated_user, isAuthenticated]);
-
   return (
     <div className="flex flex-col justify-between aspect-video rounded-xl bg-white p-5">
       <div>

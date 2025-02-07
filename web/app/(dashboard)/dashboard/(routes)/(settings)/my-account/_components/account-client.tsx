@@ -6,14 +6,14 @@ import { useIsSSR } from "@react-aria/ssr";
 import { Spinner } from "@nextui-org/react";
 import { Button } from "@/components/shadcn/button";
 import { Pencil } from "lucide-react";
-import { ContactInformationAccountForm } from "@/app/(dashboard)/dashboard/(settings)/my-account/_components/contact-information-account-form";
+import { ContactInformationAccountForm } from "@/app/(dashboard)/dashboard/(routes)/(settings)/my-account/_components/contact-information-account-form";
 import { Separator } from "@/components/shadcn/separator";
 import {
   PersonalInformationAccountForm
-} from "@/app/(dashboard)/dashboard/(settings)/my-account/_components/personal-information-account-form";
+} from "@/app/(dashboard)/dashboard/(routes)/(settings)/my-account/_components/personal-information-account-form";
 import {
   RoleInformationAccountForm
-} from "@/app/(dashboard)/dashboard/(settings)/my-account/_components/role-information-account-form";
+} from "@/app/(dashboard)/dashboard/(routes)/(settings)/my-account/_components/role-information-account-form";
 
 export const AccountClient = () => {
   const isNotReady = useIsSSR();

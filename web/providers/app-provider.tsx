@@ -5,8 +5,15 @@ import { useState, useEffect } from "react";
 import Cookies from 'js-cookie';
 import {jwtDecode} from 'jwt-decode';
 import {AppContext, AuthenticatedUser, IAuthTokens} from "@/contexts/app-context";
+import {format} from "date-fns";
+import {fr} from "date-fns/locale";
+import {useRouter} from "next/navigation";
+import {useToast} from "@/hooks/use-toast";
 
 export function AppProvider({ children }: { children: React.ReactNode }) {
+    const router = useRouter();
+    const {toast} = useToast();
+
     const [authenticated_user, setAuthenticatedUser] = useState<AuthenticatedUser | null>(null);
     const [isLoading, setIsLoading] = useState(false);
 
@@ -32,6 +39,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         Cookies.remove('access_token');
         Cookies.remove('refresh_token');
         setAuthenticatedUser(null);
+        router.push("/sign-in")
     };
 
     const getAccessToken = () => Cookies.get('access_token') || null;
@@ -40,15 +48,15 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         const checkAuth = () => {
             try {
                 const token = Cookies.get('access_token');
-                console.log("Token from cookie:", token); // Pour debug
 
                 if (!token) {
                     setIsLoading(false);
+                    router.push("/sign-in")
+
                     return;
                 }
 
                 const decoded = jwtDecode<AuthenticatedUser>(token);
-                console.log("Decoded token:", decoded); // Pour debug
 
                 setAuthenticatedUser({
                     email: decoded.email,
@@ -56,6 +64,9 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
                     family_name: decoded.family_name,
                     given_name: decoded.given_name,
                 });
+
+                router.push("/dashboard")
+                toast({ variant: "success", title: "Logged successfully", description: format(new Date(), 'dd/MM/yyyy:HH:mm', { locale: fr })})
             } catch (error) {
                 console.error('Auth check failed:', error);
                 logout();
@@ -65,7 +76,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         };
 
         checkAuth();
-    }, []);
+    }, [isLoading]);
 
     return (
         <AppContext.Provider

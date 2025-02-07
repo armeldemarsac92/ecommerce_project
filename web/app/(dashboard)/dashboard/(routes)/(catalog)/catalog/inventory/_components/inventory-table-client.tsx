@@ -2,7 +2,7 @@
 
 import {Chip, Pagination, SortDescriptor, Spinner, Table, TableBody, TableCell, TableColumn, TableHeader, TableRow, useDisclosure} from "@nextui-org/react";
 import React, {useEffect, useMemo, useState, useCallback} from "react";
-import {columns} from "@/app/(dashboard)/dashboard/(catalog)/catalog/inventory/_data/data";
+import {columns} from "@/app/(dashboard)/dashboard/(routes)/(catalog)/catalog/inventory/_data/data";
 import {SearchBar} from "@/components/ui/search-bar";
 import {Button} from "@/components/shadcn/button";
 import {ChevronRight, Edit, Ellipsis, Trash} from "lucide-react";

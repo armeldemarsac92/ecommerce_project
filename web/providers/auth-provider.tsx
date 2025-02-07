@@ -1,11 +1,16 @@
 'use client';
 
-import {useState} from "react";
+import {useEffect, useState} from "react";
 import {AuthContext, IAuthData} from "@/contexts/auth-context";
+import {useAppContext} from "@/contexts/app-context";
+import {useRouter} from "next/navigation";
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
+    const router = useRouter();
+
     const [authData, setAuthData] = useState<IAuthData | undefined>(undefined);
     const [contextLoading, setContextLoading] = useState(false);
+    const {isAuthenticated} = useAppContext();
 
     const updateAuthData = (data: IAuthData) => {
         setAuthData(prevAuthData => ({ ...prevAuthData, ...data }));
@@ -15,16 +20,21 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setContextLoading(isLoading);
     }
 
-    return (
-        <AuthContext.Provider
-            value={{
-                authData,
-                contextLoading,
-                updateContextLoading,
-                updateAuthData
-            }}
-        >
-            {children}
-        </AuthContext.Provider>
-    );
+
+    if(isAuthenticated) {
+        router.replace("/dashboard")
+    }else {
+        return (
+            <AuthContext.Provider
+                value={{
+                    authData,
+                    contextLoading,
+                    updateContextLoading,
+                    updateAuthData
+                }}
+            >
+                {children}
+            </AuthContext.Provider>
+        );
+    }
 }

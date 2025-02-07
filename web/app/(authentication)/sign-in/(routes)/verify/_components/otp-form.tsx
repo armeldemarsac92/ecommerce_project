@@ -21,10 +21,6 @@ export const OTPForm = () => {
     const {authData, updateContextLoading, contextLoading} = useAuthContext();
     const {storeTokens} = useAppContext();
 
-    useEffect(() => {
-        console.log(authData?.current_email)
-    }, [authData]);
-
     const [otpCode, setOtpCode] = useState("")
 
     const handleSubmit = async () => {
@@ -41,8 +37,6 @@ export const OTPForm = () => {
 
                 if(response.status === 200) {
                     storeTokens(response.data)
-                    toast({ variant: "success", title: "Logged successfully", description: format(new Date(), 'dd/MM/yyyy:HH:mm', { locale: fr })})
-                    router.push("/dashboard")
                 }else {
                     toast({ variant: "destructive", title: "An error was occurred", description: "Bad credentials" })
                 }
@@ -51,8 +45,8 @@ export const OTPForm = () => {
     }
 
     return (
-        <>
-            <div className="grid gap-2">
+        <section className={"flex flex-col gap-y-6"}>
+            <div className="relative w-[40dvh] flex flex-col justify-center items-center gap-y-4">
                 <InputOTP
                     value={otpCode}
                     onChange={(value) => setOtpCode(value)}
@@ -67,12 +61,18 @@ export const OTPForm = () => {
                         <InputOTPSlot index={5}/>
                     </InputOTPGroup>
                 </InputOTP>
+
+                <Button onClick={handleSubmit} disabled={otpCode.length < 6 || contextLoading} variant={"expandIcon"}
+                        iconPlacement={"right"} Icon={<Check size={15}/>} type="submit" className="w-11/12">
+                    {contextLoading ? <Spinner color={"success"} size={"sm"}/> : "Verify"}
+                </Button>
             </div>
 
 
-            <Button onClick={handleSubmit}  disabled={otpCode.length < 6 || contextLoading} variant={"expandIcon"} iconPlacement={"right"} Icon={<Check size={15}/>} type="submit" className="w-full">
-                {contextLoading ? <Spinner color={"success"} size={"sm"}/> : "Verify"}
-            </Button>
-        </>
+            <div className={"flex flex-col justify-center items-center"}>
+                <p className={"text-center text-sm text-muted-foreground"}>An email has been sent at <span className={"text-black font-medium"}>{authData?.current_email}</span></p>
+                <Button className={"text-secondary"} variant={"link"} value={"Click here to resend"}>Click here to resend</Button>
+            </div>
+        </section>
     )
 }
