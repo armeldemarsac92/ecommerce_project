@@ -1,4 +1,6 @@
-import {CustomersUsersClient} from "@/app/(dashboard)/dashboard/(customers)/customers/users/customer-client";
+import {
+    CustomersUsersClient
+} from "@/app/(dashboard)/dashboard/(routes)/(customers)/customers/users/_components/customer-client";
 
 export default function CustomerUserPage() {
     return (

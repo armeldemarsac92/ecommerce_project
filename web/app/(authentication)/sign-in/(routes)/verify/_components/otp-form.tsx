@@ -37,6 +37,8 @@ export const OTPForm = () => {
 
                 if(response.status === 200) {
                     storeTokens(response.data)
+                    router.push("/dashboard")
+                    toast({ variant: "success", title: "Logged successfully", description: format(new Date(), 'dd/MM/yyyy:HH:mm', { locale: fr })})
                 }else {
                     toast({ variant: "destructive", title: "An error was occurred", description: "Bad credentials" })
                 }

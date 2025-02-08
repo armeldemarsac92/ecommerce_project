@@ -11,6 +11,7 @@ import {Toaster} from "@/components/shadcn/toaster";
 import {Suspense} from "react";
 import Loading from "@/app/loading";
 import {AppProvider} from "@/providers/app-provider";
+import {AuthGuard} from "@/components/auth-guard";
 
 export const metadata: Metadata = {
   title: {
@@ -46,10 +47,9 @@ export default function RootLayout({
       >
         <Providers themeProps={{ attribute: "class", defaultTheme: "dark" }}>
           <AppProvider>
-            <Suspense fallback={<Loading/>}>
+            <AuthGuard>
               {children}
-            </Suspense>
-
+            </AuthGuard>
             <Toaster />
           </AppProvider>
         </Providers>

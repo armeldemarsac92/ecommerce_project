@@ -29,33 +29,14 @@ import {
 } from "@/components/shadcn/sidebar"
 import * as React from "react";
 import { useRouter } from "next/navigation";
-import axios from "axios";
 import {AuthenticatedUser, useAppContext} from "@/contexts/app-context";
+import {useEffect} from "react";
 
-export function NavUser({
-  user,
-}: {
-  user: AuthenticatedUser
-}) {
+export function NavUser({ user }: { user: AuthenticatedUser }) {
   const { isMobile } = useSidebar();
-  const { logout} = useAppContext();
+  const { logout } = useAppContext();
 
   const router = useRouter();
-
-  /*const sendEmail = async () => {
-    const res = await axios.post("/api/resend/send-email", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
-
-    if (res.status === 200) {
-      alert("Email sent successfully");
-    } else {
-      alert("Error sending email");
-    }
-  };*/
 
   return (
     <SidebarMenu>
@@ -93,13 +74,6 @@ export function NavUser({
                   </div>
                 </div>
               </DropdownMenuLabel>
-              <DropdownMenuSeparator />
-              <DropdownMenuGroup>
-                <DropdownMenuItem className={"hover:cursor-pointer"}>
-                  <Sparkles />
-                  Upgrade to Pro
-                </DropdownMenuItem>
-              </DropdownMenuGroup>
               <DropdownMenuSeparator />
               <DropdownMenuGroup>
                 <DropdownMenuItem className={"hover:cursor-pointer"} onClick={() => {router.push("/dashboard/my-account")}}>

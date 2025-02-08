@@ -1,72 +1,54 @@
-// providers/AppProvider.tsx
 'use client';
 
 import { useState, useEffect } from "react";
 import Cookies from 'js-cookie';
-import {jwtDecode} from 'jwt-decode';
-import {AppContext, AuthenticatedUser, IAuthTokens} from "@/contexts/app-context";
-import {format} from "date-fns";
-import {fr} from "date-fns/locale";
-import {useRouter} from "next/navigation";
-import {useToast} from "@/hooks/use-toast";
+import { jwtDecode } from 'jwt-decode';
+import { AppContext, AuthenticatedUser, IAuthTokens } from "@/contexts/app-context";
+import { useRouter } from "next/navigation";
 
 export function AppProvider({ children }: { children: React.ReactNode }) {
     const router = useRouter();
-    const {toast} = useToast();
 
     const [authenticated_user, setAuthenticatedUser] = useState<AuthenticatedUser | null>(null);
-    const [isLoading, setIsLoading] = useState(false);
+    const [isLoading, setIsLoading] = useState(true);
+    const [isMounted, setIsMounted] = useState(false);
 
-    const storeTokens = (tokens: IAuthTokens) => {
-        Cookies.set('access_token', tokens.accessToken, {
-            expires: tokens.expiresIn / (24 * 60 * 60),
-            path: '/',
-            httpOnly: false
-            /*secure: process.env.NODE_ENV === 'production',*/
-        });
-
-        Cookies.set('refresh_token', tokens.refreshToken, {
-            expires: 7,
-            path: '/',
-            httpOnly: false
-            /*secure: process.env.NODE_ENV === 'production',*/
-        });
-
-        setIsLoading(true)
-    };
-
-    const logout = () => {
-        Cookies.remove('access_token');
-        Cookies.remove('refresh_token');
-        setAuthenticatedUser(null);
-        router.push("/sign-in")
-    };
-
-    const getAccessToken = () => Cookies.get('access_token') || null;
+    // Gérer la redirection dans un useEffect séparé
+    useEffect(() => {
+        if (!isLoading && !authenticated_user) {
+            router.push("/sign-in");
+        }
+    }, [isLoading, authenticated_user]);
 
     useEffect(() => {
+        setIsMounted(true);
+
+        const cachedUser = sessionStorage.getItem('authenticated_user');
+        if (cachedUser) {
+            setAuthenticatedUser(JSON.parse(cachedUser));
+            setIsLoading(false);
+            return;
+        }
+
         const checkAuth = () => {
             try {
                 const token = Cookies.get('access_token');
 
                 if (!token) {
                     setIsLoading(false);
-                    router.push("/sign-in")
-
-                    return;
+                    return; // Enlever le router.push d'ici
                 }
 
                 const decoded = jwtDecode<AuthenticatedUser>(token);
-
-                setAuthenticatedUser({
+                const userData = {
                     email: decoded.email,
                     email_verified: decoded.email_verified,
                     family_name: decoded.family_name,
                     given_name: decoded.given_name,
-                });
+                };
 
-                router.push("/dashboard")
-                toast({ variant: "success", title: "Logged successfully", description: format(new Date(), 'dd/MM/yyyy:HH:mm', { locale: fr })})
+                sessionStorage.setItem('authenticated_user', JSON.stringify(userData));
+                setAuthenticatedUser(userData);
             } catch (error) {
                 console.error('Auth check failed:', error);
                 logout();
@@ -76,7 +58,56 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         };
 
         checkAuth();
-    }, [isLoading]);
+    }, []);
+
+    const storeTokens = (tokens: IAuthTokens) => {
+        Cookies.set('access_token', tokens.accessToken, {
+            expires: tokens.expiresIn / (24 * 60 * 60),
+            path: '/',
+            httpOnly: false
+        });
+
+        Cookies.set('refresh_token', tokens.refreshToken, {
+            expires: 7,
+            path: '/',
+            httpOnly: false
+        });
+
+        try {
+            const decoded = jwtDecode<AuthenticatedUser>(tokens.accessToken);
+            const userData = {
+                email: decoded.email,
+                email_verified: decoded.email_verified,
+                family_name: decoded.family_name,
+                given_name: decoded.given_name,
+            };
+
+            sessionStorage.setItem('authenticated_user', JSON.stringify(userData));
+            setAuthenticatedUser(userData);
+            setIsLoading(false);
+            router.push("/dashboard"); // Redirection après l'authentification
+        } catch (error) {
+            console.error('Token decode failed:', error);
+            logout();
+        }
+    };
+
+    const logout = () => {
+        Cookies.remove('access_token');
+        Cookies.remove('refresh_token');
+        if (typeof window !== 'undefined') {
+            sessionStorage.removeItem('authenticated_user');
+        }
+        setAuthenticatedUser(null);
+        setIsLoading(false);
+        router.push("/sign-in");
+    };
+
+    const getAccessToken = () => Cookies.get('access_token') || null;
+
+    if (!isMounted) {
+        return null;
+    }
 
     return (
         <AppContext.Provider

@@ -16,14 +16,7 @@ import {useAppContext} from "@/contexts/app-context";
 import {Spinner} from "@nextui-org/react";
 import {useEffect, useState} from "react";
 
-// This is sample data.
 const data = {
-  /*user: {
-    name: "Jesko",
-    email: "developer@miammiam.com",
-    avatar: "https://ui.shadcn.com/avatars/02.png",
-  },*/
-
   dashboard_nav: [
     {
       title: "Overview",
@@ -69,15 +62,6 @@ const data = {
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const { authenticated_user, isAuthenticated } = useAppContext();
-  const [isLoading, setIsLoading] = useState(true)
-
-  useEffect(() => {
-    console.log("Is loading:", isLoading)
-    if(authenticated_user) {
-      console.log("Enter Is loading:", isLoading)
-      setIsLoading(false)
-    }
-  }, [authenticated_user]);
 
   return (
     <Sidebar collapsible="icon" {...props}>
@@ -99,10 +83,10 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       </SidebarContent>
 
       <SidebarFooter data-cy="navbar-footer">
-        {!isLoading && authenticated_user ? (
+        {authenticated_user ? (
             <NavUser user={authenticated_user} />
         ): (
-            <Spinner size={"sm"}/>
+            <Spinner className={"my-3"} size={"sm"}/>
         )}
       </SidebarFooter>
       <SidebarRail />
