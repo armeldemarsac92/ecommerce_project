@@ -1,0 +1,62 @@
+[
+  {
+    "id": "7bf6485c-50d7-4dc8-8ec0-bc8c52e69b97",
+    "user_name": "reverssecole@gmail.com",
+    "email": "reverssecole@gmail.com",
+    "email_confirmed": true,
+    "phone_number": null,
+    "stripe_id": "cus_RhlWjl7AUz7B06",
+    "role": "User",
+    "locakout_enabled": "True"
+  },
+  {
+    "id": "725e0f58-6c8b-4395-a1ed-d387879e9291",
+    "user_name": "dumesniljonathan199@gmail.com",
+    "email": "dumesniljonathan199@gmail.com",
+    "email_confirmed": false,
+    "phone_number": null,
+    "stripe_id": "cus_Rjhu5smRj5WtZS",
+    "role": "User",
+    "locakout_enabled": "True"
+  },
+  {
+    "id": "dd84816d-1bd7-40e5-98ab-116b1e1faddc",
+    "user_name": "armeldemarsac@gmail.com",
+    "email": "armeldemarsac@gmail.com",
+    "email_confirmed": true,
+    "phone_number": null,
+    "stripe_id": "cus_RhRLOM6BP3KSo6",
+    "role": "Admin",
+    "locakout_enabled": "True"
+  },
+  {
+    "id": "07bb50c8-83fe-45dc-9c2f-b5ad3bd2bcaa",
+    "user_name": "k46m2pnjn@mozmail.com",
+    "email": "k46m2pnjn@mozmail.com",
+    "email_confirmed": true,
+    "phone_number": null,
+    "stripe_id": null,
+    "role": "Admin",
+    "locakout_enabled": "True"
+  },
+  {
+    "id": "e4c9df8e-cbea-4981-9baa-2b0b365cb562",
+    "user_name": "dumesnil_jonathan@outlook.fr",
+    "email": "dumesnil_jonathan@outlook.fr",
+    "email_confirmed": true,
+    "phone_number": null,
+    "stripe_id": null,
+    "role": "Admin",
+    "locakout_enabled": "True"
+  },
+  {
+    "id": "a9d993a6-bbc0-4c5e-9046-a102da283c9a",
+    "user_name": "gaeltbch.pro@gmail.com",
+    "email": "gaeltbch.pro@gmail.com",
+    "email_confirmed": true,
+    "phone_number": null,
+    "stripe_id": "cus_RiD4etjwY7FCOM",
+    "role": "User",
+    "locakout_enabled": "True"
+  }
+]

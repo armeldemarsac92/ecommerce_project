@@ -10,7 +10,7 @@ import {useToast} from "@/hooks/use-toast";
 import {useCustomers} from "@/hooks/swr/customers/use-customers";
 import {SearchBar} from "@/components/ui/search-bar";
 import {Button} from "@/components/shadcn/button";
-import{columns} from "@/app/(dashboard)/dashboard/(customers)/customers/users/_data/data";
+import{columns} from "@/app/(dashboard)/dashboard/(routes)/(customers)/customers/users/_data/data";
 
 export const CustomersUsersClient = () => {
     const [filterValue, setFilterValue] = useState("");

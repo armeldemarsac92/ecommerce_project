@@ -1,0 +1,219 @@
+[
+  {
+    "order_id": 3,
+    "user_id": "e4c9df8e-cbea-4981-9baa-2b0b365cb562",
+    "stripe_payment_status": null,
+    "stripe_session_status": null,
+    "total_amount": 2,
+    "stripe_invoice_id": "",
+    "stripe_payment_intent_id": null,
+    "created_at": "2025-02-03T09:57:51.277555Z",
+    "order_items": []
+  },
+  {
+    "order_id": 11,
+    "user_id": "e4c9df8e-cbea-4981-9baa-2b0b365cb562",
+    "stripe_payment_status": null,
+    "stripe_session_status": null,
+    "total_amount": 2,
+    "stripe_invoice_id": "",
+    "stripe_payment_intent_id": "pi_3Qp7XRLx56XjlpN61javUzd2",
+    "created_at": "2025-02-03T11:37:45.489937Z",
+    "order_items": [
+      {
+        "product_id": 81,
+        "title": "bonsoir de fou",
+        "description": "test",
+        "picture": "https://images.openfoodfacts.org/images/products/000/000/000/0001/front_en.193.400.jpg",
+        "quantity": 1,
+        "unit_price": 2,
+        "subtotal": 2,
+        "brand": "Lipton",
+        "category": "test cat15"
+      }
+    ]
+  },
+  {
+    "order_id": 8,
+    "user_id": "e4c9df8e-cbea-4981-9baa-2b0b365cb562",
+    "stripe_payment_status": null,
+    "stripe_session_status": null,
+    "total_amount": 2,
+    "stripe_invoice_id": "",
+    "stripe_payment_intent_id": null,
+    "created_at": "2025-02-03T11:29:06.052702Z",
+    "order_items": [
+      {
+        "product_id": 81,
+        "title": "bonsoir de fou",
+        "description": "test",
+        "picture": "https://images.openfoodfacts.org/images/products/000/000/000/0001/front_en.193.400.jpg",
+        "quantity": 1,
+        "unit_price": 2,
+        "subtotal": 2,
+        "brand": "Lipton",
+        "category": "test cat15"
+      }
+    ]
+  },
+  {
+    "order_id": 10,
+    "user_id": "e4c9df8e-cbea-4981-9baa-2b0b365cb562",
+    "stripe_payment_status": null,
+    "stripe_session_status": "open",
+    "total_amount": 2,
+    "stripe_invoice_id": "",
+    "stripe_payment_intent_id": "cs_test_a12FsEI533fuVYLm3e2q5ma7lWVVwldyuHjuqEj7jahAcNhiOMhiAjbNAs",
+    "created_at": "2025-02-03T11:36:51.535313Z",
+    "order_items": [
+      {
+        "product_id": 81,
+        "title": "bonsoir de fou",
+        "description": "test",
+        "picture": "https://images.openfoodfacts.org/images/products/000/000/000/0001/front_en.193.400.jpg",
+        "quantity": 1,
+        "unit_price": 2,
+        "subtotal": 2,
+        "brand": "Lipton",
+        "category": "test cat15"
+      }
+    ]
+  },
+  {
+    "order_id": 9,
+    "user_id": "e4c9df8e-cbea-4981-9baa-2b0b365cb562",
+    "stripe_payment_status": null,
+    "stripe_session_status": null,
+    "total_amount": 2,
+    "stripe_invoice_id": "",
+    "stripe_payment_intent_id": "pi_3Qp7fzLx56XjlpN61YfqUMlh",
+    "created_at": "2025-02-03T11:35:52.91086Z",
+    "order_items": [
+      {
+        "product_id": 81,
+        "title": "bonsoir de fou",
+        "description": "test",
+        "picture": "https://images.openfoodfacts.org/images/products/000/000/000/0001/front_en.193.400.jpg",
+        "quantity": 1,
+        "unit_price": 2,
+        "subtotal": 2,
+        "brand": "Lipton",
+        "category": "test cat15"
+      }
+    ]
+  },
+  {
+    "order_id": 7,
+    "user_id": "a9d993a6-bbc0-4c5e-9046-a102da283c9a",
+    "stripe_payment_status": null,
+    "stripe_session_status": null,
+    "total_amount": 2,
+    "stripe_invoice_id": "in_1Qp8q5Lx56XjlpN6a6xpWNhU",
+    "stripe_payment_intent_id": "pi_3Qp8omLx56XjlpN61a0BbVNp",
+    "created_at": "2025-02-03T11:27:53.59283Z",
+    "order_items": [
+      {
+        "product_id": 81,
+        "title": "bonsoir de fou",
+        "description": "test",
+        "picture": "https://images.openfoodfacts.org/images/products/000/000/000/0001/front_en.193.400.jpg",
+        "quantity": 1,
+        "unit_price": 2,
+        "subtotal": 2,
+        "brand": "Lipton",
+        "category": "test cat15"
+      }
+    ]
+  },
+  {
+    "order_id": 1,
+    "user_id": "e4c9df8e-cbea-4981-9baa-2b0b365cb562",
+    "stripe_payment_status": null,
+    "stripe_session_status": null,
+    "total_amount": 2,
+    "stripe_invoice_id": "",
+    "stripe_payment_intent_id": null,
+    "created_at": "2025-02-03T09:43:51.877161Z",
+    "order_items": []
+  },
+  {
+    "order_id": 5,
+    "user_id": "e4c9df8e-cbea-4981-9baa-2b0b365cb562",
+    "stripe_payment_status": "paid",
+    "stripe_session_status": "complete",
+    "total_amount": 2,
+    "stripe_invoice_id": "in_1QpFEoLx56XjlpN6GuGN3RJX",
+    "stripe_payment_intent_id": "cs_test_a1PqlbZ53H7lh2f0XlN6nWQrWcSbVM0HGHSsrokdel5RqQp1H4qVyFEdzM",
+    "created_at": "2025-02-03T10:06:34.026026Z",
+    "order_items": [
+      {
+        "product_id": 81,
+        "title": "bonsoir de fou",
+        "description": "test",
+        "picture": "https://images.openfoodfacts.org/images/products/000/000/000/0001/front_en.193.400.jpg",
+        "quantity": 1,
+        "unit_price": 2,
+        "subtotal": 2,
+        "brand": "Lipton",
+        "category": "test cat15"
+      }
+    ]
+  },
+  {
+    "order_id": 2,
+    "user_id": "e4c9df8e-cbea-4981-9baa-2b0b365cb562",
+    "stripe_payment_status": null,
+    "stripe_session_status": null,
+    "total_amount": 2,
+    "stripe_invoice_id": "",
+    "stripe_payment_intent_id": null,
+    "created_at": "2025-02-03T09:56:17.739375Z",
+    "order_items": []
+  },
+  {
+    "order_id": 4,
+    "user_id": "e4c9df8e-cbea-4981-9baa-2b0b365cb562",
+    "stripe_payment_status": null,
+    "stripe_session_status": null,
+    "total_amount": 2,
+    "stripe_invoice_id": "",
+    "stripe_payment_intent_id": "pi_3Qp6YiLx56XjlpN60J2VfXRp",
+    "created_at": "2025-02-03T10:02:53.829675Z",
+    "order_items": [
+      {
+        "product_id": 81,
+        "title": "bonsoir de fou",
+        "description": "test",
+        "picture": "https://images.openfoodfacts.org/images/products/000/000/000/0001/front_en.193.400.jpg",
+        "quantity": 1,
+        "unit_price": 2,
+        "subtotal": 2,
+        "brand": "Lipton",
+        "category": "test cat15"
+      }
+    ]
+  },
+  {
+    "order_id": 6,
+    "user_id": "e4c9df8e-cbea-4981-9baa-2b0b365cb562",
+    "stripe_payment_status": null,
+    "stripe_session_status": null,
+    "total_amount": 2,
+    "stripe_invoice_id": "",
+    "stripe_payment_intent_id": "pi_3Qp7VcLx56XjlpN611EtYCXW",
+    "created_at": "2025-02-03T11:20:10.967601Z",
+    "order_items": [
+      {
+        "product_id": 81,
+        "title": "bonsoir de fou",
+        "description": "test",
+        "picture": "https://images.openfoodfacts.org/images/products/000/000/000/0001/front_en.193.400.jpg",
+        "quantity": 1,
+        "unit_price": 2,
+        "subtotal": 2,
+        "brand": "Lipton",
+        "category": "test cat15"
+      }
+    ]
+  }
+]

@@ -75,7 +75,10 @@ export const LoginForm = () => {
             />
           </div>
 
-          <Button onClick={() => {handleSimpleLoginWithEmail(email)}} variant={"expandIcon"} iconPlacement={"right"} Icon={<ArrowRight size={15} />} type="submit" className="w-full" disabled={contextLoading}>
+          <Button
+              data-cy="login-button"
+              onClick={() => {handleSimpleLoginWithEmail(email)}} variant={"expandIcon"} iconPlacement={"right"} Icon={<ArrowRight size={15} />} type="submit" className="w-full" disabled={contextLoading}
+          >
             {contextLoading ? <Spinner color={"success"} size={"sm"}/> : "Login"}
           </Button>
         </div>

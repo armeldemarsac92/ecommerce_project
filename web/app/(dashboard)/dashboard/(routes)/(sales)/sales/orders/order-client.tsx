@@ -119,7 +119,7 @@ export const OrdersClient= () => {
     }
 
     return (
-        <>
+        <div data-cy="order-table">
             {loadingSWROrders || loadingSWRCustomers ? (
                 <div className="h-full w-full flex justify-center">
                     <Spinner color="success" labelColor="success" />
@@ -136,7 +136,9 @@ export const OrdersClient= () => {
                             key={order.order_id}
                             textValue={`order-${order.order_id}`}
                             title={
-                                <div className={"grid grid-cols-6 w-full text-sm"}>
+                                <div
+                                    data-cy="order-item"
+                                    className={"grid grid-cols-6 w-full text-sm"}>
                                     <span>Order #{order.order_id}</span>
                                     <span>{order.created_at ? new Date(order.created_at).toISOString().split('T')[0] : "-"}</span>
                                     <div className="flex space-x-14">
@@ -165,6 +167,7 @@ export const OrdersClient= () => {
                         >
                             <div className="flex items-end float-end">
                                 <Button
+                                    data-cy="invoice-button"
                                     className="rounded-full bg-secondary text-white m-2"
                                     disabled={order.stripe_payment_status !== 'paid'}
                                     onClick={() => downloadInvoice(order.order_id)}
@@ -248,6 +251,6 @@ export const OrdersClient= () => {
                 </div>
             </div>
             )}
-        </>
+        </div>
     )
 }
