@@ -14,31 +14,26 @@ import {
 import {
   RoleInformationAccountForm
 } from "@/app/(dashboard)/dashboard/(routes)/(settings)/my-account/_components/role-information-account-form";
+import {useAppContext} from "@/contexts/app-context";
 
 export const AccountClient = () => {
+  const {authenticated_user} = useAppContext();
   const isNotReady = useIsSSR();
-
-  const user = {
-    name: "Jesko",
-    email: "developer@miammiam.com",
-    avatar: "https://ui.shadcn.com/avatars/02.png",
-    created_at: "05-11-2024",
-  }
 
   return (
     <div className="flex flex-1 flex-col gap-4 py-8 px-14 bg-[#F7F7F7]">
-      {!isNotReady ? (
+      {!isNotReady && authenticated_user ? (
         <div className={"flex flex-col gap-y-10"}>
           <div className={"w-full flex justify-between items-center"}>
             <div className={"flex items-center gap-x-5"}>
               <Avatar className="size-20" asChild>
-                <AvatarImage src={user.avatar} alt={user.name} />
+                <AvatarImage src={"https://ui.shadcn.com/avatars/02.png"} alt={"Avatar user"} />
               </Avatar>
 
               <div>
-                <h1 className={"text-xl font-bold"}>{user.name}</h1>
-                <p className={"text-muted-foreground text-sm"}>{user.email}</p>
-                <span className={"text-muted-foreground text-xs font-light"}>Created at <span className={"font-medium underline"}>{user.created_at}</span></span>
+                <h1 className={"text-xl font-bold"}>{`${authenticated_user.given_name} ${authenticated_user.family_name}`}</h1>
+                <p className={"text-muted-foreground text-sm"}>{authenticated_user.email}</p>
+                <span className={"text-muted-foreground text-xs font-light"}>Created at <span className={"font-medium"}>05/02/2025</span></span>
               </div>
             </div>
 
@@ -50,11 +45,11 @@ export const AccountClient = () => {
 
           <Separator orientation={"horizontal"}/>
 
-          <PersonalInformationAccountForm/>
+          <PersonalInformationAccountForm family_name={authenticated_user.family_name} given_name={authenticated_user.given_name}/>
 
           <Separator orientation={"horizontal"}/>
 
-          <ContactInformationAccountForm/>
+          <ContactInformationAccountForm email={authenticated_user.email}/>
 
           <Separator orientation={"horizontal"}/>
 

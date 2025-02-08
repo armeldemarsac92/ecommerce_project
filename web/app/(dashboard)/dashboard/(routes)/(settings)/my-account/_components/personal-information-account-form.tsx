@@ -1,7 +1,7 @@
 import { z } from "zod";
 import AutoForm from "@/components/ui/auto-form";
 
-export const PersonalInformationAccountForm = () => {
+export const PersonalInformationAccountForm = ({given_name, family_name}: { given_name: string, family_name: string }) => {
   const formSchema = z.object({
     first_name: z
       .string(),
@@ -25,7 +25,7 @@ export const PersonalInformationAccountForm = () => {
           first_name: {
             inputProps: {
               showLabel: false,
-              defaultValue: "John",
+              defaultValue: given_name,
               disabled: true,
             },
             renderParent: ({ children }) => (
@@ -40,7 +40,7 @@ export const PersonalInformationAccountForm = () => {
           last_name: {
             inputProps: {
               showLabel: false,
-              defaultValue: "Doe",
+              defaultValue: family_name,
               disabled: true,
             },
             renderParent: ({ children }) => (

@@ -1,7 +1,7 @@
 import { z } from "zod";
 import AutoForm from "@/components/ui/auto-form";
 
-export const ContactInformationAccountForm = () => {
+export const ContactInformationAccountForm = ({email}: { email: string }) => {
   const formSchema = z.object({
     email: z
       .string(),
@@ -25,7 +25,7 @@ export const ContactInformationAccountForm = () => {
           email: {
             inputProps: {
               showLabel: false,
-              defaultValue: "developer@miammiam.com",
+              defaultValue: email,
               disabled: true,
             },
             renderParent: ({ children }) => (
