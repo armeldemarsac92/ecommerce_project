@@ -3,6 +3,7 @@ const columns = [
     {name: "SKU", uid: "sku", sortable: true},
     {name: "PRICE", uid: "price", sortable: true},
     {name: "STOCK", uid: "stock", sortable: true},
+    {name: "QUANTITY", uid: "quantity", sortable: true},
     {name: "CATEGORY", uid: "category_title", sortable: true},
     {name: "ACTIONS", uid: "actions"},
 ];
