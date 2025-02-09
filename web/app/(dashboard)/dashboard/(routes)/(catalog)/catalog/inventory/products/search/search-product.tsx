@@ -54,12 +54,16 @@ export default function SearchProducts() {
         <div className="container mx-auto p-4 space-y-6 h-full">
             <div className="flex justify-between gap-3 items-end">
                 <Input
+                    data-cy="search-input"
                     placeholder="Search for a product..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     className="flex-1 max-w-[400px]"
                 />
-                <div className="flex gap-3">
+                <div
+                    data-cy="nutrition-grade-dropdown"
+                    className="flex gap-3"
+                >
                     <Select value={nutritionGrade} onValueChange={setNutritionGrade}>
                         <SelectTrigger className="w-[180px]">
                             <SelectValue placeholder="Nutrition grade" />
@@ -73,6 +77,7 @@ export default function SearchProducts() {
                         </SelectContent>
                     </Select>
                     <Button
+                        data-cy="search-button"
                         onClick={handleSearch}
                         disabled={loading}
                         className="w-32 bg-secondary text-white"
@@ -92,7 +97,10 @@ export default function SearchProducts() {
                         <p className="text-gray-500">No products found. Try searching for something.</p>
                     </div>
                 ) : (
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
+                    <div
+                        data-cy="product-card"
+                        className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4"
+                    >
                         {submitted && products.map((product) => (
                             <Card
                                 key={product.code}

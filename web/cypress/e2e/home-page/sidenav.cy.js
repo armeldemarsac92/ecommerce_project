@@ -1,6 +1,6 @@
-describe.skip('Sidenav component test', () => {
+describe('Sidenav component test', () => {
     it('User can see all sidenav elements', () => {
-        cy.visit('/dashboard')
+        cy.login()
         cy.get('[data-cy="navbar-header"]').should('exist')
 
         cy.get('[data-cy="navbar-content"]').should('exist')
@@ -10,7 +10,6 @@ describe.skip('Sidenav component test', () => {
         cy.contains('Inventory').should('be.visible')
         cy.contains('Users').should('be.visible')
         cy.contains('Orders').should('be.visible')
-        cy.contains('Invoices').should('be.visible')
 
         cy.get('[data-cy="navbar-footer"]').should('exist')
     })

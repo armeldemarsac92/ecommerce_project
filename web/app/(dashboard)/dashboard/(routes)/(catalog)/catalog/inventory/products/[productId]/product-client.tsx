@@ -165,7 +165,10 @@ export default function ProductClient({params}: {params: {productId: string}}) {
     }
 
     return (
-        <div className="h-full">
+        <div
+            data-cy="product-form"
+            className="h-full"
+        >
             { !loading ? (
                 <div className={`${isNewProduct ? "" : "grid m-5 grid-cols-1 lg:grid-cols-2"}`}>
                     {!isNewProduct && (
@@ -216,7 +219,10 @@ export default function ProductClient({params}: {params: {productId: string}}) {
                                             <FormItem>
                                                 <FormLabel>Title</FormLabel>
                                                 <FormControl>
-                                                    <Input placeholder="Enter product title" {...field} />
+                                                    <Input
+                                                        data-cy="title-input"
+                                                        placeholder="Enter product title" {...field}
+                                                    />
                                                 </FormControl>
                                                 <FormMessage />
                                             </FormItem>
@@ -231,6 +237,7 @@ export default function ProductClient({params}: {params: {productId: string}}) {
                                                 <FormLabel>Description</FormLabel>
                                                 <FormControl>
                                                     <Textarea
+                                                        data-cy="description-input"
                                                         placeholder="Enter product description"
                                                         className="min-h-[100px]"
                                                         {...field}
@@ -242,6 +249,7 @@ export default function ProductClient({params}: {params: {productId: string}}) {
                                     />
 
                                     <FormField
+                                        data-cy="price-input"
                                         control={form.control}
                                         name="price"
                                         render={({ field }) => (
@@ -249,6 +257,7 @@ export default function ProductClient({params}: {params: {productId: string}}) {
                                                 <FormLabel>Price</FormLabel>
                                                 <FormControl>
                                                     <Input
+                                                        data-cy="price-input"
                                                         type="number"
                                                         step="0.01"
                                                         placeholder="Enter price"
@@ -286,7 +295,7 @@ export default function ProductClient({params}: {params: {productId: string}}) {
                                                     value={field.value}
                                                 >
                                                     <FormControl>
-                                                        <SelectTrigger>
+                                                        <SelectTrigger data-cy="category-trigger">
                                                             <SelectValue placeholder="Select a category" />
                                                         </SelectTrigger>
                                                     </FormControl>
@@ -321,7 +330,7 @@ export default function ProductClient({params}: {params: {productId: string}}) {
                                                     value={field.value}
                                                 >
                                                     <FormControl>
-                                                        <SelectTrigger>
+                                                        <SelectTrigger data-cy="brand-trigger">
                                                             <SelectValue placeholder="Select a brand" />
                                                         </SelectTrigger>
                                                     </FormControl>
@@ -349,6 +358,7 @@ export default function ProductClient({params}: {params: {productId: string}}) {
                                                     <FormLabel>Quantity</FormLabel>
                                                     <FormControl>
                                                         <Input
+                                                            data-cy="quantity-input"
                                                             type="number"
                                                             placeholder="Entrez une quantité"
                                                             {...field}
@@ -380,6 +390,7 @@ export default function ProductClient({params}: {params: {productId: string}}) {
                                                     <Popover>
                                                         <PopoverTrigger asChild>
                                                             <Button
+                                                                data-cy="tags-select"
                                                                 variant="outline"
                                                                 role="combobox"
                                                                 className="w-full justify-between"
@@ -434,6 +445,7 @@ export default function ProductClient({params}: {params: {productId: string}}) {
 
                                     <div className="flex justify-center">
                                         <Button
+                                            data-cy="submit-button"
                                             type="submit"
                                             className="w-1/2 bg-secondary text-white"
                                         >
