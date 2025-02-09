@@ -7,6 +7,10 @@ export function middleware(request: NextRequest) {
     const accessToken = request.cookies.get('access_token')?.value;
     const refreshToken = request.cookies.get('refresh_token')?.value;
 
+    if (pathname === '/') {
+        return NextResponse.redirect(new URL('/dashboard', request.url));
+    }
+
     // Bloquer immédiatement toute requête vers des routes protégées sans tokens
     if (pathname.startsWith('/dashboard')) {
         if (!accessToken && !refreshToken) {
@@ -26,6 +30,7 @@ export function middleware(request: NextRequest) {
 // Être plus spécifique dans le matcher
 export const config = {
     matcher: [
+        '/',
         '/dashboard/:path*',
         '/sign-in/:path*',
     ]
