@@ -44,6 +44,21 @@ types/
 utils/           
 ```
 
+### Organisation des composants
+Nos composants sont organisés selon les principes suivants :
+
+Composants UI : Composants de base réutilisables (boutons, cartes, inputs...)
+Composants Modules : Composants spécifiques aux fonctionnalités
+Layout Components : Composants de mise en page
+
+#### Bonnes pratiques
+
+Utilisation des Server et Client Components selon les besoins
+Organisation des routes avec le système de fichiers de Next.js
+Gestion optimisée du rendu côté serveur (SSR) et statique (SSG)
+
+---
+
 #### 1.2.2 Backend (C# .NET)
 - Contrôleurs REST
 - Services métier
