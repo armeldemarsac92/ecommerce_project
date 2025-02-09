@@ -50,6 +50,7 @@ export const OTPForm = () => {
         <section className={"flex flex-col gap-y-6"}>
             <div className="relative w-[40dvh] flex flex-col justify-center items-center gap-y-4">
                 <InputOTP
+                    data-cy="otp-input"
                     value={otpCode}
                     onChange={(value) => setOtpCode(value)}
                     maxLength={6}
@@ -64,8 +65,11 @@ export const OTPForm = () => {
                     </InputOTPGroup>
                 </InputOTP>
 
-                <Button onClick={handleSubmit} disabled={otpCode.length < 6 || contextLoading} variant={"expandIcon"}
-                        iconPlacement={"right"} Icon={<Check size={15}/>} type="submit" className="w-11/12">
+                <Button
+                    data-cy="verify-button"
+                    onClick={handleSubmit} disabled={otpCode.length < 6 || contextLoading} variant={"expandIcon"}
+                        iconPlacement={"right"} Icon={<Check size={15}/>} type="submit" className="w-11/12"
+                >
                     {contextLoading ? <Spinner color={"success"} size={"sm"}/> : "Verify"}
                 </Button>
             </div>

@@ -1,0 +1,98 @@
+{
+  "count": 1212,
+  "page": 1,
+  "page_count": 15,
+  "page_size": 15,
+  "products": [
+    {
+      "code": "20023751",
+      "image_url": "https://images.openfoodfacts.org/images/products/000/002/002/3751/front_en.83.400.jpg",
+      "nutrition_grades": "a",
+      "product_name_fr": "Carottes râpées"
+    },
+    {
+      "code": "3083681148626",
+      "image_url": "https://images.openfoodfacts.org/images/products/308/368/114/8626/front_fr.27.400.jpg",
+      "nutrition_grades": "a",
+      "product_name_fr": "Carottes râpées au citron de Sicile"
+    },
+    {
+      "code": "3281780894950",
+      "image_url": "https://images.openfoodfacts.org/images/products/328/178/089/4950/front_fr.18.400.jpg",
+      "nutrition_grades": "a",
+      "product_name_fr": "Mes Carottes râpées à la ciboulette"
+    },
+    {
+      "code": "3270190212980",
+      "image_url": "https://images.openfoodfacts.org/images/products/327/019/021/2980/front_fr.129.400.jpg",
+      "nutrition_grades": "a",
+      "product_name_fr": "Carottes râpées"
+    },
+    {
+      "code": "3250391468423",
+      "image_url": "https://images.openfoodfacts.org/images/products/325/039/146/8423/front_fr.47.400.jpg",
+      "nutrition_grades": "a",
+      "product_name_fr": "Carottes râpées"
+    },
+    {
+      "code": "3083681148602",
+      "image_url": "https://images.openfoodfacts.org/images/products/308/368/114/8602/front_en.22.400.jpg",
+      "nutrition_grades": "a",
+      "product_name_fr": "Carottes au citron de sicile"
+    },
+    {
+      "code": "3250390473275",
+      "image_url": "https://images.openfoodfacts.org/images/products/325/039/047/3275/front_fr.48.400.jpg",
+      "nutrition_grades": "a",
+      "product_name_fr": "Carottes râpées"
+    },
+    {
+      "code": "3270190207511",
+      "image_url": "https://images.openfoodfacts.org/images/products/327/019/020/7511/front_fr.73.400.jpg",
+      "nutrition_grades": "a",
+      "product_name_fr": "Carottes râpées"
+    },
+    {
+      "code": "3564700330838",
+      "image_url": "https://images.openfoodfacts.org/images/products/356/470/033/0838/front_fr.90.400.jpg",
+      "nutrition_grades": "a",
+      "product_name_fr": "carottes râpées"
+    },
+    {
+      "code": "3245390221780",
+      "image_url": "https://images.openfoodfacts.org/images/products/324/539/022/1780/front_fr.44.400.jpg",
+      "nutrition_grades": "a",
+      "product_name_fr": "Ratatouille A la provençale"
+    },
+    {
+      "code": "3564700330791",
+      "image_url": "https://images.openfoodfacts.org/images/products/356/470/033/0791/front_fr.64.400.jpg",
+      "nutrition_grades": "a",
+      "product_name_fr": "Salade carottes rapées"
+    },
+    {
+      "code": "3596710484140",
+      "image_url": "https://images.openfoodfacts.org/images/products/359/671/048/4140/front_fr.63.400.jpg",
+      "nutrition_grades": "a",
+      "product_name_fr": "Carottes râpées"
+    },
+    {
+      "code": "3281780096057",
+      "image_url": "https://images.openfoodfacts.org/images/products/328/178/009/6057/front_fr.46.400.jpg",
+      "nutrition_grades": "a",
+      "product_name_fr": "Duo sécable Taboulé oriental et Carottes râpées"
+    },
+    {
+      "code": "8422904015553",
+      "image_url": "https://images.openfoodfacts.org/images/products/842/290/401/5553/front_es.26.400.jpg",
+      "nutrition_grades": "a",
+      "product_name_fr": ""
+    },
+    {
+      "code": "3281780894967",
+      "image_url": "https://images.openfoodfacts.org/images/products/328/178/089/4967/front_fr.16.400.jpg",
+      "nutrition_grades": "a",
+      "product_name_fr": "Mes Carottes râpées à la Ciboulette"
+    }
+  ]
+}

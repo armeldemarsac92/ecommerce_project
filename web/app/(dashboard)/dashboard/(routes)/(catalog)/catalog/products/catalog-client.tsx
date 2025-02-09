@@ -94,8 +94,12 @@ export default function CatalogClient() {
                 ) : (
                     <>
                         <div className="m-4 flex flex-col gap-4">
-                            <div className="flex justify-between gap-3 items-end">
-                                <SearchBar onClear={onClear} onValueChange={onSearchChange} value={filterValue}/>
+                            <div
+                                data-cy="catalog-header"
+                                className="flex justify-between gap-3 items-end"
+                            >
+                                <SearchBar
+                                    onClear={onClear} onValueChange={onSearchChange} value={filterValue}/>
                                 <div className="flex gap-3">
                                     <AddButton />
                                 </div>
@@ -113,6 +117,7 @@ export default function CatalogClient() {
                         <div className="gap-5 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 p-4">
                             {paginatedItems.map((product) => (
                                 <Card
+                                    data-cy="catalog-item"
                                     shadow="sm"
                                     key={product.id}
                                     as={Link}

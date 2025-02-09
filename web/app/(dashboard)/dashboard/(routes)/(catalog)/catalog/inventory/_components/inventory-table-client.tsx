@@ -170,7 +170,10 @@ export const InventoryTableClient = () => {
                 );
             case "actions":
                 return (
-                    <div className="relative flex justify-center items-center gap-2">
+                    <div
+                        data-cy="actions-dropdown"
+                        className="relative flex justify-center items-center gap-2"
+                    >
                         <DropdownMenu>
                             <DropdownMenuTrigger asChild className="hover:opacity-50 hover:cursor-pointer">
                                 <div className={"py-2"}>
@@ -332,7 +335,7 @@ export const InventoryTableClient = () => {
                 )}
             </div>
             <Modal isOpen={isOpen} onClose={onClose} hideCloseButton>
-                <ModalContent>
+                <ModalContent data-cy="delete-modal">
                     {(onClose) => (
                         <div>
                             <ModalHeader className="flex flex-col gap-1 text-left">Delete confirmation</ModalHeader>
@@ -341,7 +344,10 @@ export const InventoryTableClient = () => {
                                 <Button variant="outline" onClick={onClose}>
                                     Cancel
                                 </Button>
-                                <Button variant="destructive" onClick={deleteInventoryProduct}>
+                                <Button
+                                    data-cy="delete-button"
+                                    variant="destructive" onClick={deleteInventoryProduct}
+                                >
                                     Delete
                                 </Button>
                             </ModalFooter>
@@ -350,7 +356,7 @@ export const InventoryTableClient = () => {
                 </ModalContent>
             </Modal>
             <Modal isOpen={isQuantityModalOpen} onClose={onQuantityModalClose} hideCloseButton>
-                <ModalContent>
+                <ModalContent data-cy="stock-modal">
                     {(onQuantityModalClose) => (
                         <div>
                             <ModalHeader className="flex flex-col gap-1 text-left">Manage product quantity</ModalHeader>
@@ -396,6 +402,7 @@ export const InventoryTableClient = () => {
                                     </RadioGroup>
                                     <div className="space-y-2">
                                         <Input
+                                            data-cy="quantity-input"
                                             type="number"
                                             value={quantityToAdd}
                                             onChange={(e) => {
@@ -433,6 +440,7 @@ export const InventoryTableClient = () => {
                                     Cancel
                                 </Button>
                                 <Button
+                                    data-cy="update-quantity-input"
                                     className="bg-secondary"
                                     onClick={() => updateProductQuantity(quantityToAdd)}
                                 >
