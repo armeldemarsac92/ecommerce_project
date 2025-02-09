@@ -17,7 +17,7 @@ import {
 import {useAppContext} from "@/contexts/app-context";
 
 export const AccountClient = () => {
-  const {authenticated_user} = useAppContext();
+  const { authenticated_user } = useAppContext();
   const isNotReady = useIsSSR();
 
   return (

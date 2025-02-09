@@ -14,7 +14,6 @@ import { Logo } from "@/components/icons";
 import { Link } from "@nextui-org/link";
 import {useAppContext} from "@/contexts/app-context";
 import {Spinner} from "@nextui-org/react";
-import {useEffect, useState} from "react";
 
 const data = {
   dashboard_nav: [
