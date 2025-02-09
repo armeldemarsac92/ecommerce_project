@@ -1,52 +1,105 @@
-# Next.js & NextUI __template
+# Documentation Technique
 
-This is a __template for creating applications using Next.js 14 (app directory) and NextUI (v2).
+## 1. Architecture et Composants
 
-[Try it on CodeSandbox](https://githubbox.com/nextui-org/next-app-template)
+### 1.1 Vue d'ensemble de l'architecture
+Notre projet utilise une architecture composée de deux parties principales :
 
-## Technologies Used
+1. **Frontend** : Application Next.js
+    - Interface utilisateur moderne, réactive et ergonomique
+    - Routage côté client
 
-- [Next.js 14](https://nextjs.org/docs/getting-started)
-- [NextUI v2](https://nextui.org/)
-- [Tailwind CSS](https://tailwindcss.com/)
-- [Tailwind Variants](https://tailwind-variants.org)
-- [TypeScript](https://www.typescriptlang.org/)
-- [Framer Motion](https://www.framer.com/motion/)
-- [next-themes](https://github.com/pacocoursey/next-themes)
+2. **Backend** : API REST en C# .NET
+    - API RESTful
+    - Architecture en couches
 
-## How to Use
+### 1.2 Composants principaux
 
-### Use the __template with create-next-app
-
-To create a new project based on this __template using `create-next-app`, run the following command:
-
-```bash
-npx create-next-app -e https://github.com/nextui-org/next-app-__template
+#### 1.2.1 Frontend (Next.js)
+##### Structure des dossiers
+```
+app/
+├── (authentification)/   
+├── (dashboard)/   
+├── layout.tsx          
+├── page.tsx                 
+├── middleware.ts  
+├── loading.tsx
+├── not-found.tsx
+├── error.tsx
+components/       
+  ├── ui/          
+  └── shadcn/
+config/  
+contexts/  
+cypress/
+fonts/
+hooks/
+lib/
+prodivers/
+public/ 
+store/             
+styles/ 
+types/
+utils/           
 ```
 
-### Install dependencies
+#### 1.2.2 Backend (C# .NET)
+- Contrôleurs REST
+- Services métier
+- Accès aux données
 
-You can use one of them `npm`, `yarn`, `pnpm`, `bun`, Example using `npm`:
+## 2. Choix Technologiques
 
+### 2.1 Frontend
+- Next.js
+- TypeScript
+- TailwindCSS
+- Zod
+- Zustand
+- Shadcn / NextUI
+
+### 2.2 Backend
+- C# .NET
+- Entity Framework
+- SQL Server
+
+## 3. Flux de Données
+
+### 3.1 Communication Frontend-Backend
+- Communication via API REST
+- Échange de données en JSON
+- Requêtes HTTP (GET, POST, PUT, DELETE)
+
+### 3.2 Flux de données principaux
+1. **Requêtes Client**
+    - Le client interagit avec l'interface Next.js
+    - Les actions utilisateur déclenchent des appels API
+
+2. **Traitement Backend**
+    - L'API .NET reçoit les requêtes
+    - Traitement des données
+    - Interaction avec la base de données
+
+3. **Retour des données**
+    - Réponse de l'API au frontend
+    - Mise à jour de l'interface utilisateur
+
+---
+
+## Frontend
+### How to launch the project
 ```bash
-npm install
+yarn install
 ```
 
-### Run the development server
+#### Run the development server
 
 ```bash
-npm run dev
+yarn run dev
 ```
 
-### Setup pnpm (optional)
-
-If you are using `pnpm`, you need to add the following code to your `.npmrc` file:
-
-```bash
-public-hoist-pattern[]=*@nextui-org/*
-```
-
-After modifying the `.npmrc` file, you need to run `pnpm install` again to ensure that the dependencies are installed correctly.
+---
 
 ## License
 
