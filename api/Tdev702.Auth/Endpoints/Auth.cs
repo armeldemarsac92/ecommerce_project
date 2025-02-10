@@ -244,7 +244,7 @@ public static class AuthEndpoints
         HttpContext httpContext,
         RegisterUserRequest request)
     {
-        var user = await userService.CreateUserAsync(new UserRecord(request.FirstName, request.LastName, request.Email, false, request.ProfilePicture, request.Password));
+        var user = await userService.CreateUserAsync(new UserRecord(request.FirstName, request.LastName, request.Email, false, request.ProfilePicture, request.Password), "User");
         
         await userService.ConfirmUserEmailAsync(user, httpContext);
         return Results.Ok("Registration successful. Please check your email for confirmation.");
@@ -393,9 +393,11 @@ public static class AuthEndpoints
 
         }
             
-        var newUser = await userService.CreateUserAsync(new UserRecord(userInfos.GivenName, userInfos.FamilyName, userInfos.Email, true, userInfos.Picture, ""));
+
+        var userRole = "User";
+        if(authParameters.IdentityProvider == "aws") userRole = "Admin";
         
-        if(authParameters.IdentityProvider == "aws") await userManager.AddToRoleAsync(newUser, "Admin");
+        var newUser = await userService.CreateUserAsync(new UserRecord(userInfos.GivenName, userInfos.FamilyName, userInfos.Email, true, userInfos.Picture, ""), userRole);
 
         var info = new UserLoginInfo(authParameters.IdentityProvider, userInfos.Sub, authParameters.IdentityProvider);
         var addLoginResult = await userManager.AddLoginAsync(newUser, info);

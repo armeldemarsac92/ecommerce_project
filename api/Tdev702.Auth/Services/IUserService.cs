@@ -14,7 +14,7 @@ public record UserRecord(
 );
 public interface IUserService
 {
-    public Task<User> CreateUserAsync(UserRecord record);
+    public Task<User> CreateUserAsync(UserRecord record, string userRole);
     public Task ConfirmUserEmailAsync(User user, HttpContext httpContext);
 }
 
@@ -41,7 +41,7 @@ public class UserService : IUserService
         _publishEndpoint = publishEndpoint;
     }
 
-    public async Task<User> CreateUserAsync(UserRecord record)
+    public async Task<User> CreateUserAsync(UserRecord record, string userRole)
     {
         try
         {
@@ -50,10 +50,9 @@ public class UserService : IUserService
             var result = !string.IsNullOrEmpty(record.Password) ? await _userManager.CreateAsync(user, record.Password): await _userManager.CreateAsync(user);
             if (!result.Succeeded) throw new Exception(result.Errors.First().Description);
             _logger.LogInformation("User created: {Email}", user.Email);
-            var defaultRole = "User";
-            _logger.LogInformation("Adding user {Email} to role: {UserRole}", user.Email, defaultRole);
-            await _userManager.AddToRoleAsync(user, defaultRole);
-            _logger.LogInformation("User {Email} added to role: {UserRole}", user.Email, defaultRole);
+            _logger.LogInformation("Adding user {Email} to role: {UserRole}", user.Email, userRole);
+            await _userManager.AddToRoleAsync(user, userRole);
+            _logger.LogInformation("User {Email} added to role: {UserRole}", user.Email, userRole);
             await _publishEndpoint.Publish(user);
             return user;
         }
