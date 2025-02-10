@@ -90,42 +90,98 @@ public class OrderServiceTests
     public async Task CreateAsync_WhenSuccessful_ShouldReturnCreatedOrder()
     {
         // Arrange
-        var productId = 1;
         var userId = Guid.NewGuid().ToString();
+        var sessionId = "session_123";
+        var now = DateTime.UtcNow;
+        
         var createRequest = new CreateOrderRequest 
         { 
             UserId = userId,
             Products = new List<CreateOrderProductRequest> 
             { 
-                new() { ProductId = productId, Quantity = 2 } 
+                new() { ProductId = 1, Quantity = 2 }, 
+                new() { ProductId = 2, Quantity = 2 } 
             } 
+        };
+
+        var products = new List<FullProductSQLResponse> 
+        { 
+            new() 
+            { 
+                Id = 1, 
+                Price = 50.00,
+                Title = "Test Product 1",
+                Description = "Test Description 1",
+                ImageUrl = "http://test.com/image1.jpg",
+                UpdatedAt = now,
+                CreatedAt = now,
+                Tags = new[] { "tag1", "tag2" },
+                BrandTitle = "Test Brand 1",
+                CategoryTitle = "Test Category 1",
+                OpenFoodFactId = "123456"
+            },
+            new() 
+            { 
+                Id = 2, 
+                Price = 75.00,
+                Title = "Test Product 2",
+                Description = "Test Description 2",
+                ImageUrl = "http://test.com/image2.jpg",
+                UpdatedAt = now,
+                CreatedAt = now,
+                Tags = new[] { "tag2", "tag3" },
+                BrandTitle = "Test Brand 2",
+                CategoryTitle = "Test Category 2",
+                OpenFoodFactId = "789012"
+            }
         };
 
         var createdOrderId = 1;
         var orderResponse = new OrderSummarySQLResponse 
         { 
-            Id = createdOrderId, 
+            Id = 1,
             UserId = userId,
-            TotalAmount = 100,
-            StripeSessionStatus = "draft",
-            StripePaymentStatus = "no_payment_required",
-            CreatedAt = DateTime.UtcNow,
-            OrderItems = new OrderItem[]
+            StripeSessionId = sessionId,
+            StripePaymentStatus = "no_payment_required", 
+            StripeSessionStatus = "draft", 
+            TotalAmount = 250.00, 
+            CreatedAt = now,
+            StripeInvoiceId = null,
+            OrderItems = new OrderItem[] 
             {
-                new()
+                new() 
                 {
-                    ProductId = productId,
+                    ProductId = 1,
                     Quantity = 2,
-                    UnitPrice = 50,
-                    Title = "Test Product",
-                    Description = "Test Description",
-                    Picture = "http://test.com/image.jpg"
+                    UnitPrice = 50.00,
+                    Title = "Test Product 1",
+                    Description = "Test Description 1",
+                    Picture = "http://test.com/image1.jpg",
+                    Subtotal = 100.00,
+                    Brand = "Test Brand 1", 
+                    Category = "Test Category 1"  
+                },
+                new() 
+                {
+                    ProductId = 2,
+                    Quantity = 2, 
+                    UnitPrice = 75.00,
+                    Title = "Test Product 2",
+                    Description = "Test Description 2",
+                    Picture = "http://test.com/image2.jpg",
+                    Subtotal = 150.00, // Updated for quantity of 2
+                    Brand = "Test Brand 2", 
+                    Category = "Test Category 2"  
                 }
             }
         };
         
+        _productRepository.GetByIdsAsync(Arg.Is<List<long>>(x => x.SequenceEqual(new List<long> { 1, 2 })), default)
+            .Returns(products);
+            
         _orderRepository.CreateAsync(Arg.Any<CreateOrderSQLRequest>(), default)
             .Returns(createdOrderId);
+            
         _orderRepository.GetByIdAsync(createdOrderId, default)
             .Returns(orderResponse);
 

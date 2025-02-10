@@ -42,7 +42,7 @@ backend-test:
     - cd ./api
     - dotnet restore
   script:
-    - dotnet test ./Tdev702.Api/Tdev702.Api.csproj
+    - dotnet test ./Tdev702.Api.Tests.Unit/Tdev702.Api.Tests.Unit.csproj
   allow_failure: true
   only:
     - merge_requests
