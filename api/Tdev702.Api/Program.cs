@@ -46,7 +46,7 @@ services.AddExceptionHandler<NotFoundExceptionHandler>();
 services.AddExceptionHandler<DatabaseExceptionHandler>();
 services.AddExceptionHandler<GlobalExceptionHandler>();
 
-var app = builder.Build();
+var app = builder.Build(); 
 
 if (app.Environment.IsDevelopment())
 {
