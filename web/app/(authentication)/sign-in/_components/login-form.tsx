@@ -16,7 +16,7 @@ import { Spinner } from "@nextui-org/spinner";
 import { useRouter } from "next/navigation";
 import {signinWithOAuth, simpleLoginWithEmail} from "@/actions/auth";
 import {FcGoogle} from "react-icons/fc";
-import {FaAws} from "react-icons/fc";
+import {FaAws} from "react-icons/fa";
 import {useAuthContext} from "@/contexts/auth-context";
 import {useToast} from "@/hooks/use-toast";
 
