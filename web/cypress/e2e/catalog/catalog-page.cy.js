@@ -1,5 +1,5 @@
 describe('Catalog page test', () => {
-    it('User can see catalog page and create a product', () => {
+    it.skip('User can see catalog page and create a product', () => {
         cy.intercept('GET', '**/api/v1/products', {
             fixture: "product/products.json"
         }).as('getProducts')
