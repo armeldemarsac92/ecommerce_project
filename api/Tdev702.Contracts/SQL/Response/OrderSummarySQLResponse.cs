@@ -27,7 +27,7 @@ public class OrderSummarySQLResponse
     public string? StripeSessionId { get; init; }
 
     [Column("created_at")]
-    public required DateTime CreatedAt { get; init; }
+    public DateTime CreatedAt { get; init; }
 
     [Column("order_items")]
     public OrderItem[]? OrderItems { get; init; }

@@ -27,7 +27,7 @@ public class OrderSummaryResponse
     public string? StripeSessionId { get; init; }
 
     [JsonPropertyName("created_at")]
-    public required DateTime CreatedAt { get; init; }
+    public DateTime CreatedAt { get; init; }
 
     [JsonPropertyName("order_items")]
     public OrderItemResponse[]? OrderItems { get; init; }

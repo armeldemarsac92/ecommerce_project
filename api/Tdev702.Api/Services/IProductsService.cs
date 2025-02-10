@@ -226,8 +226,8 @@ public class ProductsService : IProductsService
     public async Task DeleteAsync(long productId, CancellationToken cancellationToken = default)
     {
         _logger.LogInformation("Deleting product {productId}", productId);
-        await _productRepository.DeleteAsync(productId, cancellationToken);
         await _productTagRepository.DeleteByProductIdAsync(productId, cancellationToken);
+        await _productRepository.DeleteAsync(productId, cancellationToken);
         _logger.LogInformation("Product {productId} deleted successfully.", productId);
     }
 }

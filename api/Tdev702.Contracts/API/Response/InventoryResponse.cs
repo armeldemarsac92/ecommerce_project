@@ -17,7 +17,7 @@ public class InventoryResponse
     public required string Sku { get; init; }
     
     [JsonPropertyName("created_at")]
-    public required DateTimeOffset  CreatedAt { get; init; }
+    public DateTimeOffset  CreatedAt { get; init; }
     
     [JsonPropertyName("updated_at")]
     public DateTimeOffset  UpdatedAt { get; init; }

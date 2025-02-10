@@ -17,7 +17,7 @@ public class InventorySQLResponse
     public required string Sku { get; init; }
     
     [Column("created_at")]
-    public required DateTimeOffset  CreatedAt { get; init; }
+    public DateTimeOffset  CreatedAt { get; init; }
     
     [Column("update_at")]
     public DateTimeOffset  UpdatedAt { get; init; }
