@@ -4,6 +4,8 @@ public static class ShopRoutes
 {
     public const string Base = "/api/v1";
 
+    public const string HealthCheck = $"{Base}/healthcheck";
+
     public static class Products
     {
         public const string GetById = $"{Base}/products/{{id}}";

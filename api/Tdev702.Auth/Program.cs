@@ -5,9 +5,12 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using Serilog;
+using Serilog.Debugging;
 using Tdev702.Auth.Extensions;
 using Tdev702.Auth.Middlewares.ExceptionHandlers;
 using Tdev702.Auth.Services;
+using Tdev702.AWS.SDK.CloudWatch;
 using Tdev702.AWS.SDK.DI;
 using Tdev702.AWS.SDK.SecretsManager;
 using Tdev702.Contracts.Config;
@@ -16,7 +19,15 @@ using Tdev702.Contracts.Exceptions;
 using Tdev702.Stripe.SDK.DI;
 
 var builder = WebApplication.CreateBuilder(args);
+
 builder.AddAwsConfiguration(SecretType.Database, SecretType.Auth, SecretType.Stripe);
+
+Log.Logger = new LoggerConfiguration()
+    .ConfigureSerilog(builder.Configuration)
+    .CreateLogger();
+builder.Host.UseSerilog();
+SelfLog.Enable(Console.Error);   
+
 var databaseConfiguration = builder.Configuration.GetSection("database").Get<DatabaseConfiguration>() ?? throw new InvalidOperationException("Database configuration not found");
 var connectionString = databaseConfiguration.DbConnectionString;
 var authConfiguration = builder.Configuration.GetSection("auth").Get<AuthConfiguration>() ?? throw new InvalidOperationException("Auth configuration not found");
@@ -48,13 +59,14 @@ services.AddSecurityPolicies();
 
 services.AddCors(options =>
 {
-    options.AddPolicy("AllowAll", builder =>
+    options.AddDefaultPolicy(policy =>
     {
-        builder.AllowAnyOrigin()
-            .AllowAnyMethod()
-            .AllowAnyHeader();
+        policy.WithOrigins(authConfiguration.CorsAllowOrigin)
+            .AllowAnyHeader()
+            .AllowAnyMethod();
     });
 });
+
 services.AddProblemDetails();
 services.AddExceptionHandler<BadRequestExceptionHandler>();
 services.AddExceptionHandler<ConflictExceptionHandler>();
@@ -73,7 +85,7 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection(); 
-app.UseCors("AllowAll");
+app.UseCors();
 app.UseAuthentication(); 
 app.UseAuthorization();
 
