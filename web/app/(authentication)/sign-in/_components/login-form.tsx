@@ -42,7 +42,7 @@ export const LoginForm = () => {
     const response = await simpleLoginWithEmail({email});
 
     updateContextLoading(false)
-
+ 
     if(response.status === 200) {
       router.push("/sign-in/verify")
     }else {
