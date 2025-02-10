@@ -1,7 +1,5 @@
 describe('Catalog page test', () => {
     it('User can see catalog page and create a product', () => {
-        cy.login()
-
         cy.intercept('GET', '**/api/v1/products', {
             fixture: "product/products.json"
         }).as('getProducts')
@@ -31,6 +29,7 @@ describe('Catalog page test', () => {
             body: null
         }).as('createProduct')
 
+        cy.login()
         cy.visit('/dashboard/catalog/products')
         cy.wait('@getProducts')
         cy.wait('@getInventories')
