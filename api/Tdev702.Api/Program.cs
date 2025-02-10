@@ -1,6 +1,9 @@
+using Serilog;
+using Serilog.Debugging;
 using Tdev702.Api.DI;
 using Tdev702.Api.Extensions;
 using Tdev702.Api.Middlewares.ExceptionHandlers;
+using Tdev702.AWS.SDK.CloudWatch;
 using Tdev702.AWS.SDK.SecretsManager;
 using Tdev702.Contracts.Config;
 using Tdev702.OpenFoodFact.SDK.Extensions;
@@ -13,6 +16,11 @@ builder.AddAwsConfiguration(SecretType.Database, SecretType.Stripe, SecretType.A
 // Add services to the container.
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 
+Log.Logger = new LoggerConfiguration()
+    .ConfigureSerilog(builder.Configuration)
+    .CreateLogger();
+builder.Host.UseSerilog();
+SelfLog.Enable(Console.Error);   
 
 var services = builder.Services;
 
@@ -30,7 +38,7 @@ services.AddCors(options =>
 {
     options.AddDefaultPolicy(policy =>
     {
-        policy.WithOrigins("http://localhost:3000")
+        policy.WithOrigins(authConfiguration.CorsAllowOrigin)
             .AllowAnyHeader()
             .AllowAnyMethod();
     });

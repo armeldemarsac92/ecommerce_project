@@ -78,6 +78,10 @@ public static class AuthEndpoints
             .WithName("ExternalCallback")
             .Produces<AccessTokenResponse>()
             .WithTags(Tags);
+        
+        app.MapGet(ApiRoutes.Auth.HealthCheck, () => Results.Ok("Healthy"))
+           .WithName("HealthCheck")
+           .WithTags(Tags);
 
         return app;
     }

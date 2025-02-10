@@ -51,6 +51,10 @@ public static class ProductEndpoints
             .Produces<ShopProductResponse>(200)
             .Produces(404);
         
+        app.MapGet(ShopRoutes.HealthCheck, () => Results.Ok("Healthy"))
+            .WithName("HealthCheck")
+            .WithTags(Tags);
+        
         return app;
     }
 

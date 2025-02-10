@@ -2,6 +2,7 @@ namespace Tdev702.Contracts.Config;
 
 public class AuthConfiguration
 {
+    public required string CorsAllowOrigin { get; init; }
     public required string JwtIssuer { get; init; }
     public required string JwtAudience { get; init; }
     public required string PrivateKey { get; init; }

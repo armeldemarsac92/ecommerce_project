@@ -18,5 +18,7 @@ public static partial class ApiRoutes
         
         public const string ExternalLogin = $"{Base}/external-login/{{provider}}";
         public const string ExternalCallback = $"{Base}/external-callback";
+
+        public const string HealthCheck = $"{Base}/healthcheck";
     }
 }
