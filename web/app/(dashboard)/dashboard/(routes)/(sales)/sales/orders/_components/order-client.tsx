@@ -15,7 +15,7 @@ import {Button} from "@/components/shadcn/button";
 import {ChevronLeft, ChevronRight} from "lucide-react";
 import {getInvoiceById} from "@/actions/invoice";
 
-type PaymentStatus = 'draft' | 'paid' | 'unpaid';
+type PaymentStatus = 'paid' | 'unpaid';
 
 export const OrdersClient= () => {
     const [filterValue, setFilterValue] = useState("");
@@ -25,7 +25,6 @@ export const OrdersClient= () => {
     const { orders, loadingSWROrders, errorSWROrders } = useOrders();
     const { customers, loadingSWRCustomers, errorSWRCustomers } = useCustomers();
     const paymentStatusColors = {
-        draft: 'default',
         paid: 'success',
         unpaid: 'danger',
     } as const;
@@ -52,16 +51,17 @@ export const OrdersClient= () => {
     };
 
     const filteredItems = useMemo(() => {
-        let filteredOrders = [...orders].map(order => {
-            const matchingCustomer = customers.find(customer => customer.id === order.user_id)
-
-            return {
-                ...order,
-                customer: {
-                    username: matchingCustomer?.user_name || '-'
-                }
-            };
-        });
+        let filteredOrders = [...orders]
+            .filter(order => order.stripe_payment_status === "paid")
+            .map(order => {
+                const matchingCustomer = customers.find(customer => customer.id === order.user_id)
+                return {
+                    ...order,
+                    customer: {
+                        username: matchingCustomer?.user_name || '-'
+                    }
+                };
+            });
 
         if (hasSearchFilter) {
             filteredOrders = filteredOrders.filter((order) =>
@@ -123,134 +123,137 @@ export const OrdersClient= () => {
             {loadingSWROrders || loadingSWRCustomers ? (
                 <div className="h-full w-full flex justify-center">
                     <Spinner color="success" labelColor="success" />
-                </div>) : (
-            <div className="w-full p-5 space-y-4">
-                <div>
-                    <div className="flex justify-between gap-3 items-end">
-                        <SearchBar onClear={onClear} onValueChange={onSearchChange} value={filterValue} />
-                    </div>
                 </div>
-                <Accordion className="w-full border rounded-md p-1 px-4">
-                    {paginatedItems.map((order) => (
-                        <AccordionItem
-                            key={order.order_id}
-                            textValue={`order-${order.order_id}`}
-                            title={
-                                <div
-                                    data-cy="order-item"
-                                    className={"grid grid-cols-6 w-full text-sm"}
-                                >
-                                    <span>Order #{order.order_id}</span>
-                                    <span>{order.created_at ? new Date(order.created_at).toISOString().split('T')[0] : "-"}</span>
-                                    <div className="flex space-x-14">
-                                        <Link href={"/dashboard"} size={"sm"} className={"w-fit group flex items-center gap-x-2"}>
-                                            <Avatar className="w-8 h-8 rounded-lg object-contain" asChild>
-                                                <AvatarImage
-                                                    src={getAvatarByUsername(order.customer.username)}
-                                                    alt={order.customer.username}
-                                                />
-                                            </Avatar>
-                                            <span className="text-xs">{order.customer.username}</span>
-                                        </Link>
-                                        <span className="flex justify-end items-center">
-                                            <Chip size="sm"
-                                                  color={paymentStatusColors[order.stripe_payment_status as PaymentStatus] || 'default'}
-                                                  className="text-xs"
-                                                  variant="flat"
-                                            >
-                                            {order.stripe_payment_status!= null ? order.stripe_payment_status.toUpperCase() : 'DRAFT'}
-                                            </Chip>
-                                        </span>
-                                        <span className="flex items-center">{order.total_amount.toFixed(2)}€</span>
-                                    </div>
-                                </div>
-                            }
-                        >
-                            <div className="flex items-end float-end">
-                                <Button
-                                    data-cy="invoice-button"
-                                    className="rounded-full bg-secondary text-white m-2"
-                                    disabled={order.stripe_payment_status !== 'paid'}
-                                    onClick={() => downloadInvoice(order.order_id)}
-                                    size="sm"
-                                >
-                                    Download invoice
-                                </Button>
-                            </div>
-                            <Table>
-                                <TableHeader>
-                                    <TableRow>
-                                        <TableHead>Product</TableHead>
-                                        <TableHead>Quantity</TableHead>
-                                        <TableHead>Unit price</TableHead>
-                                        <TableHead className="text-right">Total</TableHead>
-                                    </TableRow>
-                                </TableHeader>
-                                <TableBody>
-                                    {order.order_items.map((product) => (
-                                        <TableRow key={product.product_id}>
-                                            <TableCell>{product.title}</TableCell>
-                                            <TableCell>{product.quantity ? (product.quantity) : "-"}</TableCell>
-                                            <TableCell>{product.unit_price ? product.unit_price + "€" : "-"}</TableCell>
-                                            <TableCell className="text-right">
-                                                {(product.quantity * product.unit_price).toFixed(2)}€
-                                            </TableCell>
-                                        </TableRow>
-                                    ))}
-                                    <TableRow>
-                                        <TableCell
-                                            colSpan={3}
-                                            className="font-bold"
+            ) : (
+                <div className="w-full p-5 space-y-4">
+                    <div>
+                        <div className="flex justify-between gap-3 items-end">
+                            <SearchBar onClear={onClear} onValueChange={onSearchChange} value={filterValue} />
+                        </div>
+                    </div>
+                    <Accordion className="w-full border rounded-md p-1 px-4">
+                        {paginatedItems.map((order) =>
+                            order.stripe_payment_status ? (
+                                <AccordionItem
+                                    key={order.order_id}
+                                    textValue={`order-${order.order_id}`}
+                                    title={
+                                        <div
+                                            data-cy="order-item"
+                                            className={"grid grid-cols-6 w-full text-sm"}
                                         >
-                                            Order total
-                                        </TableCell>
-                                        <TableCell className="text-right font-bold">{order.total_amount.toFixed(2)}€</TableCell>
-                                    </TableRow>
-                                </TableBody>
-                            </Table>
-                        </AccordionItem>
-                    ))}
-                </Accordion>
+                                            <span>Order #{order.order_id}</span>
+                                            <span>{order.created_at ? new Date(order.created_at).toISOString().split('T')[0] : "-"}</span>
+                                            <div className="flex space-x-14">
+                                                <Link href={"/dashboard"} size={"sm"} className={"w-fit group flex items-center gap-x-2"}>
+                                                    <Avatar className="w-8 h-8 rounded-lg object-contain" asChild>
+                                                        <AvatarImage
+                                                            src={getAvatarByUsername(order.customer.username)}
+                                                            alt={order.customer.username}
+                                                        />
+                                                    </Avatar>
+                                                    <span className="text-xs">{order.customer.username}</span>
+                                                </Link>
+                                                <span className="flex items-center">{order.total_amount.toFixed(2)}€</span>
+                                                <span className="flex items-center justify-center">
+                                        <Chip size="sm"
+                                              color={paymentStatusColors[order.stripe_payment_status as PaymentStatus]}
+                                              className="text-xs"
+                                              variant="flat"
+                                        >
+                                            {order.stripe_payment_status.toUpperCase()}
+                                        </Chip>
+                                    </span>
+                                            </div>
+                                        </div>
+                                    }
+                                >
+                                    <div className="flex items-end float-end">
+                                        <Button
+                                            data-cy="invoice-button"
+                                            className="rounded-full bg-secondary text-white m-2"
+                                            disabled={order.stripe_payment_status !== 'paid'}
+                                            onClick={() => downloadInvoice(order.order_id)}
+                                            size="sm"
+                                        >
+                                            Download invoice
+                                        </Button>
+                                    </div>
+                                    <Table>
+                                        <TableHeader>
+                                            <TableRow>
+                                                <TableHead>Product</TableHead>
+                                                <TableHead>Quantity</TableHead>
+                                                <TableHead>Unit price</TableHead>
+                                                <TableHead className="text-right">Total</TableHead>
+                                            </TableRow>
+                                        </TableHeader>
+                                        <TableBody>
+                                            {order.order_items.map((product) => (
+                                                <TableRow key={product.product_id}>
+                                                    <TableCell>{product.title}</TableCell>
+                                                    <TableCell>{product.quantity ? (product.quantity) : "-"}</TableCell>
+                                                    <TableCell>{product.unit_price ? product.unit_price + "€" : "-"}</TableCell>
+                                                    <TableCell className="text-right">
+                                                        {(product.quantity * product.unit_price).toFixed(2)}€
+                                                    </TableCell>
+                                                </TableRow>
+                                            ))}
+                                            <TableRow>
+                                                <TableCell
+                                                    colSpan={3}
+                                                    className="font-bold"
+                                                >
+                                                    Order total
+                                                </TableCell>
+                                                <TableCell className="text-right font-bold">{order.total_amount.toFixed(2)}€</TableCell>
+                                            </TableRow>
+                                        </TableBody>
+                                    </Table>
+                                </AccordionItem>
+                            ) : null
+                        )}
+                    </Accordion>
 
-                <div className="py-2 px-2 flex justify-between items-center m-2">
-                    <Pagination
-                        classNames={{
-                            cursor: "bg-secondary rounded-sm",
-                            prev: "rounded-sm",
-                            next: "rounded-sm",
-                        }}
-                        radius={"sm"}
-                        isCompact
-                        showControls
-                        showShadow
-                        page={page}
-                        total={pages}
-                        onChange={setPage}
-                    />
-                    <div className="hidden sm:flex w-[30%] justify-end gap-2">
-                        <Button
-                            variant={"expandIcon"}
-                            iconPlacement={"left"}
-                            Icon={<ChevronLeft size={15}/>}
-                            disabled={page === 1}
-                            size="sm"
-                            onClick={onPreviousPage}
-                        >
-                            Previous
-                        </Button>
-                        <Button
-                            variant={"expandIcon"}
-                            iconPlacement={"right"}
-                            Icon={<ChevronRight size={15}/>}
-                            disabled={page === pages}
-                            size="sm"
-                            onClick={onNextPage}
-                        >
-                            Next
-                        </Button>
+                    <div className="py-2 px-2 flex justify-between items-center m-2">
+                        <Pagination
+                            classNames={{
+                                cursor: "bg-secondary rounded-sm",
+                                prev: "rounded-sm",
+                                next: "rounded-sm",
+                            }}
+                            radius={"sm"}
+                            isCompact
+                            showControls
+                            showShadow
+                            page={page}
+                            total={pages}
+                            onChange={setPage}
+                        />
+                        <div className="hidden sm:flex w-[30%] justify-end gap-2">
+                            <Button
+                                variant={"expandIcon"}
+                                iconPlacement={"left"}
+                                Icon={<ChevronLeft size={15}/>}
+                                disabled={page === 1}
+                                size="sm"
+                                onClick={onPreviousPage}
+                            >
+                                Previous
+                            </Button>
+                            <Button
+                                variant={"expandIcon"}
+                                iconPlacement={"right"}
+                                Icon={<ChevronRight size={15}/>}
+                                disabled={page === pages}
+                                size="sm"
+                                onClick={onNextPage}
+                            >
+                                Next
+                            </Button>
+                        </div>
                     </div>
                 </div>
-            </div>
             )}
         </div>
     )

@@ -20,7 +20,7 @@ describe('Order page test', () => {
         cy.wait('@getCustomers')
 
         cy.get('[data-cy="order-table"]').should('exist')
-        cy.get('[data-cy="order-item"]').eq(7).click()
+        cy.get('[data-cy="order-item"]').eq(0).click()
         cy.get('[data-cy="invoice-button"]').should('be.visible')
     })
 })
