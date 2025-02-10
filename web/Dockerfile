@@ -3,8 +3,7 @@ FROM node:20-alpine3.19 AS deps
 WORKDIR /app
 
 COPY package*.json ./
-COPY yarn.lock ./
-RUN yarn install --frozen-lockfile
+RUN yarn install
 
 # Stage 2: Builder
 FROM node:20-alpine3.19 AS builder
