@@ -16,6 +16,7 @@ import { Spinner } from "@nextui-org/spinner";
 import { useRouter } from "next/navigation";
 import {signinWithOAuth, simpleLoginWithEmail} from "@/actions/auth";
 import {FcGoogle} from "react-icons/fc";
+import {FaAws} from "react-icons/fc";
 import {useAuthContext} from "@/contexts/auth-context";
 import {useToast} from "@/hooks/use-toast";
 
@@ -63,6 +64,12 @@ export const LoginForm = () => {
             <FcGoogle className={"mr-2"} size={24}/>
             Connexion avec Google
           </Button>
+
+          <Button onClick={() => handleOAuthLogin('aws')} variant={"outline"}>
+            <FaAws className={"mr-2"} size={24}/>
+            Connexion avec AWS
+          </Button>
+          
           <div className="grid gap-2">
             <Label className={"text-xs"} htmlFor="email">Email</Label>
             <Input
