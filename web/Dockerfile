@@ -1,10 +1,14 @@
-FROM node:21-alpine3.19
+FROM node:20-alpine3.19
 
 WORKDIR /app
 
 COPY package*.json .
 
 RUN yarn install
+
+COPY . .
+
+CMD ["yarn", "run", "dev"]
 
 # RUN apk update && apk add --no-cache \
 #     curl \
@@ -18,7 +22,3 @@ RUN yarn install
 #     && unzip awscliv2.zip \
 #     && ./aws/install \
 #     && rm -rf aws awscliv2.zip
-
-COPY . .
-
-CMD ["yarn", "run", "dev"]
