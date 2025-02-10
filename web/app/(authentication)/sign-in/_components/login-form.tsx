@@ -62,12 +62,12 @@ export const LoginForm = () => {
         <div className="grid gap-4 gap-y-8">
           <Button onClick={() => handleOAuthLogin('google')} variant={"outline"}>
             <FcGoogle className={"mr-2"} size={24}/>
-            Connexion avec Google
+            Connexion utilisateur avec Google
           </Button>
 
           <Button onClick={() => handleOAuthLogin('aws')} variant={"outline"}>
             <FaAws className={"mr-2"} size={24}/>
-            Connexion avec AWS
+            Connexion admin avec AWS
           </Button>
           
           <div className="grid gap-2">
