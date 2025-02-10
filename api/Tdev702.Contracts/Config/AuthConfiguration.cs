@@ -26,6 +26,7 @@ public class IdentityProvider
     public required string TokenEndpoint { get; init; }
     public required string UserInfoEndpoint { get; init; }
     public required UserClaims UserClaims { get; init; }
+    public required string FrontEndRedirectUri { get; set; }
 }
 
 public class UserClaims

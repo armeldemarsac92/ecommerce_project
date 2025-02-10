@@ -32,6 +32,10 @@ public class SecurityService : ISecurityService
 
    public async Task StoreAuthState(AuthenticationParameters authParameters)
    {
+       var idpConfig = _configuration.IdentityProviders.FirstOrDefault(idp => idp.Name == authParameters.IdentityProvider);
+       if (idpConfig is null) throw new Exception($"Invalid IDP: {authParameters.IdentityProvider}");
+
+       authParameters.FrontEndRedirectUri = idpConfig.FrontEndRedirectUri;
        var stateData = new AuthStateData
        {
            AuthenticationParameters = authParameters,

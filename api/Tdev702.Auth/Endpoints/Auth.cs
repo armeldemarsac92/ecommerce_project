@@ -389,13 +389,15 @@ public static class AuthEndpoints
             
             AddCookies(context, accessTokenResponse);
 
-            return Results.Redirect($"http://localhost:3000/dashboard");
+            return Results.Redirect(authParameters.FrontEndRedirectUri);
 
         }
             
         var newUser = await userService.CreateUserAsync(new UserRecord(userInfos.GivenName, userInfos.FamilyName, userInfos.Email, true, userInfos.Picture, ""));
+        
+        if(authParameters.IdentityProvider == "aws") await userManager.AddToRoleAsync(newUser, "Admin");
 
-        var info = new UserLoginInfo("Google", userInfos.Sub, "Google");
+        var info = new UserLoginInfo(authParameters.IdentityProvider, userInfos.Sub, authParameters.IdentityProvider);
         var addLoginResult = await userManager.AddLoginAsync(newUser, info);
         if (!addLoginResult.Succeeded)
         {
@@ -406,7 +408,7 @@ public static class AuthEndpoints
             
         AddCookies(context, accessTokenResponse2);
         
-        return Results.Redirect($"http://localhost:3000/dashboard");
+        return Results.Redirect(authParameters.FrontEndRedirectUri);
       }
 
     private static void AddCookies(HttpContext context, AccessTokenResponse accessTokenResponse)

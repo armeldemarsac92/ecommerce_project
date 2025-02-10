@@ -21,6 +21,7 @@ public class AuthenticationParameters
     public string State { get; init; }
     public string Challenge { get; init; }
     public string ChallengeVerifier { get; init; }
+    public string FrontEndRedirectUri { get; set; }
     
     private string GenerateSecureToken()
     {
