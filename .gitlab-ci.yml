@@ -75,8 +75,15 @@ build:
     - docker build --load -t t-dev-702-api:latest -f ./Tdev702.Api/Dockerfile .
     - docker tag t-dev-702-api:latest $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/t-dev-702/prod/api:latest
     
+    # build auth
+    - cd $CI_PROJECT_DIR
+    - cd ./api
+    - docker build --load -t t-dev-702-auth:latest -f ./Tdev702.Auth/Dockerfile .
+    - docker tag t-dev-702-auth:latest $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/t-dev-702/prod/auth:latest
+    
     # Push images to AWS ECR
     - docker push $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/t-dev-702/prod/frontend:latest
     - docker push $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/t-dev-702/prod/api:latest
+    - docker push $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/t-dev-702/prod/auth:latest
   only:
     - main
