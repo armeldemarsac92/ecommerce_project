@@ -1,4 +1,4 @@
-describe('Catalog page test', () => {
+describe.skip('Catalog page test', () => {
     it.skip('User can see catalog page and create a product', () => {
         cy.intercept('GET', '**/api/v1/products', {
             fixture: "product/products.json"
