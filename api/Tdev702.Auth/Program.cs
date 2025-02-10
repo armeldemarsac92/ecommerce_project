@@ -48,13 +48,14 @@ services.AddSecurityPolicies();
 
 services.AddCors(options =>
 {
-    options.AddPolicy("AllowAll", builder =>
+    options.AddDefaultPolicy(policy =>
     {
-        builder.AllowAnyOrigin()
-            .AllowAnyMethod()
-            .AllowAnyHeader();
+        policy.WithOrigins(authConfiguration.CorsAllowOrigin)
+            .AllowAnyHeader()
+            .AllowAnyMethod();
     });
 });
+
 services.AddProblemDetails();
 services.AddExceptionHandler<BadRequestExceptionHandler>();
 services.AddExceptionHandler<ConflictExceptionHandler>();
