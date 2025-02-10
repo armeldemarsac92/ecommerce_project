@@ -420,7 +420,9 @@ public static class AuthEndpoints
             HttpOnly = false,
             Secure = true,
             SameSite = SameSiteMode.Lax,
-            Expires = DateTimeOffset.UtcNow.AddHours(2)
+            Expires = DateTimeOffset.UtcNow.AddHours(2),
+            Domain = ".epitechproject.fr",
+            Path = "/"
         });
 
         context.Response.Cookies.Append("refresh_token", accessTokenResponse.RefreshToken, new CookieOptions
@@ -428,7 +430,9 @@ public static class AuthEndpoints
             HttpOnly = false,
             Secure = true,
             SameSite = SameSiteMode.Lax,
-            Expires = DateTimeOffset.UtcNow.AddDays(7)
+            Expires = DateTimeOffset.UtcNow.AddDays(7),
+            Domain = ".epitechproject.fr", 
+            Path = "/"
         });
     }
 }
