@@ -146,7 +146,7 @@ export default function ProductClient({params}: {params: {productId: string}}) {
                 price: formData.price,
                 brand_id: parseInt(formData.brand),
                 category_id: parseInt(formData.category),
-                image_url: selectedProduct?.image_url ?? "",
+                image_url: selectedProduct?.image_url || (product?.image_url ?? ""),
                 tag_ids: formData.tag ?? [],
                 open_food_fact_id: parseInt(selectedProduct?.code ?? "0")
             }
