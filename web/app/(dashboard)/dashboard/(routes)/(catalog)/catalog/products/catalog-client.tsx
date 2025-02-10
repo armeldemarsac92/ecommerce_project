@@ -127,6 +127,7 @@ export default function CatalogClient() {
                                         <Image
                                             radius="none"
                                             width="100%"
+                                            height="200px"
                                             alt={product.title}
                                             className="object-contain"
                                             src={product.image_url && product.image_url.startsWith('http')
