@@ -1,2 +1,6 @@
 Dockerfile
 .next/
+**/cypress
+**/*.cy.tsx
+**/*.cy.ts
+cypress.config.ts
