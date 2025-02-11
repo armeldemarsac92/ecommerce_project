@@ -419,14 +419,16 @@ public static class AuthEndpoints
         {
             HttpOnly = false,
             Secure = true,
-            SameSite = SameSiteMode.Strict
+            SameSite = SameSiteMode.Lax,
+            Expires = DateTimeOffset.UtcNow.AddHours(1)
         });
 
         context.Response.Cookies.Append("refresh_token", accessTokenResponse.RefreshToken, new CookieOptions
         {
             HttpOnly = false,
             Secure = true,
-            SameSite = SameSiteMode.Strict
+            SameSite = SameSiteMode.Lax,
+            Expires = DateTimeOffset.UtcNow.AddDays(7)
         });
     }
 }
