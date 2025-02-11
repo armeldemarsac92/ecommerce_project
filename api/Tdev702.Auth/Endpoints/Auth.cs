@@ -416,13 +416,15 @@ public static class AuthEndpoints
 
     private static void AddCookies(HttpContext context, AccessTokenResponse accessTokenResponse)
     {
+        var isDev = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == "Development";
+        
         context.Response.Cookies.Append("access_token", accessTokenResponse.AccessToken, new CookieOptions
         {
             HttpOnly = false,  
             Secure = true,
             SameSite = SameSiteMode.Lax,   
             Expires = DateTimeOffset.UtcNow.AddHours(2),
-            Domain = ".epitechproject.fr",
+            Domain = isDev ? ".localhost":".epitechproject.fr",
             Path = "/"
         });
 
@@ -432,7 +434,7 @@ public static class AuthEndpoints
             Secure = true,
             SameSite = SameSiteMode.Lax,
             Expires = DateTimeOffset.UtcNow.AddDays(7),
-            Domain = ".epitechproject.fr", 
+            Domain = isDev ? ".localhost":".epitechproject.fr",
             Path = "/"
         });
     }
