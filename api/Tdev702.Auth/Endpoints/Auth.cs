@@ -376,14 +376,13 @@ public static class AuthEndpoints
 
         var userInfos = await authService.GetUserInfosAsync(authParameters);
         
+        var userRole = "User";
+        if(authParameters.IdentityProvider == "aws") userRole = "Admin";
+        
         var user = await userManager.FindByEmailAsync(userInfos.Email);
         if (user != null)
         {
-            await userManager.UpdateAsync(new User()
-            {
-                Email = userInfos.Email, FirstName = userInfos.GivenName, LastName = userInfos.FamilyName,
-                ProfilePicture = userInfos.Picture
-            });
+            await userService.UpdateUserAsync(userInfos, userRole);
             
             var accessTokenResponse = await tokenService.GetAccessTokenAsync(user);
             
@@ -392,10 +391,6 @@ public static class AuthEndpoints
             return Results.Redirect(authParameters.FrontEndRedirectUri);
 
         }
-            
-
-        var userRole = "User";
-        if(authParameters.IdentityProvider == "aws") userRole = "Admin";
         
         var newUser = await userService.CreateUserAsync(new UserRecord(userInfos.GivenName, userInfos.FamilyName, userInfos.Email, true, userInfos.Picture, ""), userRole);
 
