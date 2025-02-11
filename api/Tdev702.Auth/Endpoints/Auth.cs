@@ -417,7 +417,7 @@ public static class AuthEndpoints
     {
         context.Response.Cookies.Append("access_token", accessTokenResponse.AccessToken, new CookieOptions
         {
-            HttpOnly = false,
+            HttpOnly = false,  
             Secure = true,
             SameSite = SameSiteMode.Lax,
             Expires = DateTimeOffset.UtcNow.AddHours(2),
