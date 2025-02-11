@@ -6,7 +6,6 @@ interface RetryConfig extends InternalAxiosRequestConfig {
 }
 
 const axiosInstance = axios.create({
-    // baseURL: 'https://api.epitechproject.fr/api/v1',
     baseURL: 'https://localhost:7143/api/v1',
     timeout: 60000,
     headers: {
@@ -19,7 +18,6 @@ const axiosInstance = axios.create({
 });
 
 const authAxiosInstance = axios.create({
-    // baseURL: 'https://authentication.epitechproject.fr/api',
     baseURL: 'https://localhost:7073/api',
     timeout: 5000,
     headers: {

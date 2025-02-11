@@ -6,14 +6,14 @@ import { Tab, Tabs } from "@nextui-org/react";
 import { useState } from "react";
 import { motion } from "framer-motion"
 
-export function CartAverageCard() {
+export function OrderAverageCard() {
   const [monthly, setMonthly] = useState(false);
 
   return (
     <div className="flex flex-col justify-between aspect-video rounded-xl bg-white p-5">
       <div>
         <div className={"flex justify-between items-center"}>
-          <h3 className={"text-muted-foreground"}>Cart Average</h3>
+          <h3 className={"text-muted-foreground"}>Order Average</h3>
 
           <ShoppingCart className={"text-icon"} size={20} />
         </div>
@@ -30,11 +30,11 @@ export function CartAverageCard() {
               </>
             )}
           </p>
-          <span className={`text-xs font-medium ${monthly ? "text-success" : "text-danger"}`}>
+          {/*<span className={`text-xs font-medium ${monthly ? "text-success" : "text-danger"}`}>
             {monthly ? "+" : "-"}
             {monthly ? <NumberTicker className={"text-success"} value={30} /> : <NumberTicker className={"text-danger"} value={2} />}%
             last 30 days
-          </span>
+          </span>*/}
         </div>
       </div>
 

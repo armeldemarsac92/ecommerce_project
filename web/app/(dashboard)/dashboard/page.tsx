@@ -1,5 +1,5 @@
 import { TotalRevenueCard } from "@/app/(dashboard)/dashboard/_components/statistics/total-revenue-card";
-import { CartAverageCard } from "@/app/(dashboard)/dashboard/_components/statistics/cart-average-card";
+import { OrderAverageCard } from "@/app/(dashboard)/dashboard/_components/statistics/order-average-card";
 import { UsersNumberCard } from "@/app/(dashboard)/dashboard/_components/statistics/users-number-card";
 import LastOrders from "@/app/(dashboard)/dashboard/_components/statistics/last-orders";
 import { NumberSalesChart } from "@/app/(dashboard)/dashboard/_components/statistics/number-sales-chart";
@@ -9,7 +9,7 @@ export default function Page() {
     <div className="flex flex-1 flex-col gap-4 p-4 bg-[#F7F7F7]">
       <div className="grid auto-rows-min gap-4 md:grid-cols-3">
         <TotalRevenueCard/>
-        <CartAverageCard/>
+        <OrderAverageCard/>
         <UsersNumberCard/>
       </div>
 
