@@ -382,7 +382,13 @@ public static class AuthEndpoints
         var user = await userManager.FindByEmailAsync(userInfos.Email);
         if (user != null)
         {
-            await userService.UpdateUserAsync(userInfos, userRole);
+            await userManager.UpdateAsync(new User()
+            {
+                Email = userInfos.Email, FirstName = userInfos.GivenName, LastName = userInfos.FamilyName,
+                ProfilePicture = userInfos.Picture
+            });
+
+            await userManager.AddToRoleAsync(user, userRole);
             
             var accessTokenResponse = await tokenService.GetAccessTokenAsync(user);
             
