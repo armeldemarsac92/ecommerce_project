@@ -420,7 +420,7 @@ public static class AuthEndpoints
             HttpOnly = false,
             Secure = true,
             SameSite = SameSiteMode.Lax,
-            Expires = DateTimeOffset.UtcNow.AddHours(1)
+            Expires = DateTimeOffset.UtcNow.AddHours(2)
         });
 
         context.Response.Cookies.Append("refresh_token", accessTokenResponse.RefreshToken, new CookieOptions
