@@ -4,10 +4,9 @@ import { ShoppingCart } from "lucide-react";
 import NumberTicker from "@/components/shadcn/number-ticker";
 import { Tab, Tabs } from "@nextui-org/react";
 import { useState } from "react";
-import { motion } from "framer-motion"
 
 export function OrderAverageCard() {
-  const [monthly, setMonthly] = useState(false);
+    const [dateRange, setDateRange] = useState("daily");
 
   return (
     <div className="flex flex-col justify-between aspect-video rounded-xl bg-white p-5">
@@ -20,7 +19,7 @@ export function OrderAverageCard() {
 
         <div>
           <p className={"text-3xl font-bold"}>
-            {monthly ? (
+              {dateRange === "monthly" ? (
               <>
                 <NumberTicker value={1130} />€
               </>
@@ -39,21 +38,21 @@ export function OrderAverageCard() {
       </div>
 
       <div>
-        <Tabs
-          variant={"underlined"}
-          defaultSelectedKey={"today"}
-          aria-label="Options"
-          classNames={{
-            tabList: "gap-6 w-full relative rounded-none p-0 border-b border-divider",
-            cursor: "w-full bg-success",
-            tab: "max-w-fit px-0 h-12",
-            tabContent: "group-data-[selected=true]:text-success"
-          }}
-          onSelectionChange={(e) => e === "monthly" ? setMonthly(true) : setMonthly(false)}
-        >
-          <Tab key="today" title="Today"/>
-          <Tab key="monthly" title="Monthly"/>
-        </Tabs>
+          <Tabs
+              variant="underlined"
+              defaultSelectedKey="daily"
+              aria-label="Options"
+              classNames={{
+                  tabList: "gap-6 w-full relative rounded-none p-0 border-b border-divider",
+                  cursor: "w-full bg-success",
+                  tab: "max-w-fit px-0 h-12",
+                  tabContent: "group-data-[selected=true]:text-success"
+              }}
+              onSelectionChange={(key) => setDateRange(key.toString())}
+          >
+              <Tab key="daily" title="Today" />
+              <Tab key="monthly" title="Monthly" />
+          </Tabs>
       </div>
     </div>
   )
