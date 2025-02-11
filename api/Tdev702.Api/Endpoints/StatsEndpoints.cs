@@ -12,19 +12,19 @@ public static class StatEndpoints
         app.MapGet(ShopRoutes.Stats.GetNewUsers, GetNewUsers)
             .WithTags(Tags)
             .WithDescription("Get new users daily or monthly")
-            // .RequireAuthorization("Authenticated")
+            .RequireAuthorization("Admin")
             .Produces(404);
         
         app.MapGet(ShopRoutes.Stats.GetCartAverage, GetCartAverage)
             .WithTags(Tags)
             .WithDescription("Get cart average daily or monthly")
-            // .RequireAuthorization("Authenticated")
+            .RequireAuthorization("Admin")
             .Produces(404);
         
-        app.MapPost(ShopRoutes.Stats.GetRevenue, GetRevenue)
+        app.MapGet(ShopRoutes.Stats.GetRevenue, GetRevenue)
             .WithTags(Tags)
             .WithDescription("Get total revenue daily or monthly")
-            // .RequireAuthorization("Admin")
+            .RequireAuthorization("Admin")
             .Produces(404);
         
         return app;
