@@ -419,7 +419,7 @@ public static class AuthEndpoints
         {
             HttpOnly = false,  
             Secure = true,
-            SameSite = SameSiteMode.Lax,  
+            SameSite = SameSiteMode.Lax,   
             Expires = DateTimeOffset.UtcNow.AddHours(2),
             Domain = ".epitechproject.fr",
             Path = "/"
