@@ -15,47 +15,9 @@ public class CustomerQueries
         CASE WHEN @orderBy = 1 THEN ""Id"" END ASC
     LIMIT @pageSize 
     OFFSET @offset;";
-}
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+     public static string GetCustomersCountByDateRange = @"
+     SELECT count(*) 
+    FROM backoffice.vw_customers cust
+    WHERE cust.""CreatedAt"" BETWEEN @StartDate AND @EndDate;";
+ }

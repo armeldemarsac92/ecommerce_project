@@ -16,7 +16,9 @@ public static class CustomerMapping
             PhoneNumber = customerSqlResponse.PhoneNumber,
             StripeId = customerSqlResponse.StripeId,
             Role = customerSqlResponse.Role,
-            LockoutEnabled = customerSqlResponse.LockoutEnabled
+            LockoutEnabled = customerSqlResponse.LockoutEnabled,
+            UpdatedAt = customerSqlResponse.UpdatedAt,
+            CreatedAt = customerSqlResponse.CreatedAt
         };
     }
 

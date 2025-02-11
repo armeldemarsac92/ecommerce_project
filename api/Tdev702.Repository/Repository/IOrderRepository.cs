@@ -20,6 +20,7 @@ public interface IOrderRepository
     public Task<int> CreateAsync(CreateOrderSQLRequest createOrderSqlRequest, CancellationToken cancellationToken = default);
     public Task<int> UpdateAsync(UpdateOrderSQLRequest updateOrderSqlRequest, CancellationToken cancellationToken = default);
     public Task<int> DeleteAsync(long id, CancellationToken cancellationToken = default);
+    Task<List<OrderSummarySQLResponse>> GetAllByDateAsync(DateTime start, DateTime end, CancellationToken cancellationToken);
 }
 
 public class OrderRepository : IOrderRepository
@@ -66,5 +67,11 @@ public class OrderRepository : IOrderRepository
    public async Task<int> DeleteAsync(long id, CancellationToken cancellationToken = default)
    {
        return await _dbContext.ExecuteAsync(OrderQueries.DeleteOrder, new { OrderId = id }, cancellationToken);
+   }
+
+   public async Task<List<OrderSummarySQLResponse>> GetAllByDateAsync(DateTime start, DateTime end, CancellationToken cancellationToken)
+   {
+       var response = await _dbContext.QueryAsync<OrderSummarySQLResponse>(OrderQueries.GetAllOrdersByDateRange, new {StartDate = start, EndDate = end}, cancellationToken);
+       return response.Any() ? response.ToList() : new List<OrderSummarySQLResponse>();
    }
 }

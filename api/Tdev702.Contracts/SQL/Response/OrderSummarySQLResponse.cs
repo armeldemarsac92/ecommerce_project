@@ -28,6 +28,9 @@ public class OrderSummarySQLResponse
 
     [Column("created_at")]
     public DateTime CreatedAt { get; init; }
+    
+    [Column("updated_at")]
+    public DateTime UpdatedAt { get; init; }
 
     [Column("order_items")]
     public OrderItem[]? OrderItems { get; init; }

@@ -28,4 +28,10 @@ public class CustomerResponse
     
     [JsonPropertyName("locakout_enabled")]
     public string LockoutEnabled { get; set; }
+    
+    [JsonPropertyName("updated_at")]
+    public DateTime? UpdatedAt { get; set; }
+    
+    [JsonPropertyName("created_at")]
+    public DateTime? CreatedAt { get; set; }
 }

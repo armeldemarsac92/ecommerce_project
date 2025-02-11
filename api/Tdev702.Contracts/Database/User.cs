@@ -19,4 +19,7 @@ public class User : IdentityUser
     
     [StringLength(255)]
     public string? ProfilePicture { get; set; }
+    
+    public DateTime? UpdatedAt { get; set; } = DateTime.UtcNow;
+    public DateTime? CreatedAt { get; set; }
 }

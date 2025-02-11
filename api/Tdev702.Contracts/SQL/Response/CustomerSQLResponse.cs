@@ -27,4 +27,10 @@ public class CustomerSQLResponse
     
     [Column("LockoutEnabled")]
     public string LockoutEnabled { get; set; }
+    
+    [Column("UpdatedAt")]
+    public DateTime? UpdatedAt { get; set; }
+    
+    [Column("CreatedAt")]
+    public DateTime? CreatedAt { get; set; }
 }
