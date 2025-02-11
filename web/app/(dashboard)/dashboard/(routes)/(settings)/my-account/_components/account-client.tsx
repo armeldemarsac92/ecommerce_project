@@ -27,7 +27,7 @@ export const AccountClient = () => {
           <div className={"w-full flex justify-between items-center"}>
             <div className={"flex items-center gap-x-5"}>
               <Avatar className="size-20" asChild>
-                <AvatarImage src={"https://ui.shadcn.com/avatars/02.png"} alt={"Avatar user"} />
+                <AvatarImage src={authenticated_user.picture} alt={"Avatar user"} />
               </Avatar>
 
               <div>
