@@ -1,5 +1,6 @@
 using MassTransit;
 using Microsoft.AspNetCore.Identity;
+using Tdev702.Contracts.Auth.Response;
 using Tdev702.Contracts.Database;
 
 namespace Tdev702.Auth.Services;
@@ -15,6 +16,7 @@ public record UserRecord(
 public interface IUserService
 {
     public Task<User> CreateUserAsync(UserRecord record, string userRole);
+    public Task<User> UpdateUserAsync(UserInfos record, string userRole);
     public Task ConfirmUserEmailAsync(User user, HttpContext httpContext);
 }
 
@@ -54,6 +56,27 @@ public class UserService : IUserService
             await _userManager.AddToRoleAsync(user, userRole);
             _logger.LogInformation("User {Email} added to role: {UserRole}", user.Email, userRole);
             await _publishEndpoint.Publish(user);
+            return user;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError("Error creating user: {Message}", ex.Message);
+            throw;
+        }
+    }
+
+    public async Task<User> UpdateUserAsync(UserInfos record, string userRole)
+    {
+        try
+        {
+            _logger.LogInformation("Updating user: {Email}", record.Email);
+            var user = new User {Email = record.Email, FirstName = record.GivenName, LastName = record.FamilyName, ProfilePicture = record.Picture};
+            var result = await _userManager.UpdateAsync(user);
+            if (!result.Succeeded) throw new Exception(result.Errors.First().Description);
+            _logger.LogInformation("User updated: {Email}", user.Email);
+            _logger.LogInformation("Adding user {Email} to role: {UserRole}", user.Email, userRole);
+            await _userManager.AddToRoleAsync(user, userRole);
+            _logger.LogInformation("User {Email} added to role: {UserRole}", user.Email, userRole);
             return user;
         }
         catch (Exception ex)
