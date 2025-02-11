@@ -93,6 +93,7 @@ public class TokenService : ITokenService
             new(JwtRegisteredClaimNames.GivenName, user.FirstName ?? string.Empty),
             new(JwtRegisteredClaimNames.FamilyName, user.LastName ?? string.Empty),
             new("email_verified", user.EmailConfirmed.ToString().ToLower()),
+            new("picture", user.ProfilePicture ?? string.Empty),
             new("stripe_id", user.StripeCustomerId ?? string.Empty)
         };
 

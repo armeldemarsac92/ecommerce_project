@@ -45,6 +45,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
                     email_verified: decoded.email_verified,
                     family_name: decoded.family_name,
                     given_name: decoded.given_name,
+                    picture: decoded.picture
                 };
 
                 sessionStorage.setItem('authenticated_user', JSON.stringify(userData));
@@ -80,6 +81,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
                 email_verified: decoded.email_verified,
                 family_name: decoded.family_name,
                 given_name: decoded.given_name,
+                picture: decoded.picture
             };
 
             sessionStorage.setItem('authenticated_user', JSON.stringify(userData));

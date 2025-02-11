@@ -46,7 +46,7 @@ export function NavUser({ user }: { user: AuthenticatedUser }) {
               <SidebarMenuButton size="lg">
                 <div className={"relative inline-block"}>
                   <Avatar className="w-8 h-8 rounded-lg object-contain" asChild>
-                    <AvatarImage src={"https://ui.shadcn.com/avatars/02.png"} alt={"Avatar user"} />
+                    <AvatarImage src={user?.picture} alt={"Avatar user"} />
                   </Avatar>
                 </div>
                 <div className="grid flex-1 text-left text-sm leading-tight group-data-[collapsible=icon]:hidden">
@@ -65,7 +65,7 @@ export function NavUser({ user }: { user: AuthenticatedUser }) {
               <DropdownMenuLabel className="p-0 font-normal">
                 <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
                   <Avatar className="h-8 w-8 rounded-lg">
-                    <AvatarImage src={"https://ui.shadcn.com/avatars/02.png"} alt={"Avatar user"} />
+                    <AvatarImage src={user?.picture} alt={"Avatar user"} />
                     <AvatarFallback className="rounded-lg">CN</AvatarFallback>
                   </Avatar>
                   <div className="grid flex-1 text-left text-sm leading-tight">

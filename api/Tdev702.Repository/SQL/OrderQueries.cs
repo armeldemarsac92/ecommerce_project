@@ -12,6 +12,11 @@ public static class OrderQueries
    FROM backoffice.vw_orders_summary
    WHERE stripe_session_id = @StripeSessionId;";
 
+    public static string GetAllOrdersByDateRange = @"
+   SELECT *
+   FROM backoffice.vw_orders_summary ord
+   WHERE ord.updated_at BETWEEN @StartDate AND @EndDate;";
+
     public static string GetAllOrders = @"
    SELECT *
    FROM backoffice.vw_orders_summary        

@@ -7,6 +7,7 @@ export type AuthenticatedUser = {
   email_verified: boolean;
   family_name: string;
   given_name: string;
+  picture?: string;
   role?: string;
 }
 

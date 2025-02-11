@@ -20,6 +20,7 @@ public static class EndpointExtensions
         app.MapCustomerEndpoints();
         app.MapTagEndpoints();
         app.MapOpenFoodFactEndpoints();
+        app.MapStatEndpoints();
         return app;
     }
 
@@ -34,6 +35,7 @@ public static class EndpointExtensions
         services.AddScoped<ICustomerService, CustomerService>();
         services.AddScoped<IOpenFoodFactService, OpenFoodFactService>();
         services.AddSingleton<IKeyService, KeyService>();
+        services.AddScoped<IStatsService, StatsService>();
         return services;
     }
 }

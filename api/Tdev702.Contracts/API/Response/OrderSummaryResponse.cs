@@ -31,6 +31,9 @@ public class OrderSummaryResponse
 
     [JsonPropertyName("order_items")]
     public OrderItemResponse[]? OrderItems { get; init; }
+
+    [JsonPropertyName("updated_at")]
+    public DateTime UpdatedAt { get; init; }
 }
 
 public class OrderItemResponse

@@ -13,27 +13,27 @@ public static class RoleEndpoints
     public static IEndpointRouteBuilder MapRoleEndpoints(this IEndpointRouteBuilder app)
     {
         app.MapGet(ApiRoutes.Roles.GetAll, GetRoles)
-            .RequireAuthorization("AdminPolicy")
+            .RequireAuthorization("Admin")
             .WithName("GetRoles");
 
         app.MapPost(ApiRoutes.Roles.Create, CreateRole)
-            .RequireAuthorization("AdminPolicy")
+            .RequireAuthorization("Admin")
             .WithName("CreateRole");
 
         app.MapDelete(ApiRoutes.Roles.Delete, DeleteRole)
-            .RequireAuthorization("AdminPolicy")
+            .RequireAuthorization("Admin")
             .WithName("DeleteRole");
 
         app.MapPost(ApiRoutes.Roles.AddUserToRole, AddUserToRole)
-            .RequireAuthorization("AdminPolicy")
+            .RequireAuthorization("Admin")
             .WithName("AddUserToRole");
 
         app.MapDelete(ApiRoutes.Roles.RemoveUserFromRole, RemoveUserFromRole)
-            .RequireAuthorization("AdminPolicy")
+            .RequireAuthorization("Admin")
             .WithName("RemoveUserFromRole");
 
         app.MapGet(ApiRoutes.Roles.GetUserRoles, GetUserRoles)
-            .RequireAuthorization("AdminPolicy")
+            .RequireAuthorization("Admin")
             .WithName("GetUserRoles");
         
         return app;

@@ -41,6 +41,7 @@ public static class OrderMapping
             TotalAmount = orderSql.TotalAmount,
             StripeInvoiceId = orderSql.StripeInvoiceId,
             StripeSessionId = orderSql.StripeSessionId,
+            UpdatedAt = orderSql.UpdatedAt,
             CreatedAt = orderSql.CreatedAt,
             OrderItems = orderSql.OrderItems?
                 .Where(item => item.ProductId != null)

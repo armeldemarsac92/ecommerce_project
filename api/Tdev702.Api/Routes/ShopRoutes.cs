@@ -89,4 +89,11 @@ public static class ShopRoutes
         public const string PaymentIntent = $"{Base}/webhooks/payment_intent";
         public const string Session = $"{Base}/webhooks/session";
     }
+
+    public static class Stats
+    {
+        public const string GetNewUsers = $"{Base}/stats/new_users/{{dateRange}}";
+        public const string GetCartAverage = $"{Base}/stats/cart_average/{{dateRange}}";
+        public const string GetRevenue = $"{Base}/stats/revenue/{{dateRange}}";
+    }
 }
