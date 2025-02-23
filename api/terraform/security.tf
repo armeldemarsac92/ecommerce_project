@@ -307,3 +307,4 @@ resource "aws_security_group" "vpc" {
   }
   vpc_id      = aws_vpc.main.id
 }
+
