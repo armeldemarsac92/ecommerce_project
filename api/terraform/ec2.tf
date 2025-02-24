@@ -1,3 +1,5 @@
+
+
 resource "aws_instance" "bastion" {
   ami                         = "ami-0eddb4a4e7d846d6f"
   instance_type               = "t2.nano"

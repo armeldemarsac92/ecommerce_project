@@ -22,7 +22,7 @@ resource "aws_ecs_service" "auth" {
   cluster                            = aws_ecs_cluster.main.id
   deployment_maximum_percent         = 200
   deployment_minimum_healthy_percent = 100
-  desired_count                      = 0
+  desired_count                      = 1
   enable_ecs_managed_tags            = true
   enable_execute_command             = true
   health_check_grace_period_seconds  = 60
@@ -74,7 +74,7 @@ resource "aws_ecs_service" "api" {
   cluster                            = aws_ecs_cluster.main.id
   deployment_maximum_percent         = 200
   deployment_minimum_healthy_percent = 100
-  desired_count                      = 0
+  desired_count                      = 1
   enable_ecs_managed_tags            = true
   enable_execute_command             = true
   health_check_grace_period_seconds  = 60
@@ -122,7 +122,7 @@ resource "aws_ecs_service" "frontend" {
   cluster                            = aws_ecs_cluster.main.id
   deployment_maximum_percent         = 200
   deployment_minimum_healthy_percent = 100
-  desired_count                      = 0
+  desired_count                      = 1
   enable_ecs_managed_tags            = true
   enable_execute_command             = true
   health_check_grace_period_seconds  = 60

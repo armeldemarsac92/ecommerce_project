@@ -297,7 +297,7 @@ resource "aws_security_group" "vpc" {
       to_port          = 65535
     },
   ]
-  name        = "default"
+  name        = "vpc"
   name_prefix = null
   tags                                 = {
     "Project" = var.project_name
