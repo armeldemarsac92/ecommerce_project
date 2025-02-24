@@ -14,15 +14,18 @@ resource "aws_db_subnet_group" "database" {
   }
 }
 
-data "aws_db_snapshot" "latest" {
-  db_instance_identifier = "tdev700"
-  most_recent            = true
-  snapshot_type          = "manual"
+data "aws_db_snapshot" "final_snapshot" {
+  most_recent         = true
+  snapshot_type       = "manual"
+  include_shared      = false
+  include_public      = false
+
+  db_snapshot_identifier = "${var.database_name}-final-snapshot"
 }
 
 resource "aws_db_instance" "postgresql" {
   identifier                          = var.database_name
-  snapshot_identifier    = data.aws_db_snapshot.latest.id
+  snapshot_identifier    = data.aws_db_snapshot.final_snapshot.id
   allocated_storage                   = 20
   engine                              = "postgres"
   engine_version                      = "16.3"
@@ -44,7 +47,8 @@ resource "aws_db_instance" "postgresql" {
   backup_window                       = "21:38-22:08"
   maintenance_window                  = "mon:02:18-mon:02:48"
 
-  skip_final_snapshot                 = false
+  skip_final_snapshot   = false
+  final_snapshot_identifier = "${var.database_name}-final-snapshot-${formatdate("YYYYMMDDhhmmss", timestamp())}"
   publicly_accessible                 = false
 
 }

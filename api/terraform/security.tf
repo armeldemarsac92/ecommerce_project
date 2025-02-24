@@ -1,5 +1,6 @@
 resource "aws_security_group" "rds" {
-  description = "Created by RDS management console"
+  name        = "sg_database_${var.project_name}"
+  description = "Security group for the database of ${var.project_name}."
   egress      = [
     {
       cidr_blocks      = [
@@ -59,7 +60,6 @@ resource "aws_security_group" "rds" {
       to_port          = 65535
     },
   ]
-  name        = "tdev700"
   tags                                 = {
     "Project" = var.project_name
   }
@@ -70,7 +70,8 @@ resource "aws_security_group" "rds" {
 }
 
 resource "aws_security_group" "load_balancer" {
-  description = "tdev700"
+  name        = "sg_load_balancer_${var.project_name}"
+  description = "Security group for the load balancer of ${var.project_name}."
   egress      = [
     {
       cidr_blocks      = [
@@ -105,7 +106,6 @@ resource "aws_security_group" "load_balancer" {
       to_port          = 443
     },
   ]
-  name        = "alb_tdev700"
   name_prefix = null
   tags                                 = {
     "Project" = var.project_name
@@ -117,7 +117,8 @@ resource "aws_security_group" "load_balancer" {
 }
 
 resource "aws_security_group" "api" {
-  description = "ecs api tdev700"
+  name        = "sg_api_${var.project_name}"
+  description = "Security group for the api server of ${var.project_name}."
   egress      = [
     {
       cidr_blocks      = [
@@ -150,7 +151,6 @@ resource "aws_security_group" "api" {
       to_port          = 0
     },
   ]
-  name        = "tdev700-api"
   name_prefix = null
   tags                                 = {
     "Project" = var.project_name
@@ -162,7 +162,8 @@ resource "aws_security_group" "api" {
 }
 
 resource "aws_security_group" "auth" {
-  description = "auth tdev700 api"
+  name        = "sg_auth_server_${var.project_name}"
+  description = "Security group for the authentication server of ${var.project_name}."
   egress      = [
     {
       cidr_blocks      = [
@@ -195,7 +196,6 @@ resource "aws_security_group" "auth" {
       to_port          = 0
     },
   ]
-  name        = "tdev700-auth"
   name_prefix = null
   tags                                 = {
     "Project" = var.project_name
@@ -207,7 +207,8 @@ resource "aws_security_group" "auth" {
 }
 
 resource "aws_security_group" "frontend" {
-  description = "tdev 700 frontend"
+  name        = "sg_frontend_${var.project_name}"
+  description = "Security group for the frontend server of ${var.project_name}."
   egress      = [
     {
       cidr_blocks      = [
@@ -240,7 +241,6 @@ resource "aws_security_group" "frontend" {
       to_port          = 0
     },
   ]
-  name        = "tdev700-frontend"
   tags                                 = {
     "Project" = var.project_name
   }
@@ -251,7 +251,8 @@ resource "aws_security_group" "frontend" {
 }
 
 resource "aws_security_group" "vpc" {
-  description = "default VPC security group"
+  name        = "sg_vpc_${var.project_name}"
+  description = "Security group for the vpc of ${var.project_name}."
   egress      = [
     {
       cidr_blocks      = [
@@ -297,7 +298,6 @@ resource "aws_security_group" "vpc" {
       to_port          = 65535
     },
   ]
-  name        = "vpc"
   name_prefix = null
   tags                                 = {
     "Project" = var.project_name

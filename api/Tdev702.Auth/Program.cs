@@ -84,7 +84,6 @@ if (app.Environment.IsDevelopment())
     app.ApplyMigrations();
 }
 
-app.UseHttpsRedirection(); 
 app.UseCors();
 app.UseAuthentication(); 
 app.UseAuthorization();

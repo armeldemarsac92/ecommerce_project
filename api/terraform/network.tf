@@ -7,7 +7,7 @@ resource "aws_vpc" "main" {
   instance_tenancy                     = "default"
   
   tags                                 = {
-    Name   = "tdev700-vpc"
+    "Name"   = "${var.project_name}_vpc"
     "Project" = var.project_name
   }
   tags_all                             = {
@@ -19,8 +19,8 @@ resource "aws_internet_gateway" "main" {
   vpc_id = aws_vpc.main.id
 
   tags = {
-    Name   = "tdev700-igw"
-    projet = var.project_name
+    "Name"   = "${var.project_name}_igw"
+    "Project" = var.project_name
   }
 }
 
@@ -38,8 +38,8 @@ resource "aws_route_table" "public" {
   }
 
   tags = {
-    Name   = "tdev700-rtb-public"
-    projet = var.project_name
+    "Name"   = "${var.project_name}_rtb_public"
+    "Project" = var.project_name
   }
 }
 
@@ -87,7 +87,7 @@ resource "aws_subnet" "subnet1b" {
 
 
 resource "aws_subnet" "subnet1c" {
-  availability_zone                              = "eu-central-1c"
+  availability_zone                              = "eu_central_1c"
   cidr_block                                     = "172.30.2.0/24"
   enable_dns64                                   = false
   enable_resource_name_dns_a_record_on_launch    = false
@@ -99,6 +99,7 @@ resource "aws_subnet" "subnet1c" {
   
   private_dns_hostname_type_on_launch            = "ip-name"
   tags                                 = {
+    "Name"   = "${var.project_name}-subnet-private1-eu-central-1a"
     "Project" = var.project_name
   }
   tags_all                             = {
@@ -132,8 +133,8 @@ resource "aws_subnet" "private_subnet_1" {
   map_public_ip_on_launch = false
 
   tags = {
-    Name   = "seeqr-subnet-private1-eu-central-1a"
-    projet = var.project_name
+    "Name"   = "${var.project_name}_subnet_private1_eu_central_1a"
+    "Project" = var.project_name
   }
 }
 
@@ -144,8 +145,8 @@ resource "aws_subnet" "private_subnet_2" {
   map_public_ip_on_launch = false
 
   tags = {
-    Name   = "seeqr-subnet-private2-eu-central-1b"
-    projet = var.project_name
+    "Name"   = "${var.project_name}_subnet_private2_eu_central_1b"
+    "Project" = var.project_name
   }
 }
 
@@ -156,8 +157,8 @@ resource "aws_subnet" "private_subnet_3" {
   map_public_ip_on_launch = false
 
   tags = {
-    Name   = "seeqr-subnet-private3-eu-central-1c"
-    projet = var.project_name
+    "Name"   = "${var.project_name}_subnet_private3_eu_central_1c"
+    "Project" = var.project_name
   }
 }
 
@@ -165,8 +166,8 @@ resource "aws_route_table" "private" {
   vpc_id = aws_vpc.main.id
 
   tags = {
-    Name   = "seeqr-rtb-private"
-    projet = var.project_name
+    "Name"   = "${var.project_name}_rtb_private"
+    "Project" = var.project_name
   }
 }
 
