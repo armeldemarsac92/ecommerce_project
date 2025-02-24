@@ -18,7 +18,7 @@ const axiosInstance = axios.create({
 });
 
 const authAxiosInstance = axios.create({
-    baseURL: 'https://auth.epitechproject/api',
+    baseURL: 'https://auth.epitechproject.fr/api',
     timeout: 5000,
     headers: {
         'Content-Type': 'application/json',
