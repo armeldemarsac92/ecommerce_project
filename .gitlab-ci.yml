@@ -6,17 +6,50 @@ variables:
   DOCKER_HOST: unix:///var/run/docker.sock
   DOCKER_DRIVER: overlay2
   GIT_DEPTH: 0
+  ECR_REPO: "$AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/t-dev-702/prod"
 
 stages:
   - test
   - build
 
+# Rules for component changes
+.web_changes: &web_changes
+  changes:
+    - web/**/*
+
+.api_changes: &api_changes
+  changes:
+    - api/Tdev702.Api/**/*
+    - api/Tdev702.Contracts/**/*
+    - api/Tdev702.Repository/**/*
+    - api/Tdev702.AWS.SDK/**/*
+    - api/Tdev702.Stripe.SDK/**/*
+    - api/Tdev702.OpenFoodFact.SDK/**/*
+
+.auth_changes: &auth_changes
+  changes:
+    - api/Tdev702.Auth/**/*
+    - api/Tdev702.Contracts/**/*
+    - api/Tdev702.Repository/**/*
+    - api/Tdev702.Stripe.SDK/**/*
+    - api/Tdev702.AWS.SDK/**/*
+
+.infra_changes: &infra_changes
+  changes:
+    - api/terraform/**/*
+
 frontend-test:
   stage: test
   image: cypress/browsers:22.12.0
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event" && *web_changes
+    - if: $CI_COMMIT_BRANCH == "main" && *web_changes
+  cache:
+    key: ${CI_COMMIT_REF_SLUG}-frontend
+    paths:
+      - web/node_modules/
   before_script:
-    - cd $CI_PROJECT_DIR
-    - cd ./web
+    - cd $CI_PROJECT_DIR/web
     - yarn install
   script:
     - yarn run lint || true
@@ -30,60 +63,72 @@ frontend-test:
     paths:
       - web/cypress/screenshots/**/*
   allow_failure: true
-  only:
-    - merge_requests
-    - main
 
-backend-test:
+api-test:
   stage: test
   image: mcr.microsoft.com/dotnet/sdk:8.0
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event" && *api_changes
+    - if: $CI_COMMIT_BRANCH == "main" && *api_changes
+  cache:
+    key: ${CI_COMMIT_REF_SLUG}-api
+    paths:
+      - api/*/obj/
+      - api/*/bin/
   before_script:
-    - cd $CI_PROJECT_DIR
-    - cd ./api
+    - cd $CI_PROJECT_DIR/api
     - dotnet restore
   script:
     - dotnet test ./Tdev702.Api.Tests.Unit/Tdev702.Api.Tests.Unit.csproj
   allow_failure: true
-  only:
-    - merge_requests
-    - main
 
-build:
-  stage: build
-  needs:
-    - frontend-test
-    - backend-test
-  script:
-    # AWS ECR Login
+.ecr_login: &ecr_login
+  before_script:
     - apk add --no-cache git aws-cli
-    - docker info
     - aws configure set aws_access_key_id $AWS_ACCESS_KEY_ID
     - aws configure set aws_secret_access_key $AWS_SECRET_ACCESS_KEY
     - aws configure set default.region $AWS_REGION
-    - aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com
-    
-    # Build Docker images
-    # build front
-    - cd $CI_PROJECT_DIR
-    - cd ./web
+    - aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $ECR_REPO
+
+build-frontend:
+  stage: build
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event" && *web_changes
+    - if: $CI_COMMIT_BRANCH == "main" && *web_changes
+  needs:
+    - job: frontend-test
+      optional: true
+  <<: *ecr_login
+  script:
+    - cd $CI_PROJECT_DIR/web
     - docker build --load -t t-dev-702-web:latest -f ./Dockerfile .
-    - docker tag t-dev-702-web:latest $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/t-dev-702/prod/frontend:latest
-    
-    # build back
-    - cd $CI_PROJECT_DIR
-    - cd ./api
+    - docker tag t-dev-702-web:latest $ECR_REPO/frontend:latest
+    - docker push $ECR_REPO/frontend:latest
+
+build-api:
+  stage: build
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event" && *api_changes
+    - if: $CI_COMMIT_BRANCH == "main" && *api_changes
+  needs:
+    - job: api-test
+      optional: true
+  <<: *ecr_login
+  script:
+    - cd $CI_PROJECT_DIR/api
     - docker build --load -t t-dev-702-api:latest -f ./Tdev702.Api/Dockerfile .
-    - docker tag t-dev-702-api:latest $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/t-dev-702/prod/api:latest
-    
-    # build auth
-    - cd $CI_PROJECT_DIR
-    - cd ./api
+    - docker tag t-dev-702-api:latest $ECR_REPO/api:latest
+    - docker push $ECR_REPO/api:latest
+
+build-auth:
+  stage: build
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event" && *auth_changes
+    - if: $CI_COMMIT_BRANCH == "main" && *auth_changes
+  <<: *ecr_login
+  script:
+    - cd $CI_PROJECT_DIR/api
     - docker build --load -t t-dev-702-auth:latest -f ./Tdev702.Auth/Dockerfile .
-    - docker tag t-dev-702-auth:latest $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/t-dev-702/prod/auth:latest
-    
-    # Push images to AWS ECR
-    - docker push $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/t-dev-702/prod/frontend:latest
-    - docker push $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/t-dev-702/prod/api:latest
-    - docker push $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/t-dev-702/prod/auth:latest
-  only:
-    - main
+    - docker tag t-dev-702-auth:latest $ECR_REPO/auth:latest
+    - docker push $ECR_REPO/auth:latest
+
