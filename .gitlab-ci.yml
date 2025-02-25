@@ -14,36 +14,40 @@ stages:
 
 # Rules for component changes
 .web_changes: &web_changes
-  changes:
-    - web/**/*
+  - changes:
+      - web/**/*
 
 .api_changes: &api_changes
-  changes:
-    - api/Tdev702.Api/**/*
-    - api/Tdev702.Contracts/**/*
-    - api/Tdev702.Repository/**/*
-    - api/Tdev702.AWS.SDK/**/*
-    - api/Tdev702.Stripe.SDK/**/*
-    - api/Tdev702.OpenFoodFact.SDK/**/*
+  - changes:
+      - api/Tdev702.Api/**/*
+      - api/Tdev702.Contracts/**/*
+      - api/Tdev702.Repository/**/*
+      - api/Tdev702.AWS.SDK/**/*
+      - api/Tdev702.Stripe.SDK/**/*
+      - api/Tdev702.OpenFoodFact.SDK/**/*
 
 .auth_changes: &auth_changes
-  changes:
-    - api/Tdev702.Auth/**/*
-    - api/Tdev702.Contracts/**/*
-    - api/Tdev702.Repository/**/*
-    - api/Tdev702.Stripe.SDK/**/*
-    - api/Tdev702.AWS.SDK/**/*
+  - changes:
+      - api/Tdev702.Auth/**/*
+      - api/Tdev702.Contracts/**/*
+      - api/Tdev702.Repository/**/*
+      - api/Tdev702.Stripe.SDK/**/*
+      - api/Tdev702.AWS.SDK/**/*
 
 .infra_changes: &infra_changes
-  changes:
-    - api/terraform/**/*
+  - changes:
+      - api/terraform/**/*
 
 frontend-test:
   stage: test
   image: cypress/browsers:22.12.0
   rules:
-    - if: $CI_PIPELINE_SOURCE == "merge_request_event" && *web_changes
-    - if: $CI_COMMIT_BRANCH == "main" && *web_changes
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+      changes:
+        - web/**/*
+    - if: $CI_COMMIT_BRANCH == "main"
+      changes:
+        - web/**/*
   cache:
     key: ${CI_COMMIT_REF_SLUG}-frontend
     paths:
@@ -68,8 +72,22 @@ api-test:
   stage: test
   image: mcr.microsoft.com/dotnet/sdk:8.0
   rules:
-    - if: $CI_PIPELINE_SOURCE == "merge_request_event" && *api_changes
-    - if: $CI_COMMIT_BRANCH == "main" && *api_changes
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+      changes:
+        - api/Tdev702.Api/**/*
+        - api/Tdev702.Contracts/**/*
+        - api/Tdev702.Repository/**/*
+        - api/Tdev702.AWS.SDK/**/*
+        - api/Tdev702.Stripe.SDK/**/*
+        - api/Tdev702.OpenFoodFact.SDK/**/*
+    - if: $CI_COMMIT_BRANCH == "main"
+      changes:
+        - api/Tdev702.Api/**/*
+        - api/Tdev702.Contracts/**/*
+        - api/Tdev702.Repository/**/*
+        - api/Tdev702.AWS.SDK/**/*
+        - api/Tdev702.Stripe.SDK/**/*
+        - api/Tdev702.OpenFoodFact.SDK/**/*
   cache:
     key: ${CI_COMMIT_REF_SLUG}-api
     paths:
@@ -93,8 +111,12 @@ api-test:
 build-frontend:
   stage: build
   rules:
-    - if: $CI_PIPELINE_SOURCE == "merge_request_event" && *web_changes
-    - if: $CI_COMMIT_BRANCH == "main" && *web_changes
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+      changes:
+        - web/**/*
+    - if: $CI_COMMIT_BRANCH == "main"
+      changes:
+        - web/**/*
   needs:
     - job: frontend-test
       optional: true
@@ -108,8 +130,22 @@ build-frontend:
 build-api:
   stage: build
   rules:
-    - if: $CI_PIPELINE_SOURCE == "merge_request_event" && *api_changes
-    - if: $CI_COMMIT_BRANCH == "main" && *api_changes
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+      changes:
+        - api/Tdev702.Api/**/*
+        - api/Tdev702.Contracts/**/*
+        - api/Tdev702.Repository/**/*
+        - api/Tdev702.AWS.SDK/**/*
+        - api/Tdev702.Stripe.SDK/**/*
+        - api/Tdev702.OpenFoodFact.SDK/**/*
+    - if: $CI_COMMIT_BRANCH == "main"
+      changes:
+        - api/Tdev702.Api/**/*
+        - api/Tdev702.Contracts/**/*
+        - api/Tdev702.Repository/**/*
+        - api/Tdev702.AWS.SDK/**/*
+        - api/Tdev702.Stripe.SDK/**/*
+        - api/Tdev702.OpenFoodFact.SDK/**/*
   needs:
     - job: api-test
       optional: true
@@ -123,12 +159,23 @@ build-api:
 build-auth:
   stage: build
   rules:
-    - if: $CI_PIPELINE_SOURCE == "merge_request_event" && *auth_changes
-    - if: $CI_COMMIT_BRANCH == "main" && *auth_changes
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+      changes:
+        - api/Tdev702.Auth/**/*
+        - api/Tdev702.Contracts/**/*
+        - api/Tdev702.Repository/**/*
+        - api/Tdev702.Stripe.SDK/**/*
+        - api/Tdev702.AWS.SDK/**/*
+    - if: $CI_COMMIT_BRANCH == "main"
+      changes:
+        - api/Tdev702.Auth/**/*
+        - api/Tdev702.Contracts/**/*
+        - api/Tdev702.Repository/**/*
+        - api/Tdev702.Stripe.SDK/**/*
+        - api/Tdev702.AWS.SDK/**/*
   <<: *ecr_login
   script:
     - cd $CI_PROJECT_DIR/api
     - docker build --load -t t-dev-702-auth:latest -f ./Tdev702.Auth/Dockerfile .
     - docker tag t-dev-702-auth:latest $ECR_REPO/auth:latest
     - docker push $ECR_REPO/auth:latest
-
