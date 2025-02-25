@@ -1,5 +1,18 @@
+resource "aws_service_discovery_http_namespace" "main" {
+  description = null
+  name        = "${var.project_name}_http_ns"
+  tags        = {
+    "Project" = var.project_name
+    "AmazonECSManaged" = "true"
+  }
+  tags_all    = {
+    "Project" = var.project_name
+    "AmazonECSManaged" = "true"
+  }
+}
+
 resource "aws_ecs_cluster" "main" {
-  name     = "tdev700Cluster"
+  name     = "${var.project_name}_cluster"
   tags                                 = {
     "Project" = var.project_name
   }
@@ -53,19 +66,15 @@ resource "aws_ecs_service" "auth" {
     container_name   = "tdev_auth"
     container_port   = 8080
     elb_name         = null
-    target_group_arn = aws_lb_target_group.auth.arn
+    target_group_arn = var.target_group_arns.auth
   }
 
   network_configuration {
     assign_public_ip = true
     security_groups  = [
-      aws_security_group.auth.id
+      var.security_groups.auth
     ]
-    subnets          = [
-      aws_subnet.subnet1a.id,
-      aws_subnet.subnet1b.id,
-      aws_subnet.subnet1c.id
-    ]
+    subnets          = var.public_subnet_ids
   }
 }
 
@@ -101,19 +110,15 @@ resource "aws_ecs_service" "api" {
     container_name   = "tdev_api"
     container_port   = 8080
     elb_name         = null
-    target_group_arn = aws_lb_target_group.api.arn
+    target_group_arn = var.target_group_arns.api
   }
 
   network_configuration {
     assign_public_ip = true
     security_groups  = [
-      aws_security_group.auth.id
+      var.security_groups.api
     ]
-    subnets          = [
-      aws_subnet.subnet1a.id,
-      aws_subnet.subnet1b.id,
-      aws_subnet.subnet1c.id
-    ]
+    subnets          = var.public_subnet_ids
   }
 }
 
@@ -149,19 +154,15 @@ resource "aws_ecs_service" "frontend" {
     container_name   = "tdev_api"
     container_port   = 3000
     elb_name         = null
-    target_group_arn = aws_lb_target_group.frontend.arn
+    target_group_arn = var.target_group_arns.frontend
   }
 
   network_configuration {
     assign_public_ip = true
     security_groups  = [
-      aws_security_group.auth.id
+      var.security_groups.frontend
     ]
-    subnets          = [
-      aws_subnet.subnet1a.id,
-      aws_subnet.subnet1b.id,
-      aws_subnet.subnet1c.id
-    ]
+    subnets          = var.public_subnet_ids
   }
 }
 

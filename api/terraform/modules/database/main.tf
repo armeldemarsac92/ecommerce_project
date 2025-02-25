@@ -2,11 +2,7 @@ resource "aws_db_subnet_group" "database" {
   name        = "tdev700-database-subnet-group"
   description = "Database subnet group for tdev700 RDS instances"
 
-  subnet_ids = [
-    aws_subnet.private_subnet_1.id,
-    aws_subnet.private_subnet_2.id,
-    aws_subnet.private_subnet_3.id
-  ]
+  subnet_ids = var.private_subnet_ids
 
   tags = {
     Name   = "tdev700-database-subnet-group"
@@ -20,19 +16,19 @@ data "aws_db_snapshot" "final_snapshot" {
   include_shared      = false
   include_public      = false
 
-  db_snapshot_identifier = "${var.database_name}-final-snapshot"
+  db_snapshot_identifier = "${var.project_name}-final-snapshot"
 }
 
 resource "aws_db_instance" "postgresql" {
   identifier                          = var.database_name
   snapshot_identifier    = data.aws_db_snapshot.final_snapshot.id
   allocated_storage                   = 20
-  engine                              = "postgres"
-  engine_version                      = "16.3"
-  instance_class                      = "db.t4g.micro"
+  engine         = var.db_engine
+  engine_version = var.db_engine_version
+  instance_class = var.db_instance_class
 
   db_subnet_group_name                = aws_db_subnet_group.database.name
-  vpc_security_group_ids              = [aws_security_group.vpc.id]
+  vpc_security_group_ids              = [var.security_groups.vpc]
 
   storage_type                        = "gp3"
   storage_encrypted                   = true
@@ -51,4 +47,20 @@ resource "aws_db_instance" "postgresql" {
   final_snapshot_identifier = "${var.database_name}-final-snapshot-${formatdate("YYYYMMDDhhmmss", timestamp())}"
   publicly_accessible                 = false
 
+}
+
+resource "aws_route53_zone" "private" {
+  name = var.internal_dns_zone_name
+
+  vpc {
+    vpc_id = var.vpc_id
+  }
+}
+
+resource "aws_route53_record" "db" {
+  zone_id = aws_route53_zone.private.id
+  name    = var.database_host_name
+  type    = "CNAME"
+  ttl     = 60
+  records = [aws_db_instance.postgresql.address]
 }

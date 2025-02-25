@@ -66,7 +66,7 @@ resource "aws_security_group" "rds" {
   tags_all                             = {
     "Project" = var.project_name
   }
-  vpc_id      = aws_vpc.main.id
+  vpc_id      = var.vpc_id
 }
 
 resource "aws_security_group" "load_balancer" {
@@ -113,7 +113,7 @@ resource "aws_security_group" "load_balancer" {
   tags_all                             = {
     "Project" = var.project_name
   }
-  vpc_id      = aws_vpc.main.id
+  vpc_id      = var.vpc_id
 }
 
 resource "aws_security_group" "api" {
@@ -158,7 +158,7 @@ resource "aws_security_group" "api" {
   tags_all                             = {
     "Project" = var.project_name
   }
-  vpc_id      = aws_vpc.main.id
+  vpc_id      = var.vpc_id
 }
 
 resource "aws_security_group" "auth" {
@@ -203,7 +203,7 @@ resource "aws_security_group" "auth" {
   tags_all                             = {
     "Project" = var.project_name
   }
-  vpc_id      = aws_vpc.main.id
+  vpc_id      = var.vpc_id
 }
 
 resource "aws_security_group" "frontend" {
@@ -247,7 +247,7 @@ resource "aws_security_group" "frontend" {
   tags_all                             = {
     "Project" = var.project_name
   }
-  vpc_id      = aws_vpc.main.id
+  vpc_id      = var.vpc_id
 }
 
 resource "aws_security_group" "vpc" {
@@ -305,6 +305,6 @@ resource "aws_security_group" "vpc" {
   tags_all                             = {
     "Project" = var.project_name
   }
-  vpc_id      = aws_vpc.main.id
+  vpc_id      = var.vpc_id
 }
 

@@ -16,13 +16,9 @@ resource "aws_lb" "main" {
   load_balancer_type                                           = "application"
   preserve_host_header                                         = false
   security_groups                                              = [
-    aws_security_group.load_balancer.id
+    var.security_groups.load_balancer
   ]
-  subnets                                                      = [
-    aws_subnet.subnet1a.id,
-    aws_subnet.subnet1b.id,
-    aws_subnet.subnet1c.id
-  ]
+  subnets                                                      = var.public_subnet_ids
   tags                                 = {
     "Project" = var.project_name
   }
@@ -30,6 +26,35 @@ resource "aws_lb" "main" {
     "Project" = var.project_name
   }
 }
+
+resource "aws_route53_record" "a_records" {
+  for_each = toset(var.domains)
+
+  zone_id = var.external_dns_zone_id
+  name    = each.value
+  type    = "A"
+
+  alias {
+    name                   = aws_lb.main.dns_name
+    zone_id                = aws_lb.main.zone_id
+    evaluate_target_health = true
+  }
+}
+
+resource "aws_route53_record" "aaaa_records" {
+  for_each = toset(var.domains)
+
+  zone_id = var.external_dns_zone_id
+  name    = each.value
+  type    = "AAAA"
+
+  alias {
+    name                   = aws_lb.main.dns_name
+    zone_id                = aws_lb.main.zone_id
+    evaluate_target_health = true
+  }
+}
+
 
 resource "aws_lb_listener" "main" {
   certificate_arn                                                       = "arn:aws:acm:eu-central-1:502863813996:certificate/1cd8114a-0789-4ac7-b3f9-dc01576cf8ef"
@@ -139,7 +164,7 @@ resource "aws_lb_listener_rule" "api" {
 
 resource "aws_lb_target_group" "auth" {
   name        = "lb-tg-auth-${var.project_name}"
-  vpc_id = aws_vpc.main.id
+  vpc_id = var.vpc_id
   deregistration_delay              = "300"
   ip_address_type                   = "ipv4"
   load_balancing_algorithm_type     = "round_robin"
@@ -175,7 +200,7 @@ resource "aws_lb_target_group" "auth" {
 
 resource "aws_lb_target_group" "api" {
   name        = "lb-tg-api-${var.project_name}"
-  vpc_id = aws_vpc.main.id
+  vpc_id = var.vpc_id
   deregistration_delay              = "300"
   ip_address_type                   = "ipv4"
   load_balancing_algorithm_type     = "round_robin"
@@ -211,7 +236,7 @@ resource "aws_lb_target_group" "api" {
 
 resource "aws_lb_target_group" "frontend" {
   name        = "lb-tg-frontend-${var.project_name}"
-  vpc_id = aws_vpc.main.id
+  vpc_id = var.vpc_id
   deregistration_delay              = "300"
   ip_address_type                   = "ipv4"
   load_balancing_algorithm_type     = "round_robin"
