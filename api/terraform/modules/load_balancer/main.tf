@@ -272,7 +272,7 @@ resource "aws_lb_target_group" "frontend" {
 
 resource "aws_security_group" "main" {
   name        = "sg_load_balancer_${var.project_name}"
-  description = "Security group for the load balancer of ${var.project_name}."
+  description = "Security group ffor the load balancer of ${var.project_name}."
   egress      = [
     {
       cidr_blocks      = [

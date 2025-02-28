@@ -43,7 +43,7 @@ resource "aws_route53_record" "bastion" {
 
 resource "aws_security_group" "main" {
   name        = "bastion_sg_${var.project_name}"
-  description = "Security group of the bastion host of ${var.project_name}."
+  description = "Security group of   the bastion host of ${var.project_name}."
   vpc_id      = var.vpc_id
 
   egress {

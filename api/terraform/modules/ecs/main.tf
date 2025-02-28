@@ -118,7 +118,7 @@ resource "aws_security_group_rule" "database_ingress" {
   source_security_group_id = aws_security_group.auth.id
   security_group_id        = var.database_security_group_id
 
-  description = "Allow PostgreSQL access from the auth container"
+  description = "Allow PostgreSQL accesss from the auth container"
 }
 
 
