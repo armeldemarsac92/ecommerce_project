@@ -240,7 +240,7 @@ post_terraform_plan:
       Review the plan and approve this MR to apply these changes.
       EOF
       )
-    - 'curl --location --request POST "https://gitlab.com/api/v4/projects/$CI_MERGE_REQUEST_PROJECT_ID/merge_requests/$CI_MERGE_REQUEST_IID/notes" --header "PRIVATE-TOKEN: $GITLAB_TOKEN" --header "Content-Type: application/json" --data-raw "{ \"body\": \"$COMMENT_BODY\" }"'
+    - 'curl --location --request POST "https://gitlab.com/api/v4/projects/$CI_MERGE_REQUEST_PROJECT_ID/merge_requests/$CI_MERGE_REQUEST_IID/notes" --header "PRIVATE-TOKEN: $GITLAB_API_TOKEN" --header "Content-Type: application/json" --data-raw "{ \"body\": \"$COMMENT_BODY\" }"'
 
 terraform:apply:
   stage: terraform:apply
