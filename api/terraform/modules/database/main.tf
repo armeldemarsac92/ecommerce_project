@@ -67,7 +67,7 @@ resource "aws_route53_record" "db" {
 
 resource "aws_security_group" "main" {
   name        = "sg_database_${var.project_name}"
-  description = "Security group for the database of ${var.project_name}."
+  description = "Security group  for the database of ${var.project_name}."
   egress      = [
     {
       cidr_blocks      = [
