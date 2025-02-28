@@ -87,6 +87,16 @@ api-test:
     - aws configure set default.region $AWS_REGION
     - aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $ECR_REPO
 
+.terraform_setup: &terraform_setup
+  before_script:
+    # Install required tools
+    - apk add --no-cache git aws-cli curl unzip
+    
+    # Install Terraform
+    - curl -LO https://releases.hashicorp.com/terraform/1.7.4/terraform_1.7.4_linux_amd64.zip
+    - unzip terraform_1.7.4_linux_amd64.zip
+    - mv terraform /usr/local/bin/
+      
 build-frontend:
   stage: build
   rules:
