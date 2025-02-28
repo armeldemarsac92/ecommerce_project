@@ -13,6 +13,7 @@ stages:
   - build
   - terraform:validate
   - terraform:plan
+  - post-terraform-comment
   - terraform:apply
 
 
@@ -209,38 +210,39 @@ terraform:plan:
       - api/terraform/tfplan.txt
     expire_in: 1 week
 
-post_terraform_plan:
-  stage: terraform:plan
-  image: alpine:latest
-  needs: ["terraform:plan"]
+post_terraform_plan_comment:
+  stage: post-terraform-comment
+  image: debian
+  needs:
+    - terraform:plan
   rules:
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
       when: never
     - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+      when: on_success
       changes:
         - api/terraform/**/*
-      when: on_success
   script:
-    - apk add --no-cache curl jq
+    - apt-get update
+    - apt-get install -y curl jq
     - cd $CI_PROJECT_DIR/api/terraform
-    - PLAN_CONTENT=$(cat tfplan.txt | sed 's/"/\\"/g' | tr '\n' ' ')
     - |
-      COMMENT_BODY=$(cat << EOF
-      ## Terraform Plan Results
+      # Read the entire plan file
+      PLAN_CONTENT=$(cat tfplan.txt)
       
-      <details>
-      <summary>Expand to view plan</summary>
+      # Create the comment JSON with the full plan content
+      # Using jq to properly escape the content for JSON
+      COMMENT_JSON=$(jq -n \
+        --arg plan "$PLAN_CONTENT" \
+        --arg url "$CI_PIPELINE_URL" \
+        '{body: "## Terraform Plan Results\n\n```terraform\n" + $plan + "\n```\n\n[View pipeline](" + $url + ")"}')
       
-      \`\`\`terraform
-      $PLAN_CONTENT
-      \`\`\`
-      
-      </details>
-      
-      Review the plan and approve this MR to apply these changes.
-      EOF
-      )
-    - 'curl --location --request POST "https://gitlab.com/api/v4/projects/$CI_MERGE_REQUEST_PROJECT_ID/merge_requests/$CI_MERGE_REQUEST_IID/notes" --header "PRIVATE-TOKEN: $GITLAB_API_TOKEN" --header "Content-Type: application/json" --data-raw "{ \"body\": \"$COMMENT_BODY\" }"'
+      # Post comment to merge request
+      curl --location --request POST \
+        "https://gitlab.com/api/v4/projects/$CI_PROJECT_ID/merge_requests/$CI_MERGE_REQUEST_IID/notes" \
+        --header "PRIVATE-TOKEN: $GITLAB_TOKEN" \
+        --header "Content-Type: application/json" \
+        --data "$COMMENT_JSON"
 
 terraform:apply:
   stage: terraform:apply
