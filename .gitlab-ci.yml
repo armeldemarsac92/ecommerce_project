@@ -205,12 +205,31 @@ terraform:plan:
   script:
     - cd $CI_PROJECT_DIR/api/terraform
     - terraform init
-    - terraform plan -out=tfplan
+    - terraform plan -out=tfplan | tee terraform_plan_output.txt
     - terraform show -no-color tfplan > tfplan.txt
+    - |
+      if [ "$CI_PIPELINE_SOURCE" == "merge_request_event" ]; then
+        # Format the comment with markdown
+        echo "## Terraform Plan Results" > comment.txt
+        echo "" >> comment.txt
+        echo "\`\`\`terraform" >> comment.txt
+        cat tfplan.txt >> comment.txt
+        echo "\`\`\`" >> comment.txt
+      
+        # Post the comment to the MR
+        apk add --no-cache curl jq
+        COMMENT=$(jq -Rs '{"body": .}' comment.txt)
+        curl --request POST \
+          --header "PRIVATE-TOKEN: $GITLAB_API_TOKEN" \
+          --header "Content-Type: application/json" \
+          --data "$COMMENT" \
+          "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/merge_requests/${CI_MERGE_REQUEST_IID}/notes"
+      fi
   artifacts:
     paths:
       - api/terraform/tfplan
       - api/terraform/tfplan.txt
+      - api/terraform/terraform_plan_output.txt
     expire_in: 1 week
 
 terraform:apply:
