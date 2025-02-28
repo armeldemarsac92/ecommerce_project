@@ -202,31 +202,38 @@ terraform:plan:
       - api/terraform/tfplan.txt
     expire_in: 1 week
 
-terraform:report:
+post_terraform_plan:
   stage: terraform:plan
+  image: alpine:latest
   needs: ["terraform:plan"]
   rules:
-    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+      when: never
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
       changes:
         - api/terraform/**/*
+      when: on_success
   script:
+    - apk add --no-cache curl jq
     - cd $CI_PROJECT_DIR/api/terraform
-    - sed 's/^/    /' tfplan.txt > plan_with_indentation.txt
+    - PLAN_CONTENT=$(cat tfplan.txt | sed 's/"/\\"/g' | tr '\n' ' ')
     - |
-      echo "## Terraform Plan Results" > plan_comment.md
-      echo "" >> plan_comment.md
-      echo "<details><summary>Expand to view plan</summary>" >> plan_comment.md
-      echo "" >> plan_comment.md
-      echo '```terraform' >> plan_comment.md
-      cat plan_with_indentation.txt >> plan_comment.md
-      echo '```' >> plan_comment.md
-      echo "</details>" >> plan_comment.md
-  artifacts:
-    paths:
-      - api/terraform/plan_comment.md
-    reports:
-      gitlab_merge_request_comment:
-        - api/terraform/plan_comment.md
+      COMMENT_BODY=$(cat << EOF
+      ## Terraform Plan Results
+      
+      <details>
+      <summary>Expand to view plan</summary>
+      
+      \`\`\`terraform
+      $PLAN_CONTENT
+      \`\`\`
+      
+      </details>
+      
+      Review the plan and approve this MR to apply these changes.
+      EOF
+      )
+    - 'curl --location --request POST "https://gitlab.com/api/v4/projects/$CI_MERGE_REQUEST_PROJECT_ID/merge_requests/$CI_MERGE_REQUEST_IID/notes" --header "PRIVATE-TOKEN: $GITLAB_TOKEN" --header "Content-Type: application/json" --data-raw "{ \"body\": \"$COMMENT_BODY\" }"'
 
 terraform:apply:
   stage: terraform:apply
