@@ -161,7 +161,6 @@ build-auth:
       
 terraform:validate:
   stage: terraform:validate
-  image: alpine:latest
   rules:
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
       changes:
@@ -182,7 +181,6 @@ terraform:validate:
 
 terraform:plan:
   stage: terraform:plan
-  image: alpine:latest
   rules:
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
       changes:
@@ -204,7 +202,6 @@ terraform:plan:
 
 terraform:apply:
   stage: terraform:apply
-  image: alpine:latest
   rules:
     - if: $CI_COMMIT_BRANCH == "main"
       changes:
@@ -221,7 +218,6 @@ terraform:apply:
 
 terraform:destroy:
   stage: terraform:apply
-  image: alpine:latest
   rules:
     - if: $CI_COMMIT_BRANCH == "main"
       changes:
