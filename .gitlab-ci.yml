@@ -173,6 +173,8 @@ terraform:validate:
     - cd $CI_PROJECT_DIR/api/terraform
     - terraform init
   script:
+    - cd $CI_PROJECT_DIR/api/terraform
+    - terraform init
     - terraform validate
     - terraform fmt -check
 
