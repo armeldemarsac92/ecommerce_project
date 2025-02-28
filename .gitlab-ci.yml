@@ -87,23 +87,6 @@ api-test:
     - aws configure set default.region $AWS_REGION
     - aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $ECR_REPO
 
-.terraform_setup: &terraform_setup
-  before_script:
-    # Install required tools
-    - apk add --no-cache git aws-cli curl unzip
-    
-    # Configure AWS
-    - aws configure set aws_access_key_id $AWS_ACCESS_KEY_ID
-    - aws configure set aws_secret_access_key $AWS_SECRET_ACCESS_KEY
-    - aws configure set default.region $AWS_REGION
-    - aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $ECR_REPO
-    
-    # Install Terraform
-    - curl -LO https://releases.hashicorp.com/terraform/1.7.4/terraform_1.7.4_linux_amd64.zip
-    - unzip terraform_1.7.4_linux_amd64.zip
-    - mv terraform /usr/local/bin/
-
-
 build-frontend:
   stage: build
   rules:
@@ -178,6 +161,7 @@ build-auth:
       
 terraform:validate:
   stage: terraform:validate
+  image: alpine:latest
   rules:
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
       changes:
@@ -185,15 +169,20 @@ terraform:validate:
     - if: $CI_COMMIT_BRANCH == "main"
       changes:
         - api/terraform/**/*
-  <<: *terraform_setup
-  script:
+  before_script:
+    - apk add --no-cache curl unzip
+    - curl -LO https://releases.hashicorp.com/terraform/1.7.4/terraform_1.7.4_linux_amd64.zip
+    - unzip terraform_1.7.4_linux_amd64.zip
+    - mv terraform /usr/local/bin/
     - cd $CI_PROJECT_DIR/api/terraform
     - terraform init
+  script:
     - terraform validate
-    - terraform fmt || true
+    - terraform fmt -check
 
 terraform:plan:
   stage: terraform:plan
+  image: alpine:latest
   rules:
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
       changes:
@@ -201,48 +190,77 @@ terraform:plan:
     - if: $CI_COMMIT_BRANCH == "main"
       changes:
         - api/terraform/**/*
-  <<: *terraform_setup
-  script:
+  before_script:
+    - apk add --no-cache curl unzip aws-cli
+    - curl -LO https://releases.hashicorp.com/terraform/1.7.4/terraform_1.7.4_linux_amd64.zip
+    - unzip terraform_1.7.4_linux_amd64.zip
+    - mv terraform /usr/local/bin/
+    - aws configure set aws_access_key_id $AWS_ACCESS_KEY_ID
+    - aws configure set aws_secret_access_key $AWS_SECRET_ACCESS_KEY
+    - aws configure set default.region $AWS_REGION
     - cd $CI_PROJECT_DIR/api/terraform
     - terraform init
-    - terraform plan -out=tfplan | tee terraform_plan_output.txt
+  script:
+    - terraform plan -out=tfplan
     - terraform show -no-color tfplan > tfplan.txt
-    - |
-      if [ "$CI_PIPELINE_SOURCE" == "merge_request_event" ]; then
-        # Format the comment with markdown
-        echo "## Terraform Plan Results" > comment.txt
-        echo "" >> comment.txt
-        echo "\`\`\`terraform" >> comment.txt
-        cat tfplan.txt >> comment.txt
-        echo "\`\`\`" >> comment.txt
-      
-        # Post the comment to the MR
-        apk add --no-cache curl jq
-        COMMENT=$(jq -Rs '{"body": .}' comment.txt)
-        curl --request POST \
-          --header "PRIVATE-TOKEN: $GITLAB_API_TOKEN" \
-          --header "Content-Type: application/json" \
-          --data "$COMMENT" \
-          "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/merge_requests/${CI_MERGE_REQUEST_IID}/notes"
-      fi
   artifacts:
     paths:
       - api/terraform/tfplan
       - api/terraform/tfplan.txt
-      - api/terraform/terraform_plan_output.txt
     expire_in: 1 week
+
+post_terraform_plan:
+  stage: terraform:plan
+  image: alpine:latest
+  needs: ["terraform:plan"]
+  rules:
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+      when: never
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+      changes:
+        - api/terraform/**/*
+      when: on_success
+  script:
+    - apk add --no-cache curl jq
+    - cd $CI_PROJECT_DIR/api/terraform
+    - PLAN_CONTENT=$(cat tfplan.txt | sed 's/"/\\"/g' | tr '\n' ' ')
+    - |
+      COMMENT_BODY=$(cat << EOF
+      ## Terraform Plan Results
+      
+      <details>
+      <summary>Expand to view plan</summary>
+      
+      \`\`\`terraform
+      $PLAN_CONTENT
+      \`\`\`
+      
+      </details>
+      
+      Review the plan and approve this MR to apply these changes.
+      EOF
+      )
+    - 'curl --location --request POST "https://gitlab.com/api/v4/projects/$CI_MERGE_REQUEST_PROJECT_ID/merge_requests/$CI_MERGE_REQUEST_IID/notes" --header "PRIVATE-TOKEN: $GITLAB_TOKEN" --header "Content-Type: application/json" --data-raw "{ \"body\": \"$COMMENT_BODY\" }"'
 
 terraform:apply:
   stage: terraform:apply
+  image: alpine:latest
   rules:
     - if: $CI_COMMIT_BRANCH == "main"
       changes:
         - api/terraform/**/*
       when: manual
-  <<: *terraform_setup
-  script:
+  before_script:
+    - apk add --no-cache curl unzip aws-cli
+    - curl -LO https://releases.hashicorp.com/terraform/1.7.4/terraform_1.7.4_linux_amd64.zip
+    - unzip terraform_1.7.4_linux_amd64.zip
+    - mv terraform /usr/local/bin/
+    - aws configure set aws_access_key_id $AWS_ACCESS_KEY_ID
+    - aws configure set aws_secret_access_key $AWS_SECRET_ACCESS_KEY
+    - aws configure set default.region $AWS_REGION
     - cd $CI_PROJECT_DIR/api/terraform
     - terraform init
+  script:
     - terraform apply -auto-approve
   environment:
     name: production
@@ -250,15 +268,23 @@ terraform:apply:
 
 terraform:destroy:
   stage: terraform:apply
+  image: alpine:latest
   rules:
     - if: $CI_COMMIT_BRANCH == "main"
       changes:
         - api/terraform/**/*
       when: manual
-  <<: *terraform_setup
-  script:
+  before_script:
+    - apk add --no-cache curl unzip aws-cli
+    - curl -LO https://releases.hashicorp.com/terraform/1.7.4/terraform_1.7.4_linux_amd64.zip
+    - unzip terraform_1.7.4_linux_amd64.zip
+    - mv terraform /usr/local/bin/
+    - aws configure set aws_access_key_id $AWS_ACCESS_KEY_ID
+    - aws configure set aws_secret_access_key $AWS_SECRET_ACCESS_KEY
+    - aws configure set default.region $AWS_REGION
     - cd $CI_PROJECT_DIR/api/terraform
     - terraform init
+  script:
     - terraform destroy -auto-approve
   environment:
     name: production
