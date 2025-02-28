@@ -161,7 +161,7 @@ build-auth:
       
 terraform:validate:
   stage: terraform:validate
-  image: hashicorp/terraform:latest
+  image: alpine:latest
   rules:
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
       changes:
@@ -170,17 +170,19 @@ terraform:validate:
       changes:
         - api/terraform/**/*
   before_script:
+    - apk add --no-cache curl unzip
+    - curl -LO https://releases.hashicorp.com/terraform/1.7.4/terraform_1.7.4_linux_amd64.zip
+    - unzip terraform_1.7.4_linux_amd64.zip
+    - mv terraform /usr/local/bin/
     - cd $CI_PROJECT_DIR/api/terraform
     - terraform init
   script:
-    - cd $CI_PROJECT_DIR/api/terraform
-    - terraform init
     - terraform validate
     - terraform fmt -check
 
 terraform:plan:
   stage: terraform:plan
-  image: hashicorp/terraform:latest
+  image: alpine:latest
   rules:
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
       changes:
@@ -189,7 +191,10 @@ terraform:plan:
       changes:
         - api/terraform/**/*
   before_script:
-    - apk add --no-cache aws-cli
+    - apk add --no-cache curl unzip aws-cli
+    - curl -LO https://releases.hashicorp.com/terraform/1.7.4/terraform_1.7.4_linux_amd64.zip
+    - unzip terraform_1.7.4_linux_amd64.zip
+    - mv terraform /usr/local/bin/
     - aws configure set aws_access_key_id $AWS_ACCESS_KEY_ID
     - aws configure set aws_secret_access_key $AWS_SECRET_ACCESS_KEY
     - aws configure set default.region $AWS_REGION
@@ -239,14 +244,17 @@ post_terraform_plan:
 
 terraform:apply:
   stage: terraform:apply
-  image: hashicorp/terraform:latest
+  image: alpine:latest
   rules:
     - if: $CI_COMMIT_BRANCH == "main"
       changes:
         - api/terraform/**/*
       when: manual
   before_script:
-    - apk add --no-cache aws-cli
+    - apk add --no-cache curl unzip aws-cli
+    - curl -LO https://releases.hashicorp.com/terraform/1.7.4/terraform_1.7.4_linux_amd64.zip
+    - unzip terraform_1.7.4_linux_amd64.zip
+    - mv terraform /usr/local/bin/
     - aws configure set aws_access_key_id $AWS_ACCESS_KEY_ID
     - aws configure set aws_secret_access_key $AWS_SECRET_ACCESS_KEY
     - aws configure set default.region $AWS_REGION
@@ -260,14 +268,17 @@ terraform:apply:
 
 terraform:destroy:
   stage: terraform:apply
-  image: hashicorp/terraform:latest
+  image: alpine:latest
   rules:
     - if: $CI_COMMIT_BRANCH == "main"
       changes:
         - api/terraform/**/*
       when: manual
   before_script:
-    - apk add --no-cache aws-cli
+    - apk add --no-cache curl unzip aws-cli
+    - curl -LO https://releases.hashicorp.com/terraform/1.7.4/terraform_1.7.4_linux_amd64.zip
+    - unzip terraform_1.7.4_linux_amd64.zip
+    - mv terraform /usr/local/bin/
     - aws configure set aws_access_key_id $AWS_ACCESS_KEY_ID
     - aws configure set aws_secret_access_key $AWS_SECRET_ACCESS_KEY
     - aws configure set default.region $AWS_REGION
