@@ -49,7 +49,7 @@ resource "aws_security_group" "main" {
   egress {
     from_port        = 5432 
     to_port          = 5432
-    protocol         = "-1"
+    protocol         = "tcp"
     cidr_blocks      = ["0.0.0.0/0"]
     ipv6_cidr_blocks = ["::/0"]
     description      = "Allow all outbound traffic"
