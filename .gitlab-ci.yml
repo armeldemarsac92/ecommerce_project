@@ -231,16 +231,16 @@ post_terraform_plan_comment:
       PLAN_CONTENT=$(cat tfplan.txt)
       
       # Create the comment JSON with the full plan content
-      # Using jq to properly escape the content for JSON
+      # The correct jq syntax uses string interpolation rather than + operators
       COMMENT_JSON=$(jq -n \
         --arg plan "$PLAN_CONTENT" \
         --arg url "$CI_PIPELINE_URL" \
-        '{body: "## Terraform Plan Results\n\n```terraform\n" + $plan + "\n```\n\n[View pipeline](" + $url + ")"}')
+        '{body: "## Terraform Plan Results\n\n```terraform\n\($plan)\n```\n\n[View pipeline](\($url))"}')
       
       # Post comment to merge request
       curl --location --request POST \
         "https://gitlab.com/api/v4/projects/$CI_PROJECT_ID/merge_requests/$CI_MERGE_REQUEST_IID/notes" \
-        --header "PRIVATE-TOKEN: $GITLAB_TOKEN" \
+        --header "PRIVATE-TOKEN: $GITLAB_API_TOKEN" \
         --header "Content-Type: application/json" \
         --data "$COMMENT_JSON"
 
