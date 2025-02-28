@@ -16,7 +16,7 @@ resource "aws_lb" "main" {
   load_balancer_type                                           = "application"
   preserve_host_header                                         = false
   security_groups                                              = [
-    var.security_groups.load_balancer
+    aws_security_group.main.id
   ]
   subnets                                                      = var.public_subnet_ids
   tags                                 = {
@@ -268,5 +268,85 @@ resource "aws_lb_target_group" "frontend" {
     enabled         = false
     type            = "lb_cookie"
   }
+}
+
+resource "aws_security_group" "main" {
+  name        = "sg_load_balancer_${var.project_name}"
+  description = "Security group for the load balancer of ${var.project_name}."
+  egress      = [
+    {
+      cidr_blocks      = [
+        "0.0.0.0/0",
+      ]
+      description      = null
+      from_port        = 0
+      ipv6_cidr_blocks = [
+        "::/0",
+      ]
+      prefix_list_ids  = []
+      protocol         = "-1"
+      security_groups  = []
+      self             = false
+      to_port          = 0
+    },
+  ]
+  ingress     = [
+    {
+      cidr_blocks      = [
+        "0.0.0.0/0",
+      ]
+      description      = null
+      from_port        = 443
+      ipv6_cidr_blocks = [
+        "::/0",
+      ]
+      prefix_list_ids  = []
+      protocol         = "tcp"
+      security_groups  = []
+      self             = false
+      to_port          = 443
+    },
+  ]
+  name_prefix = null
+  tags                                 = {
+    "Project" = var.project_name
+  }
+  tags_all                             = {
+    "Project" = var.project_name
+  }
+  vpc_id      = var.vpc_id
+}
+
+resource "aws_security_group_rule" "auth_server_ingress" {
+  type                     = "ingress"
+  from_port                = 8080
+  to_port                  = 8080
+  protocol                 = "tcp"
+  source_security_group_id = aws_security_group.main.id
+  security_group_id        = var.auth_security_group_id
+
+  description = "Allow traffic to the auth server from the load balancer"
+}
+
+resource "aws_security_group_rule" "api_server_ingress" {
+  type                     = "ingress"
+  from_port                = 8080
+  to_port                  = 8080
+  protocol                 = "tcp"
+  source_security_group_id = aws_security_group.main.id
+  security_group_id        = var.api_security_group_id
+
+  description = "Allow traffic to the api server from the load balancer"
+}
+
+resource "aws_security_group_rule" "frontend_server_ingress" {
+  type                     = "ingress"
+  from_port                = 8080
+  to_port                  = 8080
+  protocol                 = "tcp"
+  source_security_group_id = aws_security_group.main.id
+  security_group_id        = var.frontend_security_group_id
+
+  description = "Allow traffic to the frontend server from the load balancer"
 }
 

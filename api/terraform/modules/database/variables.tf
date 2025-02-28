@@ -15,11 +15,6 @@ variable "private_subnet_ids" {
   type        = list(string)
 }
 
-variable "security_groups" {
-  description = "Map of security group IDs"
-  type        = map(string)
-}
-
 variable "internal_dns_zone_name"{
   description = "The name of the internal DNS zone"
   default = "internal.example-project.fr"

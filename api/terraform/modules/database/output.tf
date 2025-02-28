@@ -3,6 +3,11 @@ output "db_instance_id" {
   value       = aws_db_instance.postgresql.id
 }
 
+output "security_group_id" {
+  description = "The ID of the database security group"
+  value       = aws_security_group.main.id
+}
+
 output "db_instance_address" {
   description = "The address of the RDS instance"
   value       = aws_db_instance.postgresql.address

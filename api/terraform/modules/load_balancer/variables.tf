@@ -15,11 +15,6 @@ variable "private_subnet_ids" {
   type        = list(string)
 }
 
-variable "security_groups" {
-  description = "Map of security group IDs"
-  type        = map(string)
-}
-
 variable "domains" {
   description = "List of domain names to use"
   type        = list(string)
@@ -32,6 +27,21 @@ variable "domains" {
 
 variable "external_dns_zone_id"{
   description = "The id of the external DNS zone"
+  type        = string
+}
+
+variable "auth_security_group_id" {
+  description = "The ID of the security group for the auth service"
+  type        = string
+}
+
+variable "api_security_group_id" {
+  description = "The ID of the security group for the api service"
+  type        = string
+}
+
+variable "frontend_security_group_id" {
+  description = "The ID of the security group for the frontend service"
   type        = string
 }
 

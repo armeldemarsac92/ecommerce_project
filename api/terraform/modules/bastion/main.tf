@@ -3,7 +3,7 @@ resource "aws_instance" "bastion" {
   instance_type               = "t2.nano"
   key_name                    = "tdev700"
   subnet_id                   = var.public_subnet_ids[0]
-  vpc_security_group_ids      = [var.security_groups.vpc]
+  vpc_security_group_ids      = [aws_security_group.main.id]
   associate_public_ip_address = true
   iam_instance_profile        = "ec2Tdev702Role"
 
@@ -40,3 +40,43 @@ resource "aws_route53_record" "bastion" {
   ttl     = 60
   records = [aws_instance.bastion.public_ip]
 }
+
+resource "aws_security_group" "main" {
+  name        = "bastion_sg_${var.project_name}"
+  description = "Security group for the bastion host of ${var.project_name}."
+  vpc_id      = var.vpc_id
+
+  egress {
+    from_port        = 5432 
+    to_port          = 5432
+    protocol         = "-1"
+    cidr_blocks      = ["0.0.0.0/0"]
+    ipv6_cidr_blocks = ["::/0"]
+    description      = "Allow all outbound traffic"
+  }
+
+  ingress {
+    from_port        = 22
+    to_port          = 22
+    protocol         = "tcp"
+    cidr_blocks      = ["0.0.0.0/0"]
+    ipv6_cidr_blocks = ["::/0"]
+    description      = "Allow SSH inbound from anywhere"
+  }
+
+  tags = {
+    "Project" = var.project_name
+  }
+}
+
+resource "aws_security_group_rule" "database_ingress" {
+  type                     = "ingress"
+  from_port                = 5432
+  to_port                  = 5432
+  protocol                 = "tcp"
+  source_security_group_id = aws_security_group.main.id
+  security_group_id        = var.database_security_group_id
+
+  description = "Allow traffic to the database from the bastion host."
+}
+

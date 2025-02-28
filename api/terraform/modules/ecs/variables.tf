@@ -15,11 +15,6 @@ variable "private_subnet_ids" {
   type        = list(string)
 }
 
-variable "security_groups" {
-  description = "Map of security group IDs"
-  type        = map(string)
-}
-
 variable "load_balancer_id" {
   description = "The ARN of the load balancer"
   type        = string
@@ -62,4 +57,9 @@ variable "project_name"{
   description = "The name of the project, used to identify ressources globally."
   type        = string
   default     = "example-project.fr"
+}
+
+variable "database_security_group_id" {
+  description = "The ID of the database security group"
+  type        = string
 }

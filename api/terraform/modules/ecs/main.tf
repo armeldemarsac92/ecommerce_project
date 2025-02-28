@@ -30,6 +30,8 @@ resource "aws_ecs_cluster" "main" {
   }
 }
 
+#region authentication
+
 resource "aws_ecs_service" "auth" {
   availability_zone_rebalancing      = "ENABLED"
   cluster                            = aws_ecs_cluster.main.id
@@ -72,98 +74,51 @@ resource "aws_ecs_service" "auth" {
   network_configuration {
     assign_public_ip = true
     security_groups  = [
-      var.security_groups.auth
+      aws_security_group.auth.id
     ]
     subnets          = var.public_subnet_ids
   }
 }
 
-resource "aws_ecs_service" "api" {
-  availability_zone_rebalancing      = "ENABLED"
-  cluster                            = aws_ecs_cluster.main.id
-  deployment_maximum_percent         = 200
-  deployment_minimum_healthy_percent = 100
-  desired_count                      = 1
-  enable_ecs_managed_tags            = true
-  enable_execute_command             = true
-  health_check_grace_period_seconds  = 60
-  launch_type                        = "FARGATE"
-  name                               = "api"
-  platform_version                   = "LATEST"
-  propagate_tags                     = "NONE"
-  scheduling_strategy                = "REPLICA"
+resource "aws_security_group" "auth" {
+  name        = "sg_auth_server_${var.project_name}"
+  description = "Security group for the authentication server of ${var.project_name}."
+  egress      = [
+    {
+      cidr_blocks      = [
+        "0.0.0.0/0",
+      ]
+      description      = null
+      from_port        = 0
+      ipv6_cidr_blocks = [
+        "::/0",
+      ]
+      prefix_list_ids  = []
+      protocol         = "-1"
+      security_groups  = []
+      self             = false
+      to_port          = 0
+    },
+  ]
+  name_prefix = null
   tags                                 = {
     "Project" = var.project_name
   }
   tags_all                             = {
     "Project" = var.project_name
   }
-  task_definition                    = aws_ecs_task_definition.api.arn
-  triggers                           = {}
-
-  deployment_circuit_breaker {
-    enable   = false
-    rollback = false
-  }
-
-  load_balancer {
-    container_name   = "tdev_api"
-    container_port   = 8080
-    elb_name         = null
-    target_group_arn = var.target_group_arns.api
-  }
-
-  network_configuration {
-    assign_public_ip = true
-    security_groups  = [
-      var.security_groups.api
-    ]
-    subnets          = var.public_subnet_ids
-  }
+  vpc_id      = var.vpc_id
 }
 
-resource "aws_ecs_service" "frontend" {
-  availability_zone_rebalancing      = "ENABLED"
-  cluster                            = aws_ecs_cluster.main.id
-  deployment_maximum_percent         = 200
-  deployment_minimum_healthy_percent = 100
-  desired_count                      = 1
-  enable_ecs_managed_tags            = true
-  enable_execute_command             = true
-  health_check_grace_period_seconds  = 60
-  launch_type                        = "FARGATE"
-  name                               = "frontend"
-  platform_version                   = "LATEST"
-  propagate_tags                     = "NONE"
-  scheduling_strategy                = "REPLICA"
-  tags                                 = {
-    "Project" = var.project_name
-  }
-  tags_all                             = {
-    "Project" = var.project_name
-  }
-  task_definition                    = aws_ecs_task_definition.frontend.arn
-  triggers                           = {}
+resource "aws_security_group_rule" "database_ingress" {
+  type                     = "ingress"
+  from_port                = 5432
+  to_port                  = 5432
+  protocol                 = "tcp"
+  source_security_group_id = aws_security_group.auth.id
+  security_group_id        = var.database_security_group_id
 
-  deployment_circuit_breaker {
-    enable   = false
-    rollback = false
-  }
-
-  load_balancer {
-    container_name   = "tdev_api"
-    container_port   = 3000
-    elb_name         = null
-    target_group_arn = var.target_group_arns.frontend
-  }
-
-  network_configuration {
-    assign_public_ip = true
-    security_groups  = [
-      var.security_groups.frontend
-    ]
-    subnets          = var.public_subnet_ids
-  }
+  description = "Allow PostgreSQL access from the auth container"
 }
 
 
@@ -233,6 +188,84 @@ resource "aws_ecs_task_definition" "auth" {
   }
 }
 
+#endregion authentication
+
+#region api
+
+resource "aws_ecs_service" "api" {
+  availability_zone_rebalancing      = "ENABLED"
+  cluster                            = aws_ecs_cluster.main.id
+  deployment_maximum_percent         = 200
+  deployment_minimum_healthy_percent = 100
+  desired_count                      = 1
+  enable_ecs_managed_tags            = true
+  enable_execute_command             = true
+  health_check_grace_period_seconds  = 60
+  launch_type                        = "FARGATE"
+  name                               = "api"
+  platform_version                   = "LATEST"
+  propagate_tags                     = "NONE"
+  scheduling_strategy                = "REPLICA"
+  tags                                 = {
+    "Project" = var.project_name
+  }
+  tags_all                             = {
+    "Project" = var.project_name
+  }
+  task_definition                    = aws_ecs_task_definition.api.arn
+  triggers                           = {}
+
+  deployment_circuit_breaker {
+    enable   = false
+    rollback = false
+  }
+
+  load_balancer {
+    container_name   = "tdev_api"
+    container_port   = 8080
+    elb_name         = null
+    target_group_arn = var.target_group_arns.api
+  }
+
+  network_configuration {
+    assign_public_ip = true
+    security_groups  = [
+      aws_security_group.api.id
+    ]
+    subnets          = var.public_subnet_ids
+  }
+}
+
+resource "aws_security_group" "api" {
+  name        = "sg_api_${var.project_name}"
+  description = "Security group for the api server of ${var.project_name}."
+  egress      = [
+    {
+      cidr_blocks      = [
+        "0.0.0.0/0",
+      ]
+      description      = null
+      from_port        = 0
+      ipv6_cidr_blocks = [
+        "::/0",
+      ]
+      prefix_list_ids  = []
+      protocol         = "-1"
+      security_groups  = []
+      self             = false
+      to_port          = 0
+    },
+  ]
+  name_prefix = null
+  tags                                 = {
+    "Project" = var.project_name
+  }
+  tags_all                             = {
+    "Project" = var.project_name
+  }
+  vpc_id      = var.vpc_id
+}
+
 resource "aws_ecs_task_definition" "api" {
   container_definitions    = jsonencode(
     [
@@ -299,6 +332,85 @@ resource "aws_ecs_task_definition" "api" {
   }
 }
 
+#endregion api
+
+#region frontend
+
+resource "aws_ecs_service" "frontend" {
+  availability_zone_rebalancing      = "ENABLED"
+  cluster                            = aws_ecs_cluster.main.id
+  deployment_maximum_percent         = 200
+  deployment_minimum_healthy_percent = 100
+  desired_count                      = 1
+  enable_ecs_managed_tags            = true
+  enable_execute_command             = true
+  health_check_grace_period_seconds  = 60
+  launch_type                        = "FARGATE"
+  name                               = "frontend"
+  platform_version                   = "LATEST"
+  propagate_tags                     = "NONE"
+  scheduling_strategy                = "REPLICA"
+  tags                                 = {
+    "Project" = var.project_name
+  }
+  tags_all                             = {
+    "Project" = var.project_name
+  }
+  task_definition                    = aws_ecs_task_definition.frontend.arn
+  triggers                           = {}
+
+  deployment_circuit_breaker {
+    enable   = false
+    rollback = false
+  }
+
+  load_balancer {
+    container_name   = "tdev_frontend"
+    container_port   = 3000
+    elb_name         = null
+    target_group_arn = var.target_group_arns.frontend
+  }
+
+  network_configuration {
+    assign_public_ip = true
+    security_groups  = [
+      aws_security_group.frontend.id
+    ]
+    subnets          = var.public_subnet_ids
+  }
+}
+
+resource "aws_security_group" "frontend" {
+  name        = "sg_frontend_${var.project_name}"
+  description = "Security group for the frontend server of ${var.project_name}."
+  egress      = [
+    {
+      cidr_blocks      = [
+        "0.0.0.0/0",
+      ]
+      description      = null
+      from_port        = 0
+      ipv6_cidr_blocks = [
+        "::/0",
+      ]
+      prefix_list_ids  = []
+      protocol         = "-1"
+      security_groups  = []
+      self             = false
+      to_port          = 0
+    },
+  ]
+  tags                                 = {
+    "Project" = var.project_name
+  }
+  tags_all                             = {
+    "Project" = var.project_name
+  }
+  vpc_id      = var.vpc_id
+}
+
+
+
 resource "aws_ecs_task_definition" "frontend" {
   container_definitions    = jsonencode(
     [
@@ -364,3 +476,6 @@ resource "aws_ecs_task_definition" "frontend" {
     operating_system_family = "LINUX"
   }
 }
+
+#endregion frontend
+

@@ -28,7 +28,7 @@ resource "aws_db_instance" "postgresql" {
   instance_class = var.db_instance_class
 
   db_subnet_group_name                = aws_db_subnet_group.database.name
-  vpc_security_group_ids              = [var.security_groups.vpc]
+  vpc_security_group_ids              = [aws_security_group.main.id]
 
   storage_type                        = "gp3"
   storage_encrypted                   = true
@@ -63,4 +63,33 @@ resource "aws_route53_record" "db" {
   type    = "CNAME"
   ttl     = 60
   records = [aws_db_instance.postgresql.address]
+}
+
+resource "aws_security_group" "main" {
+  name        = "sg_database_${var.project_name}"
+  description = "Security group for the database of ${var.project_name}."
+  egress      = [
+    {
+      cidr_blocks      = [
+        "0.0.0.0/0",
+      ]
+      description      = null
+      from_port        = 0
+      ipv6_cidr_blocks = [
+        "::/0",
+      ]
+      prefix_list_ids  = []
+      protocol         = "-1"
+      security_groups  = []
+      self             = false
+      to_port          = 0
+    },
+  ]
+  tags                                 = {
+    "Project" = var.project_name
+  }
+  tags_all                             = {
+    "Project" = var.project_name
+  }
+  vpc_id      = var.vpc_id
 }
