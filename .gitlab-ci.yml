@@ -11,32 +11,11 @@ variables:
 stages:
   - test
   - build
+  - terraform:validate
+  - terraform:plan
+  - terraform:apply
 
-# Rules for component changes
-.web_changes: &web_changes
-  - changes:
-      - web/**/*
 
-.api_changes: &api_changes
-  - changes:
-      - api/Tdev702.Api/**/*
-      - api/Tdev702.Contracts/**/*
-      - api/Tdev702.Repository/**/*
-      - api/Tdev702.AWS.SDK/**/*
-      - api/Tdev702.Stripe.SDK/**/*
-      - api/Tdev702.OpenFoodFact.SDK/**/*
-
-.auth_changes: &auth_changes
-  - changes:
-      - api/Tdev702.Auth/**/*
-      - api/Tdev702.Contracts/**/*
-      - api/Tdev702.Repository/**/*
-      - api/Tdev702.Stripe.SDK/**/*
-      - api/Tdev702.AWS.SDK/**/*
-
-.infra_changes: &infra_changes
-  - changes:
-      - api/terraform/**/*
 
 frontend-test:
   stage: test
@@ -179,3 +158,114 @@ build-auth:
     - docker build --load -t t-dev-702-auth:latest -f ./Tdev702.Auth/Dockerfile .
     - docker tag t-dev-702-auth:latest $ECR_REPO/auth:latest
     - docker push $ECR_REPO/auth:latest
+      
+terraform:validate:
+  stage: terraform:validate
+  image: hashicorp/terraform:latest
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+      changes:
+        - api/terraform/**/*
+    - if: $CI_COMMIT_BRANCH == "main"
+      changes:
+        - api/terraform/**/*
+  before_script:
+    - cd $CI_PROJECT_DIR/api/terraform
+    - terraform init
+  script:
+    - terraform validate
+    - terraform fmt -check
+
+terraform:plan:
+  stage: terraform:plan
+  image: hashicorp/terraform:latest
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+      changes:
+        - api/terraform/**/*
+    - if: $CI_COMMIT_BRANCH == "main"
+      changes:
+        - api/terraform/**/*
+  before_script:
+    - apk add --no-cache aws-cli
+    - aws configure set aws_access_key_id $AWS_ACCESS_KEY_ID
+    - aws configure set aws_secret_access_key $AWS_SECRET_ACCESS_KEY
+    - aws configure set default.region $AWS_REGION
+    - cd $CI_PROJECT_DIR/api/terraform
+    - terraform init
+  script:
+    - terraform plan -out=tfplan
+    - terraform show -no-color tfplan > tfplan.txt
+  artifacts:
+    paths:
+      - api/terraform/tfplan
+      - api/terraform/tfplan.txt
+    expire_in: 1 week
+
+terraform:report:
+  stage: terraform:plan
+  needs: ["terraform:plan"]
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+      changes:
+        - api/terraform/**/*
+  script:
+    - cd $CI_PROJECT_DIR/api/terraform
+    - sed 's/^/    /' tfplan.txt > plan_with_indentation.txt
+    - |
+      echo "## Terraform Plan Results" > plan_comment.md
+      echo "" >> plan_comment.md
+      echo "<details><summary>Expand to view plan</summary>" >> plan_comment.md
+      echo "" >> plan_comment.md
+      echo '```terraform' >> plan_comment.md
+      cat plan_with_indentation.txt >> plan_comment.md
+      echo '```' >> plan_comment.md
+      echo "</details>" >> plan_comment.md
+  artifacts:
+    paths:
+      - api/terraform/plan_comment.md
+    reports:
+      gitlab_merge_request_comment:
+        - api/terraform/plan_comment.md
+
+terraform:apply:
+  stage: terraform:apply
+  image: hashicorp/terraform:latest
+  rules:
+    - if: $CI_COMMIT_BRANCH == "main"
+      changes:
+        - api/terraform/**/*
+      when: manual
+  before_script:
+    - apk add --no-cache aws-cli
+    - aws configure set aws_access_key_id $AWS_ACCESS_KEY_ID
+    - aws configure set aws_secret_access_key $AWS_SECRET_ACCESS_KEY
+    - aws configure set default.region $AWS_REGION
+    - cd $CI_PROJECT_DIR/api/terraform
+    - terraform init
+  script:
+    - terraform apply -auto-approve
+  environment:
+    name: production
+    on_stop: terraform:destroy
+
+terraform:destroy:
+  stage: terraform:apply
+  image: hashicorp/terraform:latest
+  rules:
+    - if: $CI_COMMIT_BRANCH == "main"
+      changes:
+        - api/terraform/**/*
+      when: manual
+  before_script:
+    - apk add --no-cache aws-cli
+    - aws configure set aws_access_key_id $AWS_ACCESS_KEY_ID
+    - aws configure set aws_secret_access_key $AWS_SECRET_ACCESS_KEY
+    - aws configure set default.region $AWS_REGION
+    - cd $CI_PROJECT_DIR/api/terraform
+    - terraform init
+  script:
+    - terraform destroy -auto-approve
+  environment:
+    name: production
+    action: stop
