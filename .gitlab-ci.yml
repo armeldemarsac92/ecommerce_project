@@ -11,20 +11,11 @@ variables:
 stages:
   - test
   - build
-  - terraform:validate
-  - terraform:plan
-  - post-terraform-comment
-  - terraform:apply
-
-
 
 frontend-test:
   stage: test
   image: cypress/browsers:22.12.0
   rules:
-    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
-      changes:
-        - web/**/*
     - if: $CI_COMMIT_BRANCH == "main"
       changes:
         - web/**/*
@@ -52,14 +43,6 @@ api-test:
   stage: test
   image: mcr.microsoft.com/dotnet/sdk:8.0
   rules:
-    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
-      changes:
-        - api/Tdev702.Api/**/*
-        - api/Tdev702.Contracts/**/*
-        - api/Tdev702.Repository/**/*
-        - api/Tdev702.AWS.SDK/**/*
-        - api/Tdev702.Stripe.SDK/**/*
-        - api/Tdev702.OpenFoodFact.SDK/**/*
     - if: $CI_COMMIT_BRANCH == "main"
       changes:
         - api/Tdev702.Api/**/*
@@ -78,7 +61,7 @@ api-test:
     - dotnet restore
   script:
     - dotnet test ./Tdev702.Api.Tests.Unit/Tdev702.Api.Tests.Unit.csproj
-  allow_failure: true
+  allow_failure: false
 
 .ecr_login: &ecr_login
   before_script:
@@ -91,9 +74,6 @@ api-test:
 build-frontend:
   stage: build
   rules:
-    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
-      changes:
-        - web/**/*
     - if: $CI_COMMIT_BRANCH == "main"
       changes:
         - web/**/*
@@ -110,14 +90,6 @@ build-frontend:
 build-api:
   stage: build
   rules:
-    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
-      changes:
-        - api/Tdev702.Api/**/*
-        - api/Tdev702.Contracts/**/*
-        - api/Tdev702.Repository/**/*
-        - api/Tdev702.AWS.SDK/**/*
-        - api/Tdev702.Stripe.SDK/**/*
-        - api/Tdev702.OpenFoodFact.SDK/**/*
     - if: $CI_COMMIT_BRANCH == "main"
       changes:
         - api/Tdev702.Api/**/*
@@ -139,13 +111,6 @@ build-api:
 build-auth:
   stage: build
   rules:
-    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
-      changes:
-        - api/Tdev702.Auth/**/*
-        - api/Tdev702.Contracts/**/*
-        - api/Tdev702.Repository/**/*
-        - api/Tdev702.Stripe.SDK/**/*
-        - api/Tdev702.AWS.SDK/**/*
     - if: $CI_COMMIT_BRANCH == "main"
       changes:
         - api/Tdev702.Auth/**/*
