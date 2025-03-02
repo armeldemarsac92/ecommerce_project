@@ -53,8 +53,8 @@ public static class PaymentEndpoint
         long orderId,
         CancellationToken cancellationToken)
     {
-        // var userId = context.GetUserStripeIdFromClaims();
-        var userId = "cus_RhlWjl7AUz7B06";
+        var userId = context.GetUserStripeIdFromClaims();
+        // var userId = "cus_RhlWjl7AUz7B06";
         var paymentIntent = await orderService.CreateSessionAsync(orderId, userId, cancellationToken);
         return Results.Ok(paymentIntent);
     }

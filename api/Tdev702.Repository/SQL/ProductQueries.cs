@@ -22,6 +22,17 @@ public static class ProductQueries
     SELECT *
     FROM shop.vw_products
     WHERE id = ANY(@ProductIds);";
+    
+    public static string GetUserLikedProducts => @"
+    SELECT p.*
+    FROM shop.vw_products p
+    INNER JOIN shop.link_products_users lp ON p.id = lp.product_id
+    WHERE lp.user_id = @UserId
+    ORDER BY 
+        CASE WHEN @orderBy = 2 THEN id END DESC,
+        CASE WHEN @orderBy = 1 THEN id END ASC
+    LIMIT @pageSize 
+    OFFSET @offset;";
 
     public static string CreateProduct = @"
     INSERT INTO shop.products (
@@ -64,4 +75,12 @@ public static class ProductQueries
     public static string DeleteProduct = @"
     DELETE FROM shop.products
     WHERE id = @Id;";
+    
+    public static string InsertLike => @"
+    INSERT INTO shop.link_products_users (user_id, product_id, updated_at, created_at)
+    VALUES (@UserId, @ProductId, current_timestamp, current_timestamp);";
+
+    public static string DeleteLike => @"
+    DELETE FROM shop.link_products_users
+    WHERE user_id = @UserId AND product_id = @ProductId;";
 }

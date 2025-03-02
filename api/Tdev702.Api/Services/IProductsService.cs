@@ -20,11 +20,14 @@ public interface IProductsService
 {
     public Task<ShopProductResponse> GetByIdAsync(long productId, CancellationToken cancellationToken = default);
     public Task<List<ShopProductResponse>> GetAllAsync(QueryOptions queryOptions, CancellationToken cancellationToken = default);
+    public Task<List<ShopProductResponse>> GetLikedProductsAsync(QueryOptions queryOptions, string userId, CancellationToken cancellationToken = default);
     public Task<ShopProductResponse> CreateAsync(CreateProductRequest createProductRequest, CancellationToken cancellationToken = default);
     public Task<ShopProductResponse> UpdateAsync(long productId, UpdateProductRequest updateProductRequest, CancellationToken cancellationToken = default);
     public Task CreateNutrimentsAsync(CreateNutrimentSQLRequest createNutrimentRequest, CancellationToken cancellationToken = default);
     public Task UpdateNutrimentsAsync(UpdateNutrimentSQLRequest updateNutrimentSqlRequest, CancellationToken cancellationToken = default);
     public Task DeleteAsync(long productId ,CancellationToken cancellationToken = default);
+    public Task LikeAsync(string userId, long productId, CancellationToken cancellationToken = default);
+    public Task UnlikeAsync(string userId, long productId, CancellationToken cancellationToken = default);
 }
 
 public class ProductsService : IProductsService
@@ -73,6 +76,13 @@ public class ProductsService : IProductsService
     {
         _logger.LogInformation("Getting all products");
         var response = await _productRepository.GetAllAsync(queryOptions, cancellationToken);
+        return response.Any() ? response.MapToProducts() : throw new NotFoundException("No products found");
+    }
+
+    public async Task<List<ShopProductResponse>> GetLikedProductsAsync(QueryOptions queryOptions, string userId, CancellationToken cancellationToken = default)
+    {
+        _logger.LogInformation("Getting liked products for user {userId}.", userId);
+        var response = await _productRepository.GetLikedProductsAsync(queryOptions, userId, cancellationToken);
         return response.Any() ? response.MapToProducts() : throw new NotFoundException("No products found");
     }
 
@@ -229,5 +239,41 @@ public class ProductsService : IProductsService
         await _productTagRepository.DeleteByProductIdAsync(productId, cancellationToken);
         await _productRepository.DeleteAsync(productId, cancellationToken);
         _logger.LogInformation("Product {productId} deleted successfully.", productId);
+    }
+
+    public async Task LikeAsync(string userId, long productId, CancellationToken cancellationToken = default)
+    {
+        _logger.LogInformation("User {userId} liking product {productId}.", userId, productId);
+        await _unitOfWork.BeginTransactionAsync(cancellationToken);
+        try
+        {
+            await _productRepository.LikeAsync(userId, productId, cancellationToken);
+            await _unitOfWork.CommitAsync(cancellationToken);
+            _logger.LogInformation("User {userId} liked product {productId} successfully.", userId, productId);
+        }
+        catch (Exception ex)
+        {
+            await _unitOfWork.RollbackAsync(cancellationToken);
+            _logger.LogError("Failed to like product {productId} for user {userId}: {message}", productId, userId, ex.Message);
+            throw;
+        }
+    }
+
+    public async Task UnlikeAsync(string userId, long productId, CancellationToken cancellationToken = default)
+    {
+        _logger.LogInformation("User {userId} unliking product {productId}.", userId, productId);
+        await _unitOfWork.BeginTransactionAsync(cancellationToken);
+        try
+        {
+            await _productRepository.UnlikeAsync(userId, productId, cancellationToken);
+            await _unitOfWork.CommitAsync(cancellationToken);
+            _logger.LogInformation("User {userId} unliked product {productId} successfully.", userId, productId);
+        }
+        catch (Exception ex)
+        {
+            await _unitOfWork.RollbackAsync(cancellationToken);
+            _logger.LogError("Failed to unlike product {productId} for user {userId}: {message}", productId, userId, ex.Message);
+            throw;
+        }
     }
 }

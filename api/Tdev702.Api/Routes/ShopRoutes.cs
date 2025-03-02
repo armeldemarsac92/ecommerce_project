@@ -10,9 +10,12 @@ public static class ShopRoutes
     {
         public const string GetById = $"{Base}/products/{{id}}";
         public const string GetAll = $"{Base}/products";
+        public const string GetLiked = $"{Base}/products/liked";
         public const string Create = $"{Base}/products";
         public const string Update = $"{Base}/products/{{id}}";
         public const string Delete = $"{Base}/products/{{id}}";
+        public const string Like = $"{Base}/products/{{id}}/like";
+        public const string Unlike = $"{Base}/products/{{id}}/unlike";
     }
 
     public static class OpenFoodFactProducts
