@@ -1,5 +1,0 @@
-{
-  "name": "bastion",
-  "description": "An ec2 bastion instance to allow remote ssh access to the private ressources like the database.",
-  "providers": ["aws"]
-}

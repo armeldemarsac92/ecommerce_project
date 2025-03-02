@@ -1,5 +1,0 @@
-{
-  "name": "vpc",
-  "description": "The project's vpc.",
-  "providers": ["aws"]
-}
