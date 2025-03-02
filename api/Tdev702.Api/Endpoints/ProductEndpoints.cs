@@ -68,7 +68,7 @@ public static class ProductEndpoints
 
         app.MapGet(ShopRoutes.Products.Unlike, UnlikeProduct)
             .WithTags(Tags)
-            .WithDescription("Unlike a product")
+            .WithDescription("Unlike a product ")
             .RequireAuthorization("Authenticated")
             .Produces(404)
             .Produces(400);
