@@ -83,7 +83,7 @@ public class ProductsService : IProductsService
     {
         _logger.LogInformation("Getting liked products for user {userId}.", userId);
         var response = await _productRepository.GetLikedProductsAsync(queryOptions, userId, cancellationToken);
-        return response.Any() ? response.MapToProducts() : throw new NotFoundException("No products found");
+        return response.Any() ? response.MapToProducts() : new List<ShopProductResponse>();
     }
 
     public async Task<ShopProductResponse> CreateAsync(CreateProductRequest createProductRequest, CancellationToken cancellationToken = default)

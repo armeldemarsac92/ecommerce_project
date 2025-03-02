@@ -29,8 +29,8 @@ public static class ProductQueries
     INNER JOIN shop.link_products_users lp ON p.id = lp.product_id
     WHERE lp.user_id = @UserId
     ORDER BY 
-        CASE WHEN @orderBy = 2 THEN id END DESC,
-        CASE WHEN @orderBy = 1 THEN id END ASC
+        CASE WHEN @orderBy = 2 THEN p.id END DESC,
+        CASE WHEN @orderBy = 1 THEN p.id END ASC
     LIMIT @pageSize 
     OFFSET @offset;";
 
