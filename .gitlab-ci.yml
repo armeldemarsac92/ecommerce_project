@@ -1,9 +1,11 @@
 default:
   image: docker:24.0.5
 
+services:
+  - docker:24.0.5-dind
+
 variables:
-  DOCKER_TLS_CERTDIR: ""
-  DOCKER_HOST: unix:///var/run/docker.sock
+  DOCKER_TLS_CERTDIR: "/certs"
   DOCKER_DRIVER: overlay2
   GIT_DEPTH: 0
   ECR_REPO: "$AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/t-dev-702/prod"
