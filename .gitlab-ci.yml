@@ -51,10 +51,11 @@ build-frontend-staging:
   <<: *ecr_login
   script:
     - cd $CI_PROJECT_DIR/web
-    - docker build --load \
-      --build-arg NEXT_PUBLIC_API_BASE_URL=https://api.staging.epitechproject.fr/api/v1 \
-      --build-arg NEXT_PUBLIC_AUTH_BASE_URL=https://auth.staging.epitechproject.fr/api \
-      -t t-dev-702-web-staging:$CI_COMMIT_SHA \
+    - >
+      docker build --load 
+      --build-arg NEXT_PUBLIC_API_BASE_URL=https://api.staging.epitechproject.fr/api/v1
+      --build-arg NEXT_PUBLIC_AUTH_BASE_URL=https://auth.staging.epitechproject.fr/api
+      -t t-dev-702-web-staging:$CI_COMMIT_SHA
       -f ./Dockerfile .
     - docker tag t-dev-702-web-staging:$CI_COMMIT_SHA $ECR_REPO/staging/frontend:$CI_COMMIT_SHA
     - docker tag t-dev-702-web-staging:$CI_COMMIT_SHA $ECR_REPO/staging/frontend:latest
@@ -190,13 +191,14 @@ build-frontend-production:
   <<: *ecr_login
   script:
     - cd $CI_PROJECT_DIR/web
-    - docker build --load \
-      --build-arg NEXT_PUBLIC_API_BASE_URL=https://api.epitechproject.fr/api/v1 \
-      --build-arg NEXT_PUBLIC_AUTH_BASE_URL=https://auth.epitechproject.fr/api \
-      -t t-dev-702-web-production:$CI_COMMIT_SHA \
+    - >
+      docker build --load 
+      --build-arg NEXT_PUBLIC_API_BASE_URL=https://api.epitechproject.fr/api/v1
+      --build-arg NEXT_PUBLIC_AUTH_BASE_URL=https://auth.epitechproject.fr/api
+      -t t-dev-702-web-production:$CI_COMMIT_SHA
       -f ./Dockerfile .
-    - docker tag t-dev-702-web-production:$CI_COMMIT_SHA $ECR_REPO/production/frontend:$CI_COMMIT_SHA
-    - docker tag t-dev-702-web-production:$CI_COMMIT_SHA $ECR_REPO/production/frontend:latest
+    - docker tag t-dev-702-web-staging:$CI_COMMIT_SHA $ECR_REPO/production/frontend:$CI_COMMIT_SHA
+    - docker tag t-dev-702-web-staging:$CI_COMMIT_SHA $ECR_REPO/production/frontend:latest
     - docker push $ECR_REPO/production/frontend:$CI_COMMIT_SHA
     - docker push $ECR_REPO/production/frontend:latest
 
