@@ -42,8 +42,8 @@ build-frontend-staging:
   stage: build
   rules:
     - if: $CI_COMMIT_BRANCH == "staging"
-      changes:
-        - web/**/*
+#      changes:
+#        - web/**/*
   needs:
     - job: frontend-test
       optional: true
@@ -60,13 +60,13 @@ build-api-staging:
   stage: build
   rules:
     - if: $CI_COMMIT_BRANCH == "staging"
-      changes:
-        - api/Tdev702.Api/**/*
-        - api/Tdev702.Contracts/**/*
-        - api/Tdev702.Repository/**/*
-        - api/Tdev702.AWS.SDK/**/*
-        - api/Tdev702.Stripe.SDK/**/*
-        - api/Tdev702.OpenFoodFact.SDK/**/*
+#      changes:
+#        - api/Tdev702.Api/**/*
+#        - api/Tdev702.Contracts/**/*
+#        - api/Tdev702.Repository/**/*
+#        - api/Tdev702.AWS.SDK/**/*
+#        - api/Tdev702.Stripe.SDK/**/*
+#        - api/Tdev702.OpenFoodFact.SDK/**/*
   needs:
     - job: api-test
       optional: true
@@ -83,12 +83,12 @@ build-auth-staging:
   stage: build
   rules:
     - if: $CI_COMMIT_BRANCH == "staging"
-      changes:
-        - api/Tdev702.Auth/**/*
-        - api/Tdev702.Contracts/**/*
-        - api/Tdev702.Repository/**/*
-        - api/Tdev702.Stripe.SDK/**/*
-        - api/Tdev702.AWS.SDK/**/*
+#      changes:
+#        - api/Tdev702.Auth/**/*
+#        - api/Tdev702.Contracts/**/*
+#        - api/Tdev702.Repository/**/*
+#        - api/Tdev702.Stripe.SDK/**/*
+#        - api/Tdev702.AWS.SDK/**/*
   <<: *ecr_login
   script:
     - cd $CI_PROJECT_DIR/api
