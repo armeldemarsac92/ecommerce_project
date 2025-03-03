@@ -135,6 +135,8 @@ wait-for-infra-staging:
     - trigger-infra-staging
   rules:
     - if: $CI_COMMIT_BRANCH == "staging"
+  before_script:
+    - apk add --no-cache curl jq
   script:
     - echo "Waiting for infrastructure pipeline $INFRA_PIPELINE_ID to complete..."
     - |
