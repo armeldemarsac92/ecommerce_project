@@ -115,6 +115,8 @@ trigger-infra-staging:
       optional: true
   rules:
     - if: $CI_COMMIT_BRANCH == "staging"
+  before_script:
+    - apk add --no-cache curl jq
   script:
     - echo "Triggering infrastructure pipeline for staging environment"
     - 'curl --request POST --form "token=$INFRA_TRIGGER_TOKEN" --form "ref=main" --form "variables[ENVIRONMENT]=staging" --form "variables[API_IMAGE_TAG]=$CI_COMMIT_SHA" --form "variables[AUTH_IMAGE_TAG]=$CI_COMMIT_SHA" --form "variables[FRONTEND_IMAGE_TAG]=$CI_COMMIT_SHA" "https://gitlab.com/api/v4/projects/$INFRA_PROJECT_ID/trigger/pipeline" > pipeline_response.json'
