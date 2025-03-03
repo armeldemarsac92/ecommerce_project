@@ -1,10 +1,8 @@
-stages:
-  - test
-  - build
-  - deploy-infra
-  - wait-for-infra
-  - integration-test
-  - promote
+default:
+  image: docker:24.0.5
+
+services:
+  - docker:24.0.5-dind
 
 variables:
   DOCKER_TLS_CERTDIR: ""
@@ -14,6 +12,16 @@ variables:
   # Infrastructure repository variables
   INFRA_PROJECT_ID: "67593851" # Replace with your infrastructure repository project ID
   INFRA_TRIGGER_TOKEN: ${TRIGGER_TOKEN} # Set this in GitLab CI/CD variables
+  ECR_REPO: "502863813996.dkr.ecr.eu-central-1.amazonaws.com/t-dev-702"
+  
+
+stages:
+  - test
+  - build
+  - deploy-infra
+  - wait-for-infra
+  - integration-test
+  - promote
 
 # Your existing ECR login anchor
 .ecr_login: &ecr_login
