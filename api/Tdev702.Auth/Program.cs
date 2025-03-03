@@ -67,6 +67,8 @@ services.AddCors(options =>
     });
 });
 
+Log.Information("Retrieved CORS allow origin: {Origin}", authConfiguration.CorsAllowOrigin);
+
 services.AddProblemDetails();
 services.AddExceptionHandler<BadRequestExceptionHandler>();
 services.AddExceptionHandler<ConflictExceptionHandler>();
