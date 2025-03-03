@@ -9,8 +9,8 @@ variables:
   DOCKER_DRIVER: overlay2
   GIT_DEPTH: 0
   ECR_REPO: "$AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/tdev700"
-  INFRA_PROJECT_ID: "67593851" # Replace with your infrastructure repository project ID
-  INFRA_TRIGGER_TOKEN: ${TRIGGER_TOKEN} # Set this in GitLab CI/CD variables
+  INFRA_PROJECT_ID: "67593851" 
+  INFRA_TRIGGER_TOKEN: ${TRIGGER_TOKEN} 
   
 
 stages:
@@ -53,8 +53,8 @@ build-frontend-staging:
     - cd $CI_PROJECT_DIR/web
     - >
       docker build --load 
-      --build-arg NEXT_PUBLIC_API_BASE_URL=https://api.staging.epitechproject.fr/api/v1
-      --build-arg NEXT_PUBLIC_AUTH_BASE_URL=https://auth.staging.epitechproject.fr/api
+      --build-arg NEXT_PUBLIC_API_BASE_URL=https://api-staging.epitechproject.fr/api/v1
+      --build-arg NEXT_PUBLIC_AUTH_BASE_URL=https://auth-staging.epitechproject.fr/api
       -t t-dev-702-web-staging:$CI_COMMIT_SHA
       -f ./Dockerfile .
     - docker tag t-dev-702-web-staging:$CI_COMMIT_SHA $ECR_REPO/staging/frontend:$CI_COMMIT_SHA
