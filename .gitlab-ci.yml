@@ -8,7 +8,7 @@ variables:
   DOCKER_TLS_CERTDIR: "/certs"
   DOCKER_DRIVER: overlay2
   GIT_DEPTH: 0
-  ECR_REPO: "$AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/t-dev-702/prod"
+  ECR_REPO: "$AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/t-dev-702"
   INFRA_PROJECT_ID: "67593851" # Replace with your infrastructure repository project ID
   INFRA_TRIGGER_TOKEN: ${TRIGGER_TOKEN} # Set this in GitLab CI/CD variables
   
