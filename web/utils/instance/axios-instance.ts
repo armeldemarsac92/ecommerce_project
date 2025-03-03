@@ -1,30 +1,35 @@
 import axios, {AxiosError, InternalAxiosRequestConfig} from 'axios';
 import Cookies from 'js-cookie';
+import https from 'https';
+
+// Get base URLs from environment variables with fallbacks
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'https://api.epitechproject.fr/api/v1';
+const AUTH_BASE_URL = process.env.NEXT_PUBLIC_AUTH_BASE_URL || 'https://auth.epitechproject.fr/api';
 
 interface RetryConfig extends InternalAxiosRequestConfig {
     _retry?: boolean;
 }
 
 const axiosInstance = axios.create({
-    baseURL: 'https://api.epitechproject.fr/api/v1',
+    baseURL: API_BASE_URL,
     timeout: 60000,
     headers: {
         'Content-Type': 'application/json',
         'accept': 'application/json'
     },
-    httpsAgent: new (require('https')).Agent({
+    httpsAgent: new https.Agent({
         rejectUnauthorized: false
     })
 });
 
 const authAxiosInstance = axios.create({
-    baseURL: 'https://auth.epitechproject.fr/api',
+    baseURL: AUTH_BASE_URL,
     timeout: 5000,
     headers: {
         'Content-Type': 'application/json',
         'accept': 'application/json'
     },
-    httpsAgent: new (require('https')).Agent({
+    httpsAgent: new https.Agent({
         rejectUnauthorized: false
     })
 });
@@ -48,7 +53,7 @@ const processQueue = (error: any | null, token: string | null = null) => {
 // Intercepteur pour ajouter le token à chaque requête
 axiosInstance.interceptors.request.use(
     (config) => {
-        const token = Cookies.get('access_token');
+        const token = Cookies.get('access*token');
         if (token) {
             config.headers.Authorization = `Bearer ${token}`;
         }
@@ -121,5 +126,11 @@ axiosInstance.interceptors.response.use(
         return Promise.reject(error);
     }
 );
+
+// Log the base URLs (useful for debugging)
+if (typeof window !== 'undefined') {
+    console.log('API Base URL:', API_BASE_URL);
+    console.log('Auth Base URL:', AUTH_BASE_URL);
+}
 
 export { axiosInstance, authAxiosInstance };

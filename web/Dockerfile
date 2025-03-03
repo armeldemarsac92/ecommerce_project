@@ -12,6 +12,14 @@ WORKDIR /app
 ENV NEXT_TELEMETRY_DISABLED=1
 ENV NODE_ENV=production
 
+# Accept build arguments for API URLs
+ARG NEXT_PUBLIC_API_BASE_URL=https://api.epitechproject.fr/api/v1
+ARG NEXT_PUBLIC_AUTH_BASE_URL=https://auth.epitechproject.fr/api
+
+# Set environment variables using the build args
+ENV NEXT_PUBLIC_API_BASE_URL=${NEXT_PUBLIC_API_BASE_URL}
+ENV NEXT_PUBLIC_AUTH_BASE_URL=${NEXT_PUBLIC_AUTH_BASE_URL}
+
 # Create .eslintrc.json to temporarily disable eslint during build
 RUN echo '{ "extends": "next/core-web-plugins", "rules": { "@typescript-eslint/no-unused-vars": "off", "unused-imports/no-unused-imports": "off" } }' > .eslintrc.json
 
@@ -24,6 +32,12 @@ FROM node:20-alpine3.19 AS runner
 WORKDIR /app
 
 ENV NODE_ENV=production
+
+# Pass the same environment variables to the runtime stage
+ARG NEXT_PUBLIC_API_BASE_URL
+ARG NEXT_PUBLIC_AUTH_BASE_URL
+ENV NEXT_PUBLIC_API_BASE_URL=${NEXT_PUBLIC_API_BASE_URL}
+ENV NEXT_PUBLIC_AUTH_BASE_URL=${NEXT_PUBLIC_AUTH_BASE_URL}
 
 # Install network tools and AWS CLI
 RUN apk update && apk add --no-cache \
