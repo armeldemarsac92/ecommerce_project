@@ -13,7 +13,7 @@ public static class ConfigurationExtensions
 {
     public static WebApplicationBuilder AddAwsConfiguration(this WebApplicationBuilder builder, params SecretType[] secretTypes)
     {
-        var baseEnv = builder.Environment.IsDevelopment()? "dev" : "prod";
+        var baseEnv = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
         ConfigureAwsSecrets(builder.Configuration, baseEnv, secretTypes);
         AddConfigurationOptions(builder.Services, builder.Configuration, secretTypes);
         return builder;
@@ -24,7 +24,7 @@ public static class ConfigurationExtensions
         
         hostBuilder.ConfigureAppConfiguration((context, builder) =>
         {
-            var baseEnv = context.HostingEnvironment.IsDevelopment()? "dev" : "prod";
+            var baseEnv = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
             ConfigureAwsSecrets(builder, baseEnv, secretTypes);
         });
 
@@ -38,14 +38,16 @@ public static class ConfigurationExtensions
     
     public static IHostApplicationBuilder AddAwsConfiguration(this IHostApplicationBuilder builder, params SecretType[] secretTypes)
     {
-        var baseEnv = builder.Environment.IsDevelopment()? "dev" : "prod";
+        var baseEnv = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
         ConfigureAwsSecrets(builder.Configuration, baseEnv, secretTypes);
         AddConfigurationOptions(builder.Services, builder.Configuration, secretTypes);
         return builder;
     }
     
-    public static void ConfigureAwsSecrets(this IConfigurationBuilder builder, string baseEnv, params SecretType[] secretTypes)
+    public static void ConfigureAwsSecrets(this IConfigurationBuilder builder, string? baseEnv, params SecretType[] secretTypes)
     {
+
+        if (string.IsNullOrEmpty(baseEnv)) throw new Exception("ASPNETCORE_ENVIRONMENT missing.");
         string sharedBase = $"tdev702/{baseEnv}/shared/";
         
         var filterValues = secretTypes.Select(t => $"{sharedBase}{t.ToString().ToLower()}").ToList();
