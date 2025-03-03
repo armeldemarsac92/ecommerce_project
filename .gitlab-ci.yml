@@ -98,7 +98,6 @@ build-auth-staging:
     - docker push $ECR_REPO/staging/auth:$CI_COMMIT_SHA
     - docker push $ECR_REPO/staging/auth:latest
 
-# Trigger infrastructure update for staging
 trigger-infra-staging:
   stage: deploy-infra
   needs:
@@ -112,18 +111,10 @@ trigger-infra-staging:
     - if: $CI_COMMIT_BRANCH == "staging"
   script:
     - echo "Triggering infrastructure pipeline for staging environment"
-    - |
-      PIPELINE_RESPONSE=$(curl --request POST \
-        --form "token=$INFRA_TRIGGER_TOKEN" \
-        --form "ref=main" \
-        --form "variables[ENVIRONMENT]=staging" \
-        --form "variables[API_IMAGE_TAG]=$CI_COMMIT_SHA" \
-        --form "variables[AUTH_IMAGE_TAG]=$CI_COMMIT_SHA" \
-        --form "variables[FRONTEND_IMAGE_TAG]=$CI_COMMIT_SHA" \
-        "https://gitlab.com/api/v4/projects/$INFRA_PROJECT_ID/trigger/pipeline")
-    - echo "Pipeline response: $PIPELINE_RESPONSE"
-    - INFRA_PIPELINE_ID=$(echo $PIPELINE_RESPONSE | jq -r '.id')
-    - if [ "$INFRA_PIPELINE_ID" == "null" ]; then echo "Failed to trigger infrastructure pipeline"; exit 1; fi
+    - 'curl --request POST --form "token=$INFRA_TRIGGER_TOKEN" --form "ref=main" --form "variables[ENVIRONMENT]=staging" --form "variables[API_IMAGE_TAG]=$CI_COMMIT_SHA" --form "variables[AUTH_IMAGE_TAG]=$CI_COMMIT_SHA" --form "variables[FRONTEND_IMAGE_TAG]=$CI_COMMIT_SHA" "https://gitlab.com/api/v4/projects/$INFRA_PROJECT_ID/trigger/pipeline" > pipeline_response.json'
+    - cat pipeline_response.json
+    - 'export INFRA_PIPELINE_ID=$(cat pipeline_response.json | jq -r ".id")'
+    - 'if [ "$INFRA_PIPELINE_ID" == "null" ]; then echo "Failed to trigger infrastructure pipeline"; exit 1; fi'
     - echo "INFRA_PIPELINE_ID=$INFRA_PIPELINE_ID" >> variables.env
   artifacts:
     reports:
