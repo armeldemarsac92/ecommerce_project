@@ -43,7 +43,7 @@ services.AddAuthServices(authConfiguration);
 services.AddDbContext<ApplicationDbContext>(options =>
     options.UseNpgsql(connectionString, b => b.MigrationsAssembly("Tdev702.Auth")));
 
-services.AddSwagger("Auth Server");
+services.AddSwagger("Auth Server"); 
 services.AddIdentity();
 services.AddAuth(authConfiguration);
 services.AddAntiforgery(options => 
