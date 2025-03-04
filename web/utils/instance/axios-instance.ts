@@ -1,14 +1,13 @@
 import axios, {AxiosError, InternalAxiosRequestConfig} from 'axios';
 import Cookies from 'js-cookie';
-import https from 'https';
-
-// Get base URLs from environment variables with fallbacks
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'https://api.epitechproject.fr/api/v1';
-const AUTH_BASE_URL = process.env.NEXT_PUBLIC_AUTH_BASE_URL || 'https://auth.epitechproject.fr/api';
 
 interface RetryConfig extends InternalAxiosRequestConfig {
     _retry?: boolean;
 }
+
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'https://api.epitechproject.fr/api/v1';
+const AUTH_BASE_URL = process.env.NEXT_PUBLIC_AUTH_BASE_URL || 'https://auth.epitechproject.fr/api';
+
 
 const axiosInstance = axios.create({
     baseURL: API_BASE_URL,
@@ -17,7 +16,7 @@ const axiosInstance = axios.create({
         'Content-Type': 'application/json',
         'accept': 'application/json'
     },
-    httpsAgent: new https.Agent({
+    httpsAgent: new (require('https')).Agent({
         rejectUnauthorized: false
     })
 });
@@ -29,7 +28,7 @@ const authAxiosInstance = axios.create({
         'Content-Type': 'application/json',
         'accept': 'application/json'
     },
-    httpsAgent: new https.Agent({
+    httpsAgent: new (require('https')).Agent({
         rejectUnauthorized: false
     })
 });
@@ -53,7 +52,7 @@ const processQueue = (error: any | null, token: string | null = null) => {
 // Intercepteur pour ajouter le token à chaque requête
 axiosInstance.interceptors.request.use(
     (config) => {
-        const token = Cookies.get('access*token');
+        const token = Cookies.get('access_token');
         if (token) {
             config.headers.Authorization = `Bearer ${token}`;
         }
@@ -126,11 +125,5 @@ axiosInstance.interceptors.response.use(
         return Promise.reject(error);
     }
 );
-
-// Log the base URLs (useful for debugging)
-if (typeof window !== 'undefined') {
-    console.log('API Base URL:', API_BASE_URL);
-    console.log('Auth Base URL:', AUTH_BASE_URL);
-}
 
 export { axiosInstance, authAxiosInstance };
