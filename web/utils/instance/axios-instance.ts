@@ -12,6 +12,7 @@ const AUTH_BASE_URL = process.env.NEXT_PUBLIC_AUTH_BASE_URL || 'https://auth.epi
 const axiosInstance = axios.create({
     baseURL: API_BASE_URL,
     timeout: 60000,
+
     headers: {
         'Content-Type': 'application/json',
         'accept': 'application/json'
