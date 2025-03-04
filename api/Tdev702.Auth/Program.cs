@@ -79,7 +79,7 @@ services.AddExceptionHandler<GlobalExceptionHandler>();
 var app = builder.Build();
 
 app.UseExceptionHandler();
-if (app.Environment.IsDevelopment())
+if (app.Environment.IsStaging() || app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
