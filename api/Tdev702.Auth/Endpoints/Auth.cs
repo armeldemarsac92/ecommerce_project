@@ -40,8 +40,14 @@ public static class AuthEndpoints
             .WithTags(Tags);
 
         app.MapPost(ApiRoutes.Auth.Register, Register)
-            .Accepts<RegisterRequest>(ContentType)
+            .Accepts<RegisterUserRequest>(ContentType)
             .WithName("Register")
+            .WithTags(Tags);
+        
+        app.MapPost(ApiRoutes.Auth.Update, Update)
+            .Accepts<UpdateUserRequest>(ContentType)
+            .RequireAuthorization("Authenticated")
+            .WithName("Update")
             .WithTags(Tags);
 
         app.MapPost(ApiRoutes.Auth.Refresh, RefreshToken)
@@ -51,7 +57,8 @@ public static class AuthEndpoints
             .RequireAuthorization("Authenticated")
             .WithTags(Tags);
 
-        app.MapGet(ApiRoutes.Auth.ConfirmEmail, ConfirmEmail)
+        app.MapPost(ApiRoutes.Auth.ConfirmEmail, ConfirmEmail)
+            .Accepts<Verify2FaRequest>(ContentType)
             .WithName("ConfirmEmail")
             .WithTags(Tags);
 
@@ -211,7 +218,7 @@ public static class AuthEndpoints
         UserManager<User> userManager,
         ITokenService tokenService,
         SignInManager<User> signInManager,
-        VerifyFaRequest request)
+        Verify2FaRequest request)
     {
         var user = await userManager.FindByEmailAsync(request.Email);
         if (user == null)
@@ -242,12 +249,33 @@ public static class AuthEndpoints
     private static async Task<IResult> Register(
         IUserService userService,
         HttpContext httpContext,
+        UserManager<User> userManager,
+        IEmailService emailService,
         RegisterUserRequest request)
     {
-        var user = await userService.CreateUserAsync(new UserRecord(request.FirstName, request.LastName, request.Email, false, request.ProfilePicture, request.Password), "User");
+        var user = await userService.CreatePartialUserAsync(request.Email, "User");
+        var emailToken = await userManager.GenerateTwoFactorTokenAsync(user, "Email");
+        await emailService.SendEmailAsync(
+            user.Email,
+            "2FA Code",
+            $"Your verification code is: {emailToken}");
+        return Results.Ok(new { requiresTwoFactor = true, provider = "Email" });
+
         
-        await userService.ConfirmUserEmailAsync(user, httpContext);
-        return Results.Ok("Registration successful. Please check your email for confirmation.");
+    }    
+    
+    private static async Task<IResult> Update(
+        UserManager<User> userManager,
+        IUserService userService,
+        HttpContext httpContext,
+        ClaimsPrincipal claimsPrincipal,
+        ITokenService tokenService,
+        UpdateUserRequest request)
+    {
+        var existingUser = await userManager.GetUserAsync(claimsPrincipal);
+        var user = await userService.UpdateUserAsync(existingUser, request);
+        
+        return Results.Ok(await tokenService.GetAccessTokenAsync(user));
     }
 
     private static async Task<IResult> RefreshToken(
@@ -268,17 +296,20 @@ public static class AuthEndpoints
 
     private static async Task<IResult> ConfirmEmail(
         UserManager<User> userManager,
-        string userId,
-        string token)
+        ITokenService tokenService,
+        HttpContext context,
+        Verify2FaRequest request)
     {
-        var user = await userManager.FindByIdAsync(userId);
+        var user = await userManager.FindByEmailAsync(request.Email);
         if (user == null) throw new NotFoundException("User not found");
 
-        var decodedToken = Uri.UnescapeDataString(token);
-        var result = await userManager.ConfirmEmailAsync(user, decodedToken);
-        if (!result.Succeeded) throw new BadRequestException($"Error while trying to confirm email : {result.Errors}");
+        var isValid = await userManager.VerifyTwoFactorTokenAsync(user, "Email", request.VerificationCode);
+        if (!isValid) throw new BadRequestException($"Invalid code.");
 
-        return Results.Ok("Email confirmed successfully");
+        user.EmailConfirmed = true;
+        await userManager.UpdateAsync(user);
+        
+        return Results.Ok(await tokenService.GetAccessTokenAsync(user));
     }
 
     private static async Task<IResult> ResendConfirmation(

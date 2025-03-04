@@ -9,8 +9,9 @@ public static partial class ApiRoutes
         public const string Login = $"{Base}/login";
         public const string SimpleLogin = $"{Base}/simple-login";
         public const string Register = $"{Base}/register";
+        public const string Update = $"{Base}/update";
         public const string Refresh = $"{Base}/refresh";
-        public const string ConfirmEmail = $"{Base}/confirm-email/{{userId}}/{{token}}";
+        public const string ConfirmEmail = $"{Base}/confirm-email";
         public const string ResendConfirmation = $"{Base}/resend-confirmation";
         public const string ForgotPassword = $"{Base}/forgot-password";
         public const string ResetPassword = $"{Base}/reset-password";

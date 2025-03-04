@@ -79,11 +79,11 @@ services.AddExceptionHandler<GlobalExceptionHandler>();
 var app = builder.Build();
 
 app.UseExceptionHandler();
-if (app.Environment.IsStaging() || app.Environment.IsDevelopment())
+if (app.Environment.IsStaging() || app.Environment.EnvironmentName.Contains("dev"))
 {
     app.UseSwagger();
     app.UseSwaggerUI();
-    app.ApplyMigrations();
+    // app.ApplyMigrations();
 }
 
 app.UseCors();

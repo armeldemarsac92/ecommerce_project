@@ -1,5 +1,7 @@
 using MassTransit;
 using Microsoft.AspNetCore.Identity;
+using Tdev702.Contracts.Auth;
+using Tdev702.Contracts.Auth.Request;
 using Tdev702.Contracts.Auth.Response;
 using Tdev702.Contracts.Database;
 
@@ -16,7 +18,8 @@ public record UserRecord(
 public interface IUserService
 {
     public Task<User> CreateUserAsync(UserRecord record, string userRole);
-    public Task<User> UpdateUserAsync(UserInfos record, string userRole);
+    public Task<User> CreatePartialUserAsync(string userEmail, string userRole);
+    public Task<User> UpdateUserAsync(User existingUser, UpdateUserRequest request);
     public Task ConfirmUserEmailAsync(User user, HttpContext httpContext);
 }
 
@@ -43,6 +46,29 @@ public class UserService : IUserService
         _publishEndpoint = publishEndpoint;
     }
 
+    public async Task<User> CreatePartialUserAsync(string userEmail, string userRole)
+    {
+        try
+        {
+            _logger.LogInformation("Creating user: {Email}", userEmail);
+            var user = new User { UserName = userEmail, Email = userEmail, PreferredTwoFactorProvider = TwoFactorType.Email, CreatedAt = DateTime.UtcNow};
+            var result = await _userManager.CreateAsync(user);
+            if (!result.Succeeded) throw new Exception(result.Errors.First().Description);
+            _logger.LogInformation("User created: {Email}", user.Email);
+            _logger.LogInformation("Adding user {Email} to role: {UserRole}", user.Email, userRole);
+            await _userManager.AddToRoleAsync(user, userRole);
+            _logger.LogInformation("User {Email} added to role: {UserRole}", user.Email, userRole);
+            await _publishEndpoint.Publish(user);
+            return user;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError("Error creating user: {Message}", ex.Message);
+            throw;
+        }
+    }    
+    
+
     public async Task<User> CreateUserAsync(UserRecord record, string userRole)
     {
         try
@@ -65,23 +91,22 @@ public class UserService : IUserService
         }
     }
 
-    public async Task<User> UpdateUserAsync(UserInfos record, string userRole)
+    public async Task<User> UpdateUserAsync(User existingUser, UpdateUserRequest request)
     {
         try
         {
-            _logger.LogInformation("Updating user: {Email}", record.Email);
-            var user = new User {Email = record.Email, FirstName = record.GivenName, LastName = record.FamilyName, ProfilePicture = record.Picture};
-            var result = await _userManager.UpdateAsync(user);
-            if (!result.Succeeded) throw new Exception(result.Errors.First().Description);
-            _logger.LogInformation("User updated: {Email}", user.Email);
-            _logger.LogInformation("Adding user {Email} to role: {UserRole}", user.Email, userRole);
-            await _userManager.AddToRoleAsync(user, userRole);
-            _logger.LogInformation("User {Email} added to role: {UserRole}", user.Email, userRole);
-            return user;
+            _logger.LogInformation("Updating user: {Email}", existingUser.Email);
+            // var user = _userManager.GetUserAsync()
+            existingUser.FirstName = request.FirstName;
+            existingUser.LastName = request.LastName;
+            existingUser.ProfilePicture = request.ProfilePicture;
+            existingUser.PasswordHash = _userManager.PasswordHasher.HashPassword(existingUser, request.Password);
+            await _userManager.UpdateAsync(existingUser);
+            return existingUser;
         }
         catch (Exception ex)
         {
-            _logger.LogError("Error creating user: {Message}", ex.Message);
+            _logger.LogError("Error updating user: {Message}", ex.Message);
             throw;
         }
     }
