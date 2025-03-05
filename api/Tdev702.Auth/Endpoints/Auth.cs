@@ -260,8 +260,6 @@ public static class AuthEndpoints
             "2FA Code",
             $"Your verification code is: {emailToken}");
         return Results.Ok(new { requiresTwoFactor = true, provider = "Email" });
-
-        
     }    
     
     private static async Task<IResult> Update(
@@ -314,27 +312,18 @@ public static class AuthEndpoints
 
     private static async Task<IResult> ResendConfirmation(
         UserManager<User> userManager,
-        IEmailSender<User> emailSender,
+        IEmailService emailService,
         LinkGenerator linkGenerator,
         HttpContext httpContext,
         ResendConfirmationRequest request)
     {
         var user = await userManager.FindByEmailAsync(request.Email);
-        if (user == null) return Results.NotFound();
-
-        var token = await userManager.GenerateEmailConfirmationTokenAsync(user);
-        var encodedToken = Uri.EscapeDataString(token);
-        var confirmationLink = linkGenerator.GetUriByName(
-            httpContext,
-            "ConfirmEmail",
-            new { userId = user.Id, token = encodedToken });
-
-        await emailSender.SendConfirmationLinkAsync(
-            user,
+        var emailToken = await userManager.GenerateTwoFactorTokenAsync(user, "Email");
+        await emailService.SendEmailAsync(
             user.Email,
-            confirmationLink);
-
-        return Results.Ok("Confirmation email sent");
+            "2FA Code",
+            $"Your verification code is: {emailToken}");
+        return Results.Ok(new { requiresTwoFactor = true, provider = "Email" });
     }
 
     private static async Task<IResult> ForgotPassword(
@@ -345,7 +334,7 @@ public static class AuthEndpoints
         ForgotPasswordRequest request)
     {
         var user = await userManager.FindByEmailAsync(request.Email);
-        if (user == null) return Results.Ok(); 
+        if (user == null) return Results.BadRequest("Unknown user or email address."); 
 
         var token = await userManager.GeneratePasswordResetTokenAsync(user);
         
