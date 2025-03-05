@@ -76,6 +76,7 @@ public class UserService : IUserService
             await _publishEndpoint.Publish(user);
             
             _logger.LogInformation("Sending confirmation code to user {UserId}", user.Id);
+            await _userManager.SetTwoFactorEnabledAsync(user, true);
             var code = await _i2FaService.GenerateCodeAsync(user);
             await _emailService.SendVerificationCodeAsync(user.Email, code);
             _logger.LogInformation("Confirmation code sent to user {UserId}", user.Id);
@@ -155,7 +156,6 @@ public class UserService : IUserService
             user.EmailConfirmed = true;
             var result = await _userManager.UpdateAsync(user);
             CheckResult(result);
-            await _userManager.SetTwoFactorEnabledAsync(user, true);
             _logger.LogInformation("User {UserId} email confirmed.", user.Id);
         }
         
