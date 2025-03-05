@@ -110,12 +110,29 @@ stages:
       dotenv: build_info.env
 
 .security_scan_template: &security_scan
-  image: aquasec/trivy:latest
+  image: docker:24.0.5  
+  services:
+    - name: docker:24.0.5-dind
+      entrypoint: ["env", "-u", "DOCKER_HOST"]
+      command: ["dockerd-entrypoint.sh"]
+  variables:
+    DOCKER_HOST: tcp://docker:2375/
+    DOCKER_TLS_CERTDIR: ""
+  before_script:
+    - *ecr_login
+    
+    - apk add --no-cache wget
+    - export TRIVY_VERSION=$(wget -qO - "https://api.github.com/repos/aquasecurity/trivy/releases/latest" | grep '"tag_name":' | sed -E 's/.*"v([^"]+)".*/\1/')
+    - wget --no-verbose https://github.com/aquasecurity/trivy/releases/download/v${TRIVY_VERSION}/trivy_${TRIVY_VERSION}_Linux-64bit.tar.gz -O - | tar -zxvf -
   script:
-    - image $ECR_REPO/$ENV_PREFIX/$COMPONENT:$CI_COMMIT_SHA --severity HIGH,CRITICAL
-  rules:
-    - if: $CI_COMMIT_BRANCH == "staging"
-  allow_failure: true 
+    - docker pull $ECR_REPO/$ENV_PREFIX/$COMPONENT:$CI_COMMIT_SHA
+    
+    - ./trivy --exit-code 0 --cache-dir .trivycache/ --no-progress --severity HIGH,CRITICAL $ECR_REPO/$ENV_PREFIX/$COMPONENT:$CI_COMMIT_SHA
+  cache:
+    key: trivy-cache-${CI_COMMIT_REF_SLUG}
+    paths:
+      - .trivycache/
+  allow_failure: true
 
 # Jobs
 
