@@ -24,7 +24,7 @@ public static class AuthEndpoints
     public static IEndpointRouteBuilder MapAuthEndpoints(this IEndpointRouteBuilder app)
     {
         app.MapPost(ApiRoutes.Auth.Login, Login)
-            .Accepts<LoginRequest>(ContentType)
+            .Accepts<LoginUserRequest>(ContentType)
             .Produces<AccessTokenResponse>()
             .WithName("Login")
             .WithTags(Tags);        
@@ -36,18 +36,19 @@ public static class AuthEndpoints
         
         app.MapPost(ApiRoutes.Auth.Update, Update)
             .Accepts<UpdateUserRequest>(ContentType)
+            .Produces<AccessTokenResponse>(200)
             .RequireAuthorization("Authenticated")
             .WithName("Update")
             .WithTags(Tags);
 
         app.MapPost(ApiRoutes.Auth.Refresh, RefreshToken)
             .Accepts<RefreshTokenRequest>(ContentType)
-            .Produces<AccessTokenResponse>()
+            .Produces<AccessTokenResponse>(200)
             .WithName("RefreshToken")
             .RequireAuthorization("Authenticated")
             .WithTags(Tags);
 
-        app.MapPost(ApiRoutes.Auth.ResendConfirmation, Send2FaCode)
+        app.MapPost(ApiRoutes.Auth.Resend2FaCode, Send2FaCode)
             .Accepts<Get2FaCodeRequest>(ContentType)
             .WithName("ResendConfirmation")
             .WithTags(Tags);
