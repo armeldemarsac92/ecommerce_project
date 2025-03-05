@@ -7,12 +7,14 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
 using Tdev702.Contracts.Config;
 using Tdev702.Contracts.Database;
+using Tdev702.Contracts.Exceptions;
 
 namespace Tdev702.Auth.Services;
 
 public interface ITokenService
 {
     Task<AccessTokenResponse> GetAccessTokenAsync(User user);
+    Task<AccessTokenResponse> RefreshTokenAsync(string refreshToken);
     ClaimsPrincipal ValidateToken(string token, bool validateLifetime = true);
 }
 
@@ -68,6 +70,16 @@ public class TokenService : ITokenService
         }
     }
 
+    public async Task<AccessTokenResponse> RefreshTokenAsync(string refreshToken)
+    {
+        _logger.LogInformation("Validating refresh token");
+        var claims = ValidateToken(refreshToken);
+        _logger.LogInformation("Valid refresh token, getting user details");
+        var user = await _userManager.GetUserAsync(claims);
+        CheckUser(user);
+        return await GetAccessTokenAsync(user);
+    }
+
     public ClaimsPrincipal ValidateToken(string token, bool validateLifetime = true)
     {
         _tokenValidationParams.ValidateLifetime = validateLifetime;
@@ -110,5 +122,12 @@ public class TokenService : ITokenService
         );
 
         return tokenHandler.WriteToken(token);
+    }
+    
+    private void CheckUser(User? user)
+    {
+        if (user == null) throw new BadRequestException("User not found");
+        _logger.LogInformation("User {UserId} found.", user.Id);
+        if (user.LockoutEnabled) throw new BadRequestException($"User {user.Id} is locked out.");
     }
 }

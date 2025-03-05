@@ -83,7 +83,7 @@ if (app.Environment.IsStaging() || app.Environment.EnvironmentName.Contains("dev
 {
     app.UseSwagger();
     app.UseSwaggerUI();
-    // app.ApplyMigrations();
+    app.ApplyMigrations();
 }
 
 app.UseCors();

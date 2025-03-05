@@ -17,7 +17,7 @@ public class EmailSender : IEmailSender<User>
         _logger = logger;
         _emailService = emailService;
     }
-
+    
     public async Task SendConfirmationLinkAsync(User user, string email, string confirmationLink)
     {
         await _emailService.SendEmailAsync(email, "Confirm your email", $"Hi {user.UserName}. Please confirm your email by clicking on the following link: {confirmationLink}");

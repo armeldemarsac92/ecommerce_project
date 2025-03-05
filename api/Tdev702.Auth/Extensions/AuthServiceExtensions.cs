@@ -30,6 +30,7 @@ public static partial class AuthServiceExtensions
         services.AddScoped<IUserService, UserService>();
         services.AddScoped<IAuthService, AuthService>();
         services.AddSingleton<IKeyService, KeyService>();
+        services.AddScoped<ITwoFaService, TwoFaService>();
         services.AddScoped<ITokenService, TokenService>();
         services.AddScoped<ISecurityService, SecurityService>();
         services.AddTransient<IEmailSender<User>, EmailSender>();

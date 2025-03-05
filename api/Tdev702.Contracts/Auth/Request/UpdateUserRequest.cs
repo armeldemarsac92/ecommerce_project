@@ -12,7 +12,4 @@ public class UpdateUserRequest
     
     [JsonPropertyName("profile_picture")]
     public string? ProfilePicture { get; set; }
-    
-    [JsonPropertyName("password" )]
-    public required string Password { get; set; }
 }
