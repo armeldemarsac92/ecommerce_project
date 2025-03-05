@@ -114,73 +114,19 @@ public static class AuthEndpoints
         IAuthService authService,
         ISecurityService securityService)
     {
-        var authParameters = new AuthenticationParameters(provider);
-
-        await securityService.StoreAuthState(authParameters);
-        var loginUri = authService.BuildLoginUri(authParameters);
-        return Results.Ok(loginUri);
+        return Results.Ok(await authService.InstantiateOAuthFlow(provider));
     }
 
     private static async Task<IResult> OAuthCallback(
     HttpContext context,
-    IConfiguration config,
-    UserManager<User> userManager,
-    SignInManager<User> signInManager,
-    ISecurityService securityService,
     IUserService userService,
-    IAuthService authService,
-    ITokenService tokenService,
-    IHttpClientFactory httpClientFactory)
+    IAuthService authService)
     {
-        
-        var state = context.GetUriParameterFromHttpContext("state");
-        var authStateData = await securityService.ValidateState(state);
-        var authParameters = authStateData.AuthenticationParameters;
-        
-        var code = context.GetUriParameterFromHttpContext("code");
-        authParameters.AuthorizationCode = code;
-        var tokenResponse = await authService.ExchangeCodeForTokens(authParameters);
-        authParameters.AccessToken = tokenResponse.AccessToken;
-
-        var userInfos = await authService.GetUserInfosAsync(authParameters);
-        
-        var userRole = "User";
-        if(authParameters.IdentityProvider == "aws") userRole = "Admin";
-        
-        var user = await userManager.FindByEmailAsync(userInfos.Email);
-        if (user != null)
-        {
-            await userManager.UpdateAsync(new User()
-            {
-                Email = userInfos.Email, FirstName = userInfos.GivenName, LastName = userInfos.FamilyName,
-                ProfilePicture = userInfos.Picture
-            });
-
-            await userManager.AddToRoleAsync(user, userRole);
-            
-            var accessTokenResponse = await tokenService.GetAccessTokenAsync(user);
-            
-            AddCookies(context, accessTokenResponse);
-
-            return Results.Redirect(authParameters.FrontEndRedirectUri);
-
-        }
-        
-        var newUser = await userService.ProvisionUserAsync(new UserRecord(userInfos.GivenName, userInfos.FamilyName, userInfos.Email, true, userInfos.Picture, ""), userRole);
-
-        var info = new UserLoginInfo(authParameters.IdentityProvider, userInfos.Sub, authParameters.IdentityProvider);
-        var addLoginResult = await userManager.AddLoginAsync(newUser, info);
-        if (!addLoginResult.Succeeded)
-        {
-            throw new Exception("Failed to add external login");
-        }
-
-        var accessTokenResponse2 = await tokenService.GetAccessTokenAsync(newUser);
-            
-        AddCookies(context, accessTokenResponse2);
-        
+        var authParameters = await authService.GetAuthenticationParameters(context);
+        var token = await userService.ProvisionUserAsync(authParameters);
+        AddCookies(context, token);
         return Results.Redirect(authParameters.FrontEndRedirectUri);
-      }
+    }
 
     private static void AddCookies(HttpContext context, AccessTokenResponse accessTokenResponse)
     {
