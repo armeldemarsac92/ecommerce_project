@@ -194,15 +194,16 @@ build-frontend-staging:
     - if: $CI_COMMIT_BRANCH == "staging"
 #      changes:
 #        - web/**/*
+  artifacts:
+    reports:
+      dotenv: build_info.env
 
 scan-frontend-staging:
   stage: build-staging
-  variables:
-    ENV_PREFIX: "staging"
-    COMPONENT: "frontend"
   <<: *security_scan
   needs:
-    - build-frontend-staging
+    - job: build-frontend-staging
+      artifacts: true
 
 build-api-staging:
   stage: build-staging
@@ -222,6 +223,9 @@ build-api-staging:
 #        - api/Tdev702.AWS.SDK/**/*
 #        - api/Tdev702.Stripe.SDK/**/*
 #        - api/Tdev702.OpenFoodFact.SDK/**/*
+  artifacts:
+    reports:
+      dotenv: build_info.env
 
 scan-api-staging:
   stage: build-staging
@@ -230,7 +234,8 @@ scan-api-staging:
     COMPONENT: "api"
   <<: *security_scan
   needs:
-    - build-api-staging
+    - job: build-api-staging
+      artifacts: true
 
 build-auth-staging:
   stage: build-staging
@@ -246,6 +251,9 @@ build-auth-staging:
 #        - api/Tdev702.Repository/**/*
 #        - api/Tdev702.Stripe.SDK/**/*
 #        - api/Tdev702.AWS.SDK/**/*
+  artifacts:
+    reports:
+      dotenv: build_info.env
 
 scan-auth-staging:
   stage: build-staging
@@ -254,7 +262,8 @@ scan-auth-staging:
     COMPONENT: "auth"
   <<: *security_scan
   needs:
-    - build-auth-staging
+    - job: build-auth-staging
+      artifacts: true
 
 trigger-infra-staging:
   stage: deploy-infra-staging
