@@ -4,22 +4,55 @@ default:
 services:
   - docker:24.0.5-dind
 
+# Required CI/CD Variables (must be set in GitLab UI):
+# - AWS_ACCESS_KEY_ID: AWS access key with ECR permissions
+# - AWS_SECRET_ACCESS_KEY: AWS secret key
+# - AWS_REGION: AWS region for ECR
+# - AWS_ACCOUNT_ID: AWS account ID
+# - TRIGGER_TOKEN: Token for triggering infrastructure pipeline
+
 variables:
   DOCKER_TLS_CERTDIR: "/certs"
   DOCKER_DRIVER: overlay2
   GIT_DEPTH: 0
-  ECR_REPO: "$AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/tdev700"
-  INFRA_PROJECT_ID: "67593851" 
-  INFRA_TRIGGER_TOKEN: ${TRIGGER_TOKEN} 
   
+  ECR_REPO: "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/tdev700"
+  
+  INFRA_PROJECT_ID: "67593851"
+  INFRA_TRIGGER_TOKEN: "${TRIGGER_TOKEN}"
+  
+  STAGING_API_URL: "https://api-staging.epitechproject.fr/api/v1"
+  STAGING_AUTH_URL: "https://auth-staging.epitechproject.fr/api"
+  PRODUCTION_API_URL: "https://api.epitechproject.fr/api/v1"
+  PRODUCTION_AUTH_URL: "https://auth.epitechproject.fr/api"
 
 stages:
+  - validate
   - test
   - build-staging
   - deploy-infra-staging
   - wait-for-infra-staging
   - integration-test-staging
+  - manual-approval
   - build-production
+  - deploy-infra-production
+
+# Templates and common configurations
+
+.validate_variables:
+  stage: validate
+  image: alpine:latest
+  script:
+    - |
+      echo "Validating required variables..."
+      for var in AWS_ACCESS_KEY_ID AWS_SECRET_ACCESS_KEY AWS_REGION AWS_ACCOUNT_ID; do
+        if [ -z "${!var}" ]; then
+          echo "ERROR: $var is not set"
+          exit 1
+        fi
+      done
+  rules:
+    - if: $CI_COMMIT_BRANCH == "staging" || $CI_COMMIT_BRANCH == "main"
 
 .ecr_login: &ecr_login
   before_script:
@@ -29,41 +62,136 @@ stages:
     - aws configure set default.region $AWS_REGION
     - aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $ECR_REPO
 
-frontend-test:
-  stage: test
-  script:
-    - echo "Running frontend tests..."
-
-api-test:
-  stage: test
-  script:
-    - echo "Running API tests..."
-
-build-frontend-staging:
-  stage: build-staging
-  rules:
-    - if: $CI_COMMIT_BRANCH == "staging"
-#      changes:
-#        - web/**/*
-  needs:
-    - job: frontend-test
-      optional: true
+.build_frontend_template: &build_frontend
   <<: *ecr_login
   script:
     - cd $CI_PROJECT_DIR/web
     - >
       docker build --load 
-      --build-arg NEXT_PUBLIC_API_BASE_URL=https://api-staging.epitechproject.fr/api/v1
-      --build-arg NEXT_PUBLIC_AUTH_BASE_URL=https://auth-staging.epitechproject.fr/api
-      -t t-dev-702-web-staging:$CI_COMMIT_SHA
+      --build-arg NEXT_PUBLIC_API_BASE_URL=$API_URL
+      --build-arg NEXT_PUBLIC_AUTH_BASE_URL=$AUTH_URL
+      -t $IMAGE_TAG_PREFIX:$CI_COMMIT_SHA
       -f ./Dockerfile .
-    - docker tag t-dev-702-web-staging:$CI_COMMIT_SHA $ECR_REPO/staging/frontend:$CI_COMMIT_SHA
-    - docker tag t-dev-702-web-staging:$CI_COMMIT_SHA $ECR_REPO/staging/frontend:latest
-    - docker push $ECR_REPO/staging/frontend:$CI_COMMIT_SHA
-    - docker push $ECR_REPO/staging/frontend:latest
+    - docker tag $IMAGE_TAG_PREFIX:$CI_COMMIT_SHA $ECR_REPO/$ENV_PREFIX/frontend:$CI_COMMIT_SHA
+    - docker tag $IMAGE_TAG_PREFIX:$CI_COMMIT_SHA $ECR_REPO/$ENV_PREFIX/frontend:latest
+    - docker push $ECR_REPO/$ENV_PREFIX/frontend:$CI_COMMIT_SHA
+    - docker push $ECR_REPO/$ENV_PREFIX/frontend:latest
+    - echo "FRONTEND_IMAGE=$CI_COMMIT_SHA" >> build_info.env
+  artifacts:
+    reports:
+      dotenv: build_info.env
+
+.build_api_template: &build_api
+  <<: *ecr_login
+  script:
+    - cd $CI_PROJECT_DIR/api
+    - docker build --load -t $IMAGE_TAG_PREFIX:$CI_COMMIT_SHA -f ./Tdev702.Api/Dockerfile .
+    - docker tag $IMAGE_TAG_PREFIX:$CI_COMMIT_SHA $ECR_REPO/$ENV_PREFIX/api:$CI_COMMIT_SHA
+    - docker tag $IMAGE_TAG_PREFIX:$CI_COMMIT_SHA $ECR_REPO/$ENV_PREFIX/api:latest
+    - docker push $ECR_REPO/$ENV_PREFIX/api:$CI_COMMIT_SHA
+    - docker push $ECR_REPO/$ENV_PREFIX/api:latest
+    - echo "API_IMAGE=$CI_COMMIT_SHA" >> build_info.env
+  artifacts:
+    reports:
+      dotenv: build_info.env
+
+.build_auth_template: &build_auth
+  <<: *ecr_login
+  script:
+    - cd $CI_PROJECT_DIR/api
+    - docker build --load -t $IMAGE_TAG_PREFIX:$CI_COMMIT_SHA -f ./Tdev702.Auth/Dockerfile .
+    - docker tag $IMAGE_TAG_PREFIX:$CI_COMMIT_SHA $ECR_REPO/$ENV_PREFIX/auth:$CI_COMMIT_SHA
+    - docker tag $IMAGE_TAG_PREFIX:$CI_COMMIT_SHA $ECR_REPO/$ENV_PREFIX/auth:latest
+    - docker push $ECR_REPO/$ENV_PREFIX/auth:$CI_COMMIT_SHA
+    - docker push $ECR_REPO/$ENV_PREFIX/auth:latest
+    - echo "AUTH_IMAGE=$CI_COMMIT_SHA" >> build_info.env
+  artifacts:
+    reports:
+      dotenv: build_info.env
+
+.security_scan_template: &security_scan
+  image: aquasec/trivy:latest
+  script:
+    - trivy image $ECR_REPO/$ENV_PREFIX/$COMPONENT:$CI_COMMIT_SHA --severity HIGH,CRITICAL
+  rules:
+    - if: $CI_COMMIT_BRANCH == "staging"
+  allow_failure: true 
+
+# Jobs
+
+validate-variables:
+  extends: .validate_variables
+
+frontend-test:
+  stage: test
+  image: node:18-alpine
+  script:
+    - cd $CI_PROJECT_DIR/web
+    - npm ci
+    - npm run lint
+    - npm test
+  cache:
+    key: ${CI_COMMIT_REF_SLUG}-frontend
+    paths:
+      - web/node_modules/
+  rules:
+    - if: $CI_COMMIT_BRANCH == "staging"
+      changes:
+        - web/**/*
+
+api-test:
+  stage: test
+  image: mcr.microsoft.com/dotnet/sdk:7.0
+  script:
+    - cd $CI_PROJECT_DIR/api
+    - dotnet restore
+    - dotnet build --no-restore
+    - dotnet test --no-build
+  cache:
+    key: ${CI_COMMIT_REF_SLUG}-api
+    paths:
+      - api/**/.nuget/
+      - api/**/obj/
+      - api/**/bin/
+  rules:
+    - if: $CI_COMMIT_BRANCH == "staging"
+      changes:
+        - api/**/*
+
+build-frontend-staging:
+  stage: build-staging
+  variables:
+    IMAGE_TAG_PREFIX: "t-dev-702-web-staging"
+    ENV_PREFIX: "staging"
+    API_URL: $STAGING_API_URL
+    AUTH_URL: $STAGING_AUTH_URL
+  <<: *build_frontend
+  needs:
+    - job: frontend-test
+      optional: true
+  rules:
+    - if: $CI_COMMIT_BRANCH == "staging"
+#      changes:
+#        - web/**/*
+
+scan-frontend-staging:
+  stage: build-staging
+  variables:
+    ENV_PREFIX: "staging"
+    COMPONENT: "frontend"
+  <<: *security_scan
+  needs:
+    - build-frontend-staging
 
 build-api-staging:
   stage: build-staging
+  variables:
+    IMAGE_TAG_PREFIX: "t-dev-702-api-staging"
+    ENV_PREFIX: "staging"
+  <<: *build_api
+  needs:
+    - job: api-test
+      optional: true
   rules:
     - if: $CI_COMMIT_BRANCH == "staging"
 #      changes:
@@ -73,20 +201,22 @@ build-api-staging:
 #        - api/Tdev702.AWS.SDK/**/*
 #        - api/Tdev702.Stripe.SDK/**/*
 #        - api/Tdev702.OpenFoodFact.SDK/**/*
+
+scan-api-staging:
+  stage: build-staging
+  variables:
+    ENV_PREFIX: "staging"
+    COMPONENT: "api"
+  <<: *security_scan
   needs:
-    - job: api-test
-      optional: true
-  <<: *ecr_login
-  script:
-    - cd $CI_PROJECT_DIR/api
-    - docker build --load -t t-dev-702-api-staging:$CI_COMMIT_SHA -f ./Tdev702.Api/Dockerfile .
-    - docker tag t-dev-702-api-staging:$CI_COMMIT_SHA $ECR_REPO/staging/api:$CI_COMMIT_SHA
-    - docker tag t-dev-702-api-staging:$CI_COMMIT_SHA $ECR_REPO/staging/api:latest
-    - docker push $ECR_REPO/staging/api:$CI_COMMIT_SHA
-    - docker push $ECR_REPO/staging/api:latest
+    - build-api-staging
 
 build-auth-staging:
   stage: build-staging
+  variables:
+    IMAGE_TAG_PREFIX: "t-dev-702-auth-staging"
+    ENV_PREFIX: "staging"
+  <<: *build_auth
   rules:
     - if: $CI_COMMIT_BRANCH == "staging"
 #      changes:
@@ -95,43 +225,51 @@ build-auth-staging:
 #        - api/Tdev702.Repository/**/*
 #        - api/Tdev702.Stripe.SDK/**/*
 #        - api/Tdev702.AWS.SDK/**/*
-  <<: *ecr_login
-  script:
-    - cd $CI_PROJECT_DIR/api
-    - docker build --load -t t-dev-702-auth-staging:$CI_COMMIT_SHA -f ./Tdev702.Auth/Dockerfile .
-    - docker tag t-dev-702-auth-staging:$CI_COMMIT_SHA $ECR_REPO/staging/auth:$CI_COMMIT_SHA
-    - docker tag t-dev-702-auth-staging:$CI_COMMIT_SHA $ECR_REPO/staging/auth:latest
-    - docker push $ECR_REPO/staging/auth:$CI_COMMIT_SHA
-    - docker push $ECR_REPO/staging/auth:latest
+
+scan-auth-staging:
+  stage: build-staging
+  variables:
+    ENV_PREFIX: "staging"
+    COMPONENT: "auth"
+  <<: *security_scan
+  needs:
+    - build-auth-staging
 
 trigger-infra-staging:
   stage: deploy-infra-staging
   needs:
     - job: build-frontend-staging
       optional: true
+      artifacts: true
     - job: build-api-staging
       optional: true
+      artifacts: true
     - job: build-auth-staging
       optional: true
+      artifacts: true
   rules:
     - if: $CI_COMMIT_BRANCH == "staging"
   before_script:
     - apk add --no-cache curl jq
   script:
     - echo "Triggering infrastructure pipeline for staging environment"
-    - 'curl --request POST --form "token=$INFRA_TRIGGER_TOKEN" --form "ref=main" --form "variables[ENVIRONMENT]=staging" --form "variables[API_IMAGE_TAG]=$CI_COMMIT_SHA" --form "variables[AUTH_IMAGE_TAG]=$CI_COMMIT_SHA" --form "variables[FRONTEND_IMAGE_TAG]=$CI_COMMIT_SHA" "https://gitlab.com/api/v4/projects/$INFRA_PROJECT_ID/trigger/pipeline" > pipeline_response.json'
+    - API_TAG=${API_IMAGE:-$CI_COMMIT_SHA}
+    - AUTH_TAG=${AUTH_IMAGE:-$CI_COMMIT_SHA}
+    - FRONTEND_TAG=${FRONTEND_IMAGE:-$CI_COMMIT_SHA}
+    - 'curl --request POST --form "token=$INFRA_TRIGGER_TOKEN" --form "ref=main" --form "variables[ENVIRONMENT]=staging" --form "variables[API_IMAGE_TAG]=$API_TAG" --form "variables[AUTH_IMAGE_TAG]=$AUTH_TAG" --form "variables[FRONTEND_IMAGE_TAG]=$FRONTEND_TAG" "https://gitlab.com/api/v4/projects/$INFRA_PROJECT_ID/trigger/pipeline" > pipeline_response.json'
     - cat pipeline_response.json
     - 'export INFRA_PIPELINE_ID=$(cat pipeline_response.json | jq -r ".id")'
     - 'if [ "$INFRA_PIPELINE_ID" == "null" ]; then echo "Failed to trigger infrastructure pipeline"; exit 1; fi'
-    - echo "INFRA_PIPELINE_ID=$INFRA_PIPELINE_ID" >> variables.env
+    - echo "INFRA_PIPELINE_ID=$INFRA_PIPELINE_ID" >> infra_pipeline.env
   artifacts:
     reports:
-      dotenv: variables.env
+      dotenv: infra_pipeline.env
 
 wait-for-infra-staging:
   stage: wait-for-infra-staging
   needs:
-    - trigger-infra-staging
+    - job: trigger-infra-staging
+      artifacts: true
   rules:
     - if: $CI_COMMIT_BRANCH == "staging"
   before_script:
@@ -140,7 +278,7 @@ wait-for-infra-staging:
     - echo "Waiting for infrastructure pipeline $INFRA_PIPELINE_ID to complete..."
     - |
       status="pending"
-      max_retries=30
+      max_retries=60  # Increased from 30 for more patience with infra deployment
       retries=0
       
       while [ "$status" != "success" ] && [ "$status" != "failed" ] && [ "$status" != "canceled" ]; do
@@ -164,72 +302,149 @@ wait-for-infra-staging:
       
       echo "Infrastructure pipeline completed successfully. Staging environment is ready for testing."
       # Give extra time for services to start
-      sleep 30
+      sleep 60
 
 integration-test-staging:
   stage: integration-test-staging
+  image: cypress/included:latest
   needs:
     - wait-for-infra-staging
   rules:
     - if: $CI_COMMIT_BRANCH == "staging"
   script:
-    - echo "Running integration tests against staging environment..."
+    - mkdir -p integration-tests/test-results
+    - cd $CI_PROJECT_DIR/integration-tests
+    - npm ci
+    - npm run test:ci
   artifacts:
     paths:
       - integration-tests/test-results/
+      - integration-tests/screenshots/
+      - integration-tests/videos/
     reports:
       junit: integration-tests/test-results/junit.xml
+    expire_in: 1 week
     when: always
+  cache:
+    key: ${CI_COMMIT_REF_SLUG}-integration-tests
+    paths:
+      - integration-tests/node_modules/
+
+manual-approval-production:
+  stage: manual-approval
+  image: alpine:latest
+  needs:
+    - integration-test-staging
+  rules:
+    - if: $CI_COMMIT_BRANCH == "staging"
+  script:
+    - echo "Manually approved for production deployment"
+  when: manual
+  allow_failure: false
 
 build-frontend-production:
   stage: build-production
-  rules:
-    - if: $CI_COMMIT_BRANCH == "staging" && $CI_PIPELINE_SOURCE == "push"
-      when: on_success
+  variables:
+    IMAGE_TAG_PREFIX: "t-dev-702-web-production"
+    ENV_PREFIX: "production"
+    API_URL: $PRODUCTION_API_URL
+    AUTH_URL: $PRODUCTION_AUTH_URL
+  <<: *build_frontend
   needs:
-    - integration-test-staging
-  <<: *ecr_login
-  script:
-    - cd $CI_PROJECT_DIR/web
-    - >
-      docker build --load 
-      --build-arg NEXT_PUBLIC_API_BASE_URL=https://api.epitechproject.fr/api/v1
-      --build-arg NEXT_PUBLIC_AUTH_BASE_URL=https://auth.epitechproject.fr/api
-      -t t-dev-702-web-production:$CI_COMMIT_SHA
-      -f ./Dockerfile .
-    - docker tag t-dev-702-web-staging:$CI_COMMIT_SHA $ECR_REPO/production/frontend:$CI_COMMIT_SHA
-    - docker tag t-dev-702-web-staging:$CI_COMMIT_SHA $ECR_REPO/production/frontend:latest
-    - docker push $ECR_REPO/production/frontend:$CI_COMMIT_SHA
-    - docker push $ECR_REPO/production/frontend:latest
+    - manual-approval-production
+  rules:
+    - if: $CI_COMMIT_BRANCH == "staging"
+      changes:
+        - web/**/*
+
+scan-frontend-production:
+  stage: build-production
+  variables:
+    ENV_PREFIX: "production"
+    COMPONENT: "frontend"
+  <<: *security_scan
+  needs:
+    - build-frontend-production
 
 build-api-production:
   stage: build-production
-  rules:
-    - if: $CI_COMMIT_BRANCH == "staging" && $CI_PIPELINE_SOURCE == "push"
-      when: on_success
+  variables:
+    IMAGE_TAG_PREFIX: "t-dev-702-api-production"
+    ENV_PREFIX: "production"
+  <<: *build_api
   needs:
-    - integration-test-staging
-  <<: *ecr_login
-  script:
-    - cd $CI_PROJECT_DIR/api
-    - docker build --load -t t-dev-702-api-production:$CI_COMMIT_SHA -f ./Tdev702.Api/Dockerfile .
-    - docker tag t-dev-702-api-production:$CI_COMMIT_SHA $ECR_REPO/production/api:$CI_COMMIT_SHA
-    - docker tag t-dev-702-api-production:$CI_COMMIT_SHA $ECR_REPO/production/api:latest
-    - docker push $ECR_REPO/production/api:$CI_COMMIT_SHA
-    - docker push $ECR_REPO/production/api:latest
+    - manual-approval-production
+  rules:
+    - if: $CI_COMMIT_BRANCH == "staging"
+      changes:
+        - api/Tdev702.Api/**/*
+        - api/Tdev702.Contracts/**/*
+        - api/Tdev702.Repository/**/*
+        - api/Tdev702.AWS.SDK/**/*
+        - api/Tdev702.Stripe.SDK/**/*
+        - api/Tdev702.OpenFoodFact.SDK/**/*
+
+scan-api-production:
+  stage: build-production
+  variables:
+    ENV_PREFIX: "production"
+    COMPONENT: "api"
+  <<: *security_scan
+  needs:
+    - build-api-production
 
 build-auth-production:
   stage: build-production
-  rules:
-    - if: $CI_COMMIT_BRANCH == "staging" && $CI_PIPELINE_SOURCE == "push"
-      when: on_success
+  variables:
+    IMAGE_TAG_PREFIX: "t-dev-702-auth-production"
+    ENV_PREFIX: "production"
+  <<: *build_auth
   needs:
-    - integration-test-staging
-  <<: *ecr_login
-  script:
-    - cd $CI_PROJECT_DIR/api
-    - docker build --load -t t-dev-702-auth-production:$CI_COMMIT_SHA -f ./Tdev702.Auth/Dockerfile .
-    - docker tag t-dev-702-auth-production:$CI_COMMIT_SHA $ECR_REPO/production/auth:$CI_COMMIT_SHA
-    - docker tag t-dev-702-auth-production:$CI_COMMIT_SHA $ECR_REPO/production/auth:latest
-    - docker push $ECR_REPO/production/auth:$CI_COMMIT_SHA
-    - docker push $ECR_REPO/production/auth:latest
+    - manual-approval-production
+  rules:
+    - if: $CI_COMMIT_BRANCH == "staging"
+      changes:
+        - api/Tdev702.Auth/**/*
+        - api/Tdev702.Contracts/**/*
+        - api/Tdev702.Repository/**/*
+        - api/Tdev702.Stripe.SDK/**/*
+        - api/Tdev702.AWS.SDK/**/*
+
+scan-auth-production:
+  stage: build-production
+  variables:
+    ENV_PREFIX: "production"
+    COMPONENT: "api"
+  <<: *security_scan
+  needs:
+    - build-auth-production
+
+#trigger-infra-production:
+#  stage: deploy-infra-production
+#  needs:
+#    - job: build-frontend-production
+#      optional: true
+#      artifacts: true
+#    - job: build-api-production
+#      optional: true
+#      artifacts: true
+#    - job: build-auth-production
+#      optional: true
+#      artifacts: true
+#  rules:
+#    - if: $CI_COMMIT_BRANCH == "staging"
+#  before_script:
+#    - apk add --no-cache curl jq
+#  script:
+#    - echo "Triggering infrastructure pipeline for production environment"
+#    - API_TAG=${API_IMAGE:-$CI_COMMIT_SHA}
+#    - AUTH_TAG=${AUTH_IMAGE:-$CI_COMMIT_SHA}
+#    - FRONTEND_TAG=${FRONTEND_IMAGE:-$CI_COMMIT_SHA}
+#    - 'curl --request POST --form "token=$INFRA_TRIGGER_TOKEN" --form "ref=main" --form "variables[ENVIRONMENT]=production" --form "variables[API_IMAGE_TAG]=$API_TAG" --form "variables[AUTH_IMAGE_TAG]=$AUTH_TAG" --form "variables[FRONTEND_IMAGE_TAG]=$FRONTEND_TAG" "https://gitlab.com/api/v4/projects/$INFRA_PROJECT_ID/trigger/pipeline" > pipeline_response.json'
+#    - cat pipeline_response.json
+#    - 'export INFRA_PIPELINE_ID=$(cat pipeline_response.json | jq -r ".id")'
+#    - 'if [ "$INFRA_PIPELINE_ID" == "null" ]; then echo "Failed to trigger infrastructure pipeline"; exit 1; fi'
+#    - echo "INFRA_PIPELINE_ID=$INFRA_PIPELINE_ID" >> infra_pipeline.env
+#  artifacts:
+#    reports:
+#      dotenv: infra_pipeline.env
