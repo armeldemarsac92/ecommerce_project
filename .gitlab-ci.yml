@@ -78,6 +78,8 @@ stages:
     - docker push $ECR_REPO/$ENV_PREFIX/frontend:$CI_COMMIT_SHA
     - docker push $ECR_REPO/$ENV_PREFIX/frontend:latest
     - echo "CI_COMMIT_SHA=$CI_COMMIT_SHA" >> $CI_PROJECT_DIR/build_info.env
+    - echo "ENV_PREFIX=$ENV_PREFIX" >> $CI_PROJECT_DIR/build_info.env
+    - echo "COMPONENT=frontend" >> $CI_PROJECT_DIR/build_info.env
   artifacts:
     reports:
       dotenv: build_info.env
@@ -92,6 +94,8 @@ stages:
     - docker push $ECR_REPO/$ENV_PREFIX/api:$CI_COMMIT_SHA
     - docker push $ECR_REPO/$ENV_PREFIX/api:latest
     - echo "CI_COMMIT_SHA=$CI_COMMIT_SHA" >> $CI_PROJECT_DIR/build_info.env
+    - echo "ENV_PREFIX=$ENV_PREFIX" >> $CI_PROJECT_DIR/build_info.env
+    - echo "COMPONENT=api" >> $CI_PROJECT_DIR/build_info.env
   artifacts:
     reports:
       dotenv: build_info.env
@@ -106,6 +110,8 @@ stages:
     - docker push $ECR_REPO/$ENV_PREFIX/auth:$CI_COMMIT_SHA
     - docker push $ECR_REPO/$ENV_PREFIX/auth:latest
     - echo "CI_COMMIT_SHA=$CI_COMMIT_SHA" >> $CI_PROJECT_DIR/build_info.env
+    - echo "ENV_PREFIX=$ENV_PREFIX" >> $CI_PROJECT_DIR/build_info.env
+    - echo "COMPONENT=auth" >> $CI_PROJECT_DIR/build_info.env
   artifacts:
     reports:
       dotenv: build_info.env
@@ -231,9 +237,6 @@ build-api-staging:
 
 scan-api-staging:
   stage: build-staging
-  variables:
-    ENV_PREFIX: "staging"
-    COMPONENT: "api"
   <<: *security_scan
   needs:
     - job: build-api-staging
