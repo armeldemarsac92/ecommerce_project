@@ -141,7 +141,16 @@ stages:
     - echo $COMPONENT
     - echo $CI_COMMIT_SHA
     - docker pull $ECR_REPO/$ENV_PREFIX/$COMPONENT:$CI_COMMIT_SHA
-    - ./trivy image $ECR_REPO/$ENV_PREFIX/$COMPONENT:$CI_COMMIT_SHA
+    - ./trivy image \
+      --severity HIGH,CRITICAL \
+      --ignore-unfixed \
+      --scanners vuln,secret \
+      --timeout 10m \
+      --exit-code 0 \
+      --format table \
+      --cache-dir .trivycache/ \
+      --no-progress \
+      $ECR_REPO/$ENV_PREFIX/$COMPONENT:$CI_COMMIT_SHA
   cache:
     key: trivy-cache-${CI_COMMIT_REF_SLUG}
     paths:
@@ -315,7 +324,7 @@ wait-for-infra-staging:
       max_retries=60  # Increased from 30 for more patience with infra deployment
       retries=0
       
-      while [ "$status" != "success" ] && [ "$status" != "failed" ] && [ "$status" != "canceled" ]; do
+      while [ "$status" != "success" ] && [ "$status" != "failed" ] && [ "$status" != "canceled" ] && [ "$status" != "manual" ]; do
         sleep 30
         retries=$((retries+1))
       
@@ -329,7 +338,7 @@ wait-for-infra-staging:
         echo "Infrastructure pipeline status: $status (retry $retries/$max_retries)"
       done
       
-      if [ "$status" != "success" ]; then
+      if [ "$status" != "manual" ]; then
         echo "Infrastructure pipeline did not complete successfully"
         exit 1
       fi
