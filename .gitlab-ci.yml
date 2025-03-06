@@ -77,7 +77,7 @@ stages:
     - docker tag $IMAGE_TAG_PREFIX:$CI_COMMIT_SHA $ECR_REPO/$ENV_PREFIX/frontend:latest
     - docker push $ECR_REPO/$ENV_PREFIX/frontend:$CI_COMMIT_SHA
     - docker push $ECR_REPO/$ENV_PREFIX/frontend:latest
-    - echo "API_IMAGE=$CI_COMMIT_SHA" >> $CI_PROJECT_DIR/build_info.env
+    - echo "CI_COMMIT_SHA=$CI_COMMIT_SHA" >> $CI_PROJECT_DIR/build_info.env
   artifacts:
     reports:
       dotenv: build_info.env
@@ -91,7 +91,7 @@ stages:
     - docker tag $IMAGE_TAG_PREFIX:$CI_COMMIT_SHA $ECR_REPO/$ENV_PREFIX/api:latest
     - docker push $ECR_REPO/$ENV_PREFIX/api:$CI_COMMIT_SHA
     - docker push $ECR_REPO/$ENV_PREFIX/api:latest
-    - echo "API_IMAGE=$CI_COMMIT_SHA" >> $CI_PROJECT_DIR/build_info.env
+    - echo "CI_COMMIT_SHA=$CI_COMMIT_SHA" >> $CI_PROJECT_DIR/build_info.env
   artifacts:
     reports:
       dotenv: build_info.env
@@ -105,7 +105,7 @@ stages:
     - docker tag $IMAGE_TAG_PREFIX:$CI_COMMIT_SHA $ECR_REPO/$ENV_PREFIX/auth:latest
     - docker push $ECR_REPO/$ENV_PREFIX/auth:$CI_COMMIT_SHA
     - docker push $ECR_REPO/$ENV_PREFIX/auth:latest
-    - echo "API_IMAGE=$CI_COMMIT_SHA" >> $CI_PROJECT_DIR/build_info.env
+    - echo "CI_COMMIT_SHA=$CI_COMMIT_SHA" >> $CI_PROJECT_DIR/build_info.env
   artifacts:
     reports:
       dotenv: build_info.env
