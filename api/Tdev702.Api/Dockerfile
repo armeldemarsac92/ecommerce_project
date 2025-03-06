@@ -4,7 +4,7 @@ WORKDIR /app
 EXPOSE 8080
 
 USER root
-RUN apt-get update && apt-get install -y \
+RUN apt-get update -qq && apt-get install -y -qq \
   curl \
   telnet \
   dnsutils \
@@ -12,9 +12,9 @@ RUN apt-get update && apt-get install -y \
   iputils-ping \
   net-tools \
   unzip \
-  && curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip" \
-  && unzip awscliv2.zip \
-  && ./aws/install \
+  && curl -s "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip" \
+  && unzip -q awscliv2.zip \
+  && ./aws/install --update -i /usr/local/aws-cli -b /usr/local/bin \
   && rm -rf /var/lib/apt/lists/* aws awscliv2.zip
 
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
