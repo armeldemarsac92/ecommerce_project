@@ -130,6 +130,10 @@ stages:
     - export TRIVY_VERSION=$(wget -qO - "https://api.github.com/repos/aquasecurity/trivy/releases/latest" | grep '"tag_name":' | sed -E 's/.*"v([^"]+)".*/\1/')
     - wget --no-verbose https://github.com/aquasecurity/trivy/releases/download/v${TRIVY_VERSION}/trivy_${TRIVY_VERSION}_Linux-64bit.tar.gz -O - | tar -zxvf -
   script:
+    - echo $ECR_REPO
+    - echo $ENV_PREFIX
+    - echo $COMPONENT
+    - echo $CI_COMMIT_SHA
     - docker pull $ECR_REPO/$ENV_PREFIX/$COMPONENT:$CI_COMMIT_SHA
     
     - ./trivy --exit-code 0 --cache-dir .trivycache/ --no-progress --severity HIGH,CRITICAL $ECR_REPO/$ENV_PREFIX/$COMPONENT:$CI_COMMIT_SHA
