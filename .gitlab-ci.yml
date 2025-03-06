@@ -140,17 +140,7 @@ stages:
     - echo $COMPONENT
     - echo $CI_COMMIT_SHA
     - docker pull $ECR_REPO/$ENV_PREFIX/$COMPONENT:$CI_COMMIT_SHA
-    - ./trivy image \
-      --severity HIGH,CRITICAL \
-      --ignore-unfixed \
-      --scanners vuln,secret \
-      --timeout 10m \
-      --exit-code 0 \
-      --format table \
-      --cache-dir .trivycache/ \
-      --no-progress \
-      --quiet \
-      $ECR_REPO/$ENV_PREFIX/$COMPONENT:$CI_COMMIT_SHA
+    - ./trivy image --severity HIGH,CRITICAL --ignore-unfixed --scanners vuln,secret --timeout 10m --exit-code 0 --format table --cache-dir .trivycache/ --no-progress --quiet $ECR_REPO/$ENV_PREFIX/$COMPONENT:$CI_COMMIT_SHA
   cache:
     key: trivy-cache-${CI_COMMIT_REF_SLUG}
     paths:
