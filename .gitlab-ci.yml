@@ -31,7 +31,6 @@ stages:
   - test
   - build-staging
   - deploy-infra-staging
-  - wait-for-infra-staging
   - integration-test-staging
   - manual-approval
   - build-production
@@ -289,7 +288,7 @@ trigger-infra-staging:
     - API_TAG=${API_IMAGE:-$CI_COMMIT_SHA}
     - AUTH_TAG=${AUTH_IMAGE:-$CI_COMMIT_SHA}
     - FRONTEND_TAG=${FRONTEND_IMAGE:-$CI_COMMIT_SHA}
-    - 'curl --request POST --form "token=$INFRA_TRIGGER_TOKEN" --form "ref=main" --form "variables[ENVIRONMENT]=staging" --form "variables[API_IMAGE_TAG]=$API_TAG" --form "variables[AUTH_IMAGE_TAG]=$AUTH_TAG" --form "variables[FRONTEND_IMAGE_TAG]=$FRONTEND_TAG" "https://gitlab.com/api/v4/projects/$INFRA_PROJECT_ID/trigger/pipeline" > pipeline_response.json'
+    - 'curl --request POST --form "token=$INFRA_TRIGGER_TOKEN" --form "ref=main" --form "variables[ENVIRONMENT]=staging" "https://gitlab.com/api/v4/projects/$INFRA_PROJECT_ID/trigger/pipeline" > pipeline_response.json'
     - cat pipeline_response.json
     - 'export INFRA_PIPELINE_ID=$(cat pipeline_response.json | jq -r ".id")'
     - 'if [ "$INFRA_PIPELINE_ID" == "null" ]; then echo "Failed to trigger infrastructure pipeline"; exit 1; fi'
@@ -298,52 +297,12 @@ trigger-infra-staging:
     reports:
       dotenv: infra_pipeline.env
 
-wait-for-infra-staging:
-  stage: wait-for-infra-staging
-  needs:
-    - job: trigger-infra-staging
-      artifacts: true
-  rules:
-    - if: $CI_COMMIT_BRANCH == "staging"
-  before_script:
-    - apk add --no-cache curl jq
-  script:
-    - echo "Waiting for infrastructure pipeline $INFRA_PIPELINE_ID to complete..."
-    - |
-      status="pending"
-      max_retries=60  # Increased from 30 for more patience with infra deployment
-      retries=0
-      
-      while [ "$status" != "success" ] && [ "$status" != "failed" ] && [ "$status" != "canceled" ] && [ "$status" != "manual" ]; do
-        sleep 30
-        retries=$((retries+1))
-      
-        if [ $retries -gt $max_retries ]; then
-          echo "Timeout waiting for infrastructure pipeline"
-          exit 1
-        fi
-      
-        status=$(curl --silent --header "PRIVATE-TOKEN: $CI_JOB_TOKEN" \
-          "https://gitlab.com/api/v4/projects/$INFRA_PROJECT_ID/pipelines/$INFRA_PIPELINE_ID" | jq -r '.status')
-        echo "Infrastructure pipeline status: $status (retry $retries/$max_retries)"
-      done
-      
-      if [ "$status" != "manual" ]; then
-        echo "Infrastructure pipeline did not complete successfully"
-        exit 1
-      fi
-      
-      echo "Infrastructure pipeline completed successfully. Staging environment is ready for testing."
-      # Give extra time for services to start
-      sleep 60
-
 integration-test-staging:
   stage: integration-test-staging
   image: cypress/included:latest
-  needs:
-    - wait-for-infra-staging
   rules:
-    - if: $CI_COMMIT_BRANCH == "staging"
+    - if: $CI_PIPELINE_SOURCE == "trigger" && $ENVIRONMENT == "staging"
+      when: on_success
   script:
     - mkdir -p integration-tests/test-results
     - cd $CI_PROJECT_DIR/integration-tests
