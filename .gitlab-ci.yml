@@ -200,8 +200,8 @@ build-frontend-staging:
       optional: true
   rules:
     - if: $CI_COMMIT_BRANCH == "staging"
-#      changes:
-#        - web/**/*
+      changes:
+        - web/**/*
 
 scan-frontend-staging:
   stage: build-staging
@@ -221,13 +221,13 @@ build-api-staging:
       optional: true
   rules:
     - if: $CI_COMMIT_BRANCH == "staging"
-#      changes:
-#        - api/Tdev702.Api/**/*
-#        - api/Tdev702.Contracts/**/*
-#        - api/Tdev702.Repository/**/*
-#        - api/Tdev702.AWS.SDK/**/*
-#        - api/Tdev702.Stripe.SDK/**/*
-#        - api/Tdev702.OpenFoodFact.SDK/**/*
+      changes:
+        - api/Tdev702.Api/**/*
+        - api/Tdev702.Contracts/**/*
+        - api/Tdev702.Repository/**/*
+        - api/Tdev702.AWS.SDK/**/*
+        - api/Tdev702.Stripe.SDK/**/*
+        - api/Tdev702.OpenFoodFact.SDK/**/*
   artifacts:
     reports:
       dotenv: build_info.env
@@ -247,12 +247,12 @@ build-auth-staging:
   <<: *build_auth
   rules:
     - if: $CI_COMMIT_BRANCH == "staging"
-#      changes:
-#        - api/Tdev702.Auth/**/*
-#        - api/Tdev702.Contracts/**/*
-#        - api/Tdev702.Repository/**/*
-#        - api/Tdev702.Stripe.SDK/**/*
-#        - api/Tdev702.AWS.SDK/**/*
+      changes:
+        - api/Tdev702.Auth/**/*
+        - api/Tdev702.Contracts/**/*
+        - api/Tdev702.Repository/**/*
+        - api/Tdev702.Stripe.SDK/**/*
+        - api/Tdev702.AWS.SDK/**/*
   artifacts:
     reports:
       dotenv: build_info.env
@@ -301,7 +301,7 @@ integration-test-staging:
   stage: integration-test-staging
   image: cypress/included:latest
   rules:
-    - if: $CI_PIPELINE_SOURCE == "trigger" && $ENVIRONMENT == "staging"
+    - if: $CI_PIPELINE_SOURCE == "trigger"
       when: always
   script:
     - mkdir -p integration-tests/test-results
