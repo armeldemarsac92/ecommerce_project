@@ -302,7 +302,7 @@ integration-test-staging:
   image: cypress/included:latest
   rules:
     - if: $CI_PIPELINE_SOURCE == "trigger" && $ENVIRONMENT == "staging"
-      when: on_success
+      when: always
   script:
     - mkdir -p integration-tests/test-results
     - cd $CI_PROJECT_DIR/integration-tests
