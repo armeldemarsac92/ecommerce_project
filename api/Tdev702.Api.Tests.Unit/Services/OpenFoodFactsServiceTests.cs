@@ -10,15 +10,15 @@ using Tdev702.OpenFoodFact.SDK.Endpoints;
 
 public class OpenFoodFactServiceTests
 {
-    private readonly IProductsSearchEndpoint _productsSearchEndpoint;
+    private readonly IProductSearchEndpoints _productSearchEndpoints;
     private readonly ILogger<OpenFoodFactService> _logger;
     private readonly OpenFoodFactService _sut;
 
     public OpenFoodFactServiceTests()
     {
-        _productsSearchEndpoint = Substitute.For<IProductsSearchEndpoint>();
+        _productSearchEndpoints = Substitute.For<IProductSearchEndpoints>();
         _logger = Substitute.For<ILogger<OpenFoodFactService>>();
-        _sut = new OpenFoodFactService(_productsSearchEndpoint, _logger);
+        _sut = new OpenFoodFactService(_productSearchEndpoints, _logger);
     }
 
     [Fact]
@@ -49,7 +49,7 @@ public class OpenFoodFactServiceTests
             expectedContent,
             new RefitSettings());
 
-        _productsSearchEndpoint.SearchProducts(searchParams, default)
+        _productSearchEndpoints.SearchProducts(searchParams, default)
             .Returns(apiResponse);
 
         // Act
@@ -57,7 +57,7 @@ public class OpenFoodFactServiceTests
 
         // Assert
         result.Should().BeEquivalentTo(expectedContent);
-        await _productsSearchEndpoint.Received(1).SearchProducts(searchParams, default);
+        await _productSearchEndpoints.Received(1).SearchProducts(searchParams, default);
     }
 
     [Fact]
@@ -70,7 +70,7 @@ public class OpenFoodFactServiceTests
             null,
             new RefitSettings());
 
-        _productsSearchEndpoint.SearchProducts(searchParams, default)
+        _productSearchEndpoints.SearchProducts(searchParams, default)
             .Returns(apiResponse);
 
         // Act
@@ -104,7 +104,7 @@ public class OpenFoodFactServiceTests
             productResponse,
             new RefitSettings());
 
-        _productsSearchEndpoint.GetProductByBarCode(barcode, default)
+        _productSearchEndpoints.GetProductByBarCode(barcode, default)
             .Returns(apiResponse);
 
         // Act
@@ -112,7 +112,7 @@ public class OpenFoodFactServiceTests
 
         // Assert
         result.Should().BeEquivalentTo(expectedProduct);
-        await _productsSearchEndpoint.Received(1).GetProductByBarCode(barcode, default);
+        await _productSearchEndpoints.Received(1).GetProductByBarCode(barcode, default);
     }
 
     [Fact]
@@ -125,7 +125,7 @@ public class OpenFoodFactServiceTests
             null,
             new RefitSettings());
 
-        _productsSearchEndpoint.GetProductByBarCode(barcode, default)
+        _productSearchEndpoints.GetProductByBarCode(barcode, default)
             .Returns(apiResponse);
 
         // Act

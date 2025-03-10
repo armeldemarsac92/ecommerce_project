@@ -8,7 +8,7 @@ public static class DI
 {
     public static IServiceCollection AddOpenFoodFactServices(this IServiceCollection services)
     {
-        services.AddRefitClient<IProductsSearchEndpoint>().ConfigureHttpClient(
+        services.AddRefitClient<IProductSearchEndpoints>().ConfigureHttpClient(
             c =>
             {
                 c.BaseAddress = new Uri("https://world.openfoodfacts.org");

@@ -6,7 +6,7 @@ using Tdev702.OpenFoodFact.SDK.Routes;
 
 namespace Tdev702.OpenFoodFact.SDK.Endpoints;
 
-public interface IProductsSearchEndpoint
+public interface IProductSearchEndpoints
 {
     [Get(OpenFoodFactRoutes.Search.Product)]
     Task<ApiResponse<OpenFoodFactSearchResult>> SearchProducts([Query] ProductSearchParams searchParams, CancellationToken cancellationToken = default);

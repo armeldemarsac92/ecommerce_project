@@ -26,4 +26,8 @@
       <Folder Include="Products\" />
     </ItemGroup>
 
+    <ItemGroup>
+      <ProjectReference Include="..\Tdev702.Api.SDK\Tdev702.Api.SDK.csproj" />
+    </ItemGroup>
+
 </Project>

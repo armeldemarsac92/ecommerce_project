@@ -13,12 +13,12 @@ public interface IOpenFoodFactService
 
 public class OpenFoodFactService : IOpenFoodFactService
 {
-    private readonly IProductsSearchEndpoint _productsSearchEndpoint;
+    private readonly IProductSearchEndpoints _productSearchEndpoints;
     private readonly ILogger<OpenFoodFactService> _logger;
 
-    public OpenFoodFactService(IProductsSearchEndpoint productsSearchEndpoint, ILogger<OpenFoodFactService> logger)
+    public OpenFoodFactService(IProductSearchEndpoints productSearchEndpoints, ILogger<OpenFoodFactService> logger)
     {
-        _productsSearchEndpoint = productsSearchEndpoint;
+        _productSearchEndpoints = productSearchEndpoints;
         _logger = logger;
     }
 
@@ -26,7 +26,7 @@ public class OpenFoodFactService : IOpenFoodFactService
         CancellationToken cancellationToken = default)
     {
         _logger.LogInformation("Searching for product with query options: {queryOptions}", searchParams);
-        var response = await _productsSearchEndpoint.SearchProducts(searchParams, cancellationToken);
+        var response = await _productSearchEndpoints.SearchProducts(searchParams, cancellationToken);
         if (!response.IsSuccessStatusCode)
         {
             _logger.LogError(
@@ -40,7 +40,7 @@ public class OpenFoodFactService : IOpenFoodFactService
     public async Task<OpenFoodFactProduct?> GetProductByBarCodeAsync(string barcode, CancellationToken cancellationToken = default)
     {
         _logger.LogInformation("Getting open food fact product by barcode: {barcode}", barcode);
-        var response = await _productsSearchEndpoint.GetProductByBarCode(barcode, cancellationToken);
+        var response = await _productSearchEndpoints.GetProductByBarCode(barcode, cancellationToken);
         
         if (!response.IsSuccessStatusCode)
         {

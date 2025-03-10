@@ -18,6 +18,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tdev702.Api.Tests.Unit", "T
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tdev702.Api.Tests.Integration", "Tdev702.Api.Tests.Integration\Tdev702.Api.Tests.Integration.csproj", "{967B5135-B142-4D78-94B5-2845FE0A736F}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tdev702.Api.SDK", "Tdev702.Api.SDK\Tdev702.Api.SDK.csproj", "{4AEB0604-C346-4EC4-9B09-E69C99AEC3B6}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -60,5 +62,9 @@ Global
 		{967B5135-B142-4D78-94B5-2845FE0A736F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{967B5135-B142-4D78-94B5-2845FE0A736F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{967B5135-B142-4D78-94B5-2845FE0A736F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4AEB0604-C346-4EC4-9B09-E69C99AEC3B6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4AEB0604-C346-4EC4-9B09-E69C99AEC3B6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4AEB0604-C346-4EC4-9B09-E69C99AEC3B6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4AEB0604-C346-4EC4-9B09-E69C99AEC3B6}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
