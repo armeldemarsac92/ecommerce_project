@@ -27,7 +27,6 @@ variables:
   PRODUCTION_AUTH_URL: "https://auth.epitechproject.fr/api"
 
 .validate_variables:
-  stage: validate
   image: alpine:latest
   script:
     - |
