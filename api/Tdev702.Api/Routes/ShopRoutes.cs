@@ -21,6 +21,7 @@ public static class ShopRoutes
     public static class OpenFoodFactProducts
     {
         public const string GetAll = $"{Base}/open_food_fact";
+        public const string GetByBarcode = $"{Base}/open_food_fact/{{barcode}}";
     }
     
     public static class ProductsTags

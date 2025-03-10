@@ -18,7 +18,13 @@ public static class OpenFoodFactEndpoints
             .WithTags(Tags)
             .RequireAuthorization("Admin")
             .WithDescription("Get all products from Open Food Facts")
-            .Produces<OpenFoodFactSearchResult>(200);
+            .Produces<OpenFoodFactSearchResult>(200);        
+        
+        app.MapGet(ShopRoutes.OpenFoodFactProducts.GetByBarcode, GetOpenFoodFactProductByBarcode)
+            .WithTags(Tags)
+            .RequireAuthorization("Authenticated")
+            .WithDescription("Get product by id from Open Food Facts")
+            .Produces<OpenFoodFactProductResult>(200);
 
         return app;
 
@@ -32,6 +38,17 @@ public static class OpenFoodFactEndpoints
     )
     {
         var response = await openFoodFactService.SearchProductAsync(options, cancellationToken);
+        return Results.Ok(response);
+    }    
+    
+    private static async Task<IResult> GetOpenFoodFactProductByBarcode(
+        HttpContext context,
+        string barcode,
+        IOpenFoodFactService openFoodFactService,
+        CancellationToken cancellationToken
+    )
+    {
+        var response = await openFoodFactService.GetProductByBarCodeAsync(barcode, cancellationToken);
         return Results.Ok(response);
     }
 }
