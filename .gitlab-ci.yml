@@ -170,7 +170,7 @@ frontend-test:
 
 api-test:
   stage: test
-  image: mcr.microsoft.com/dotnet/sdk:7.0
+  image: mcr.microsoft.com/dotnet/sdk:8.0
   script:
     - cd $CI_PROJECT_DIR/api
     - dotnet restore
@@ -185,7 +185,7 @@ api-test:
   rules:
     - if: $CI_COMMIT_BRANCH == "staging"
       changes:
-        - api/**/*
+        - api/Tdev702.Api/**/*
 
 build-frontend-staging:
   stage: build-staging
