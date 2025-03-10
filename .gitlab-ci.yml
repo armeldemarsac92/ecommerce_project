@@ -26,18 +26,6 @@ variables:
   PRODUCTION_API_URL: "https://api.epitechproject.fr/api/v1"
   PRODUCTION_AUTH_URL: "https://auth.epitechproject.fr/api"
 
-stages:
-  - validate
-  - test
-  - build-staging
-  - deploy-infra-staging
-  - integration-test-staging
-  - manual-approval
-  - build-production
-  - deploy-infra-production
-
-# Templates and common configurations
-
 .validate_variables:
   stage: validate
   image: alpine:latest
@@ -152,7 +140,6 @@ validate-variables:
   extends: .validate_variables
 
 frontend-test:
-  stage: test
   image: node:18-alpine
   script:
     - cd $CI_PROJECT_DIR/web
@@ -169,7 +156,6 @@ frontend-test:
         - web/**/*
 
 api-test:
-  stage: test
   image: mcr.microsoft.com/dotnet/sdk:8.0
   script:
     - cd $CI_PROJECT_DIR/api
@@ -188,7 +174,6 @@ api-test:
         - api/Tdev702.Api/**/*
 
 build-frontend-staging:
-  stage: build-staging
   variables:
     IMAGE_TAG_PREFIX: "t-dev-702-web-staging"
     ENV_PREFIX: "staging"
@@ -204,7 +189,6 @@ build-frontend-staging:
         - web/**/*
 
 scan-frontend-staging:
-  stage: build-staging
   <<: *security_scan
   needs:
     - job: build-frontend-staging
@@ -215,7 +199,6 @@ scan-frontend-staging:
         - web/**/*
 
 build-api-staging:
-  stage: build-staging
   variables:
     IMAGE_TAG_PREFIX: "t-dev-702-api-staging"
     ENV_PREFIX: "staging"
@@ -237,7 +220,6 @@ build-api-staging:
       dotenv: build_info.env
 
 scan-api-staging:
-  stage: build-staging
   <<: *security_scan
   rules:
     - if: $CI_COMMIT_BRANCH == "staging"
@@ -253,7 +235,6 @@ scan-api-staging:
       artifacts: true
 
 build-auth-staging:
-  stage: build-staging
   variables:
     IMAGE_TAG_PREFIX: "t-dev-702-auth-staging"
     ENV_PREFIX: "staging"
@@ -271,7 +252,6 @@ build-auth-staging:
       dotenv: build_info.env
 
 scan-auth-staging:
-  stage: build-staging
   variables:
     ENV_PREFIX: "staging"
     COMPONENT: "auth"
@@ -289,7 +269,6 @@ scan-auth-staging:
       artifacts: true
 
 trigger-infra-staging:
-  stage: deploy-infra-staging
   needs:
     - job: build-frontend-staging
       optional: true
@@ -319,7 +298,6 @@ trigger-infra-staging:
       dotenv: infra_pipeline.env
 
 integration-test-staging:
-  stage: integration-test-staging
   image: cypress/included:latest
   rules:
     - if: $CI_PIPELINE_SOURCE == "trigger"
@@ -344,7 +322,6 @@ integration-test-staging:
       - integration-tests/node_modules/
 
 manual-approval-production:
-  stage: manual-approval
   image: alpine:latest
   needs:
     - integration-test-staging
@@ -357,7 +334,6 @@ manual-approval-production:
   allow_failure: false
 
 build-frontend-production:
-  stage: build-production
   variables:
     IMAGE_TAG_PREFIX: "t-dev-702-web-production"
     ENV_PREFIX: "production"
@@ -374,7 +350,6 @@ build-frontend-production:
 
 # Frontend scan
 scan-frontend-production:
-  stage: build-production
   variables:
     ENV_PREFIX: "production"
     COMPONENT: "frontend"
@@ -389,7 +364,6 @@ scan-frontend-production:
         - web/**/*
 
 build-api-production:
-  stage: build-production
   variables:
     IMAGE_TAG_PREFIX: "t-dev-702-api-production"
     ENV_PREFIX: "production"
@@ -409,7 +383,6 @@ build-api-production:
 
 # API scan
 scan-api-production:
-  stage: build-production
   variables:
     ENV_PREFIX: "production"
     COMPONENT: "api"
@@ -429,7 +402,6 @@ scan-api-production:
         - api/Tdev702.OpenFoodFact.SDK/**/*
 
 build-auth-production:
-  stage: build-production
   variables:
     IMAGE_TAG_PREFIX: "t-dev-702-auth-production"
     ENV_PREFIX: "production"
@@ -448,7 +420,6 @@ build-auth-production:
 
 # Auth scan
 scan-auth-production:
-  stage: build-production
   variables:
     ENV_PREFIX: "production"
     COMPONENT: "auth"
