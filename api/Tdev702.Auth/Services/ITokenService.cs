@@ -128,6 +128,5 @@ public class TokenService : ITokenService
     {
         if (user == null) throw new BadRequestException("User not found");
         _logger.LogInformation("User {UserId} found.", user.Id);
-        if (user.LockoutEnabled) throw new BadRequestException($"User {user.Id} is locked out.");
     }
 }
