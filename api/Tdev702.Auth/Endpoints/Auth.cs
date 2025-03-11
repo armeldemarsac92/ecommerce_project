@@ -45,7 +45,6 @@ public static class AuthEndpoints
             .Accepts<RefreshTokenRequest>(ContentType)
             .Produces<AccessTokenResponse>(200)
             .WithName("RefreshToken")
-            .RequireAuthorization("Authenticated")
             .WithTags(Tags);
 
         app.MapPost(ApiRoutes.Auth.Resend2FaCode, Send2FaCode)
