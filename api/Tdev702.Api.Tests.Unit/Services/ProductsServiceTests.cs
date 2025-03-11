@@ -57,6 +57,7 @@ public class ProductsServiceTests
         {
             Id = productId,
             Title = "Test Product",
+            IsLiked = false,
             Description = "Test Description",
             Price = 50.00,
             ImageUrl = "http://test.com/image.jpg",
@@ -99,6 +100,7 @@ public class ProductsServiceTests
             Id = createdProductId,
             Title = createRequest.Title,
             Description = createRequest.Description,
+            IsLiked = false,
             Price = createRequest.Price,
             ImageUrl = createRequest.ImageUrl,
             UpdatedAt = now,
@@ -153,6 +155,7 @@ public class ProductsServiceTests
             Title = updateRequest.Title,
             Description = updateRequest.Description,
             Price = (double)updateRequest.Price,
+            IsLiked = false,
             ImageUrl = updateRequest.ImageUrl,
             UpdatedAt = now,
             CreatedAt = now
