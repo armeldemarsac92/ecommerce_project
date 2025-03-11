@@ -1,3 +1,5 @@
+using System.Net;
+using Tdev702.Contracts.Exceptions;
 using Tdev702.Contracts.OpenFoodFact.Request;
 using Tdev702.Contracts.OpenFoodFact.Response;
 using Tdev702.Contracts.SQL.Request.All;
@@ -8,7 +10,7 @@ namespace Tdev702.Api.Services;
 public interface IOpenFoodFactService
 {
     Task<OpenFoodFactSearchResult> SearchProductAsync(ProductSearchParams searchParams, CancellationToken cancellationToken = default);
-    Task<OpenFoodFactProduct?> GetProductByBarCodeAsync(string barcode, CancellationToken cancellationToken = default);
+    Task<OpenFoodFactProduct> GetProductByBarCodeAsync(string barcode, CancellationToken cancellationToken = default);
 }
 
 public class OpenFoodFactService : IOpenFoodFactService
@@ -37,7 +39,7 @@ public class OpenFoodFactService : IOpenFoodFactService
         return response.Content;
     }
 
-    public async Task<OpenFoodFactProduct?> GetProductByBarCodeAsync(string barcode, CancellationToken cancellationToken = default)
+    public async Task<OpenFoodFactProduct> GetProductByBarCodeAsync(string barcode, CancellationToken cancellationToken = default)
     {
         _logger.LogInformation("Getting open food fact product by barcode: {barcode}", barcode);
         var response = await _productSearchEndpoints.GetProductByBarCode(barcode, cancellationToken);
@@ -45,6 +47,7 @@ public class OpenFoodFactService : IOpenFoodFactService
         if (!response.IsSuccessStatusCode)
         {
             _logger.LogError("Failed to get product by barcode: {barcode}, status code: {StatusCode}", barcode, response.StatusCode);
+            if(response.StatusCode == HttpStatusCode.NotFound) throw new NotFoundException($"Product {barcode} not found");
             throw new HttpRequestException($"Failed to get product by barcode: {barcode}");
         }
         
