@@ -21,6 +21,9 @@ public class ShopProductResponse
 
     [JsonPropertyName("image_url")]
     public required string ImageUrl { get; init; }
+    
+    [JsonPropertyName("is_liked")]
+    public bool IsLiked { get; init; }
 
     [JsonPropertyName("tags")]
     public string[]? Tags { get; init; }

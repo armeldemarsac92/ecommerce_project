@@ -3,36 +3,57 @@ namespace Tdev702.Repository.SQL;
 public static class ProductQueries
 {
     public static string GetProductById = @"
-    SELECT 
-        *
-    FROM shop.vw_full_product
-    WHERE id = @Id;";
-    
+SELECT 
+    p.*,
+    CASE 
+        WHEN @UserId IS NULL THEN false
+        WHEN lp.product_id IS NOT NULL THEN true 
+        ELSE false 
+    END AS is_liked
+FROM shop.vw_full_product p
+LEFT JOIN shop.link_products_users lp ON p.id = lp.product_id AND lp.user_id = @UserId
+WHERE p.id = @Id;";
+
     public static string GetAllProducts = @"
-    SELECT 
-        *
-    FROM shop.vw_products        
-    ORDER BY 
-        CASE WHEN @orderBy = 2 THEN id END DESC,
-        CASE WHEN @orderBy = 1 THEN id END ASC
-    LIMIT @pageSize 
-    OFFSET @offset;";
-    
+SELECT 
+    p.*,
+    CASE 
+        WHEN @UserId IS NULL THEN false
+        WHEN lp.product_id IS NOT NULL THEN true 
+        ELSE false 
+    END AS is_liked
+FROM shop.vw_products p
+LEFT JOIN shop.link_products_users lp ON p.id = lp.product_id AND lp.user_id = @UserId      
+ORDER BY 
+    CASE WHEN @orderBy = 2 THEN p.id END DESC,
+    CASE WHEN @orderBy = 1 THEN p.id END ASC
+LIMIT @pageSize 
+OFFSET @offset;";
+
     public static string GetProductsByIds = @"
-    SELECT *
-    FROM shop.vw_products
-    WHERE id = ANY(@ProductIds);";
-    
-    public static string GetUserLikedProducts => @"
-    SELECT p.*
-    FROM shop.vw_products p
-    INNER JOIN shop.link_products_users lp ON p.id = lp.product_id
-    WHERE lp.user_id = @UserId
-    ORDER BY 
-        CASE WHEN @orderBy = 2 THEN p.id END DESC,
-        CASE WHEN @orderBy = 1 THEN p.id END ASC
-    LIMIT @pageSize 
-    OFFSET @offset;";
+SELECT 
+    p.*,
+    CASE 
+        WHEN @UserId IS NULL THEN false
+        WHEN lp.product_id IS NOT NULL THEN true 
+        ELSE false 
+    END AS is_liked
+FROM shop.vw_products p
+LEFT JOIN shop.link_products_users lp ON p.id = lp.product_id AND lp.user_id = @UserId
+WHERE p.id = ANY(@ProductIds);";
+
+    public static string GetUserLikedProducts = @"
+SELECT 
+    p.*,
+    true AS is_liked
+FROM shop.vw_products p
+INNER JOIN shop.link_products_users lp ON p.id = lp.product_id
+WHERE lp.user_id = @UserId
+ORDER BY 
+    CASE WHEN @orderBy = 2 THEN p.id END DESC,
+    CASE WHEN @orderBy = 1 THEN p.id END ASC
+LIMIT @pageSize 
+OFFSET @offset;";
 
     public static string CreateProduct = @"
     INSERT INTO shop.products (

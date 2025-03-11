@@ -127,8 +127,8 @@ public static class ProductEndpoints
         string? sortBy)
     {
         var queryOptions = MapToQueryOptions(pageSize, pageNumber, sortBy);
-
-        var products = await productsService.GetAllAsync(queryOptions, cancellationToken);
+        var userId = context.GetUserIdFromClaims();
+        var products = await productsService.GetAllAsync(queryOptions, userId, cancellationToken);
         return Results.Ok(products);
     }
     
@@ -138,7 +138,8 @@ public static class ProductEndpoints
         long id,
         CancellationToken cancellationToken)
     {   
-        var product = await productsService.GetByIdAsync(id ,cancellationToken);
+        var userId = context.GetUserIdFromClaims();
+        var product = await productsService.GetByIdAsync(id, userId, cancellationToken);
         return Results.Ok(product);
     }
     

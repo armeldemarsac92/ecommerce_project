@@ -18,6 +18,9 @@ public class FullProductSQLResponse
 
     [Column("image_url")]
     public required string ImageUrl { get; init; }
+    
+    [Column("is_liked")]
+    public bool IsLiked { get; init; }
 
     [Column("tags")]
     public string[]? Tags { get; init; }

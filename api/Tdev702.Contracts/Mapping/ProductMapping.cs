@@ -50,6 +50,7 @@ public static ShopProductResponse MapToProduct(this FullProductSQLResponse fullP
         CategoryTitle = fullProductSqlResponse.CategoryTitle,
         OpenFoodFactId = fullProductSqlResponse.OpenFoodFactId,
         ImageUrl = fullProductSqlResponse.ImageUrl,
+        IsLiked = fullProductSqlResponse.IsLiked,
         Tags = fullProductSqlResponse.Tags,
         UpdatedAt = fullProductSqlResponse.UpdatedAt,
         CreatedAt = fullProductSqlResponse.CreatedAt,

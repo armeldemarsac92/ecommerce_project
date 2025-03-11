@@ -18,8 +18,8 @@ namespace Tdev702.Api.Services;
 
 public interface IProductsService
 {
-    public Task<ShopProductResponse> GetByIdAsync(long productId, CancellationToken cancellationToken = default);
-    public Task<List<ShopProductResponse>> GetAllAsync(QueryOptions queryOptions, CancellationToken cancellationToken = default);
+    public Task<ShopProductResponse> GetByIdAsync(long productId, string? userId = null, CancellationToken cancellationToken = default);
+    public Task<List<ShopProductResponse>> GetAllAsync(QueryOptions queryOptions, string? userId = null, CancellationToken cancellationToken = default);
     public Task<List<ShopProductResponse>> GetLikedProductsAsync(QueryOptions queryOptions, string userId, CancellationToken cancellationToken = default);
     public Task<ShopProductResponse> CreateAsync(CreateProductRequest createProductRequest, CancellationToken cancellationToken = default);
     public Task<ShopProductResponse> UpdateAsync(long productId, UpdateProductRequest updateProductRequest, CancellationToken cancellationToken = default);
@@ -61,10 +61,10 @@ public class ProductsService : IProductsService
     }
 
 
-    public async Task<ShopProductResponse> GetByIdAsync(long productId, CancellationToken cancellationToken = default)
+    public async Task<ShopProductResponse> GetByIdAsync(long productId, string? userId = null, CancellationToken cancellationToken = default)
     {
         _logger.LogInformation("Getting product with id: {productId}", productId);
-        var response = await _productRepository.GetByIdAsync(productId, cancellationToken);
+        var response = await _productRepository.GetByIdAsync(productId, userId, cancellationToken);
         if(response is null) throw new NotFoundException($"Product {productId} not found");
 
         await _publishEndpoint.Publish(new UpdateNutrimentTask(){Product = response}, cancellationToken);
@@ -72,10 +72,10 @@ public class ProductsService : IProductsService
 
     }
 
-    public async Task<List<ShopProductResponse>> GetAllAsync(QueryOptions queryOptions, CancellationToken cancellationToken = default)
+    public async Task<List<ShopProductResponse>> GetAllAsync(QueryOptions queryOptions,  string? userId = null, CancellationToken cancellationToken = default)
     {
         _logger.LogInformation("Getting all products");
-        var response = await _productRepository.GetAllAsync(queryOptions, cancellationToken);
+        var response = await _productRepository.GetAllAsync(queryOptions, userId, cancellationToken);
         return response.Any() ? response.MapToProducts() : throw new NotFoundException("No products found");
     }
 
@@ -110,7 +110,7 @@ public class ProductsService : IProductsService
                 _logger.LogInformation("Product tags created successfully for product {productId}", productId);
             }
             
-            var productResponse = await _productRepository.GetByIdAsync(productId, cancellationToken);
+            var productResponse = await _productRepository.GetByIdAsync(productId, null, cancellationToken);
 
             if (createProductRequest.Quantity != null)
             {
@@ -177,7 +177,7 @@ public class ProductsService : IProductsService
             var affectedRows = await _productRepository.UpdateAsync(sqlRequest, cancellationToken);
             if (affectedRows == 0) throw new NotFoundException($"Product {productId} not found");
         
-            var updatedProduct = await _productRepository.GetByIdAsync(productId, cancellationToken);
+            var updatedProduct = await _productRepository.GetByIdAsync(productId, null, cancellationToken);
             _logger.LogInformation("Product {productId} updated successfully.", productId);
             
             await _unitOfWork.CommitAsync(cancellationToken);

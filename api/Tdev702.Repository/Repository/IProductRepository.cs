@@ -10,10 +10,10 @@ namespace Tdev702.Repository.Repository;
 
 public interface IProductRepository
 {
-    public Task<FullProductSQLResponse?> GetByIdAsync(long id, CancellationToken cancellationToken = default);
-    public Task<List<FullProductSQLResponse>> GetAllAsync(QueryOptions queryOptions, CancellationToken cancellationToken = default);
+    public Task<FullProductSQLResponse?> GetByIdAsync(long productId,  string? userId = null, CancellationToken cancellationToken = default);
+    public Task<List<FullProductSQLResponse>> GetAllAsync(QueryOptions queryOptions,  string? userId = null, CancellationToken cancellationToken = default);
     public Task<List<FullProductSQLResponse>> GetByIdsAsync(List<long> productIds, CancellationToken cancellationToken = default);
-    public Task<List<FullProductSQLResponse>> GetLikedProductsAsync(QueryOptions queryOptions, string userId, CancellationToken cancellationToken);
+    public Task<List<FullProductSQLResponse>> GetLikedProductsAsync(QueryOptions queryOptions, string? userId = null, CancellationToken cancellationToken = default);
     public Task<int> CreateAsync(CreateProductSQLRequest request, CancellationToken cancellationToken = default);
     public Task<int> UpdateAsync(UpdateProductSQLRequest request, CancellationToken cancellationToken = default);
     public Task DeleteAsync(long id, CancellationToken cancellationToken = default);
@@ -30,14 +30,22 @@ public class ProductRepository : IProductRepository
         _dbContext = dbContext;
     }
 
-    public async Task<FullProductSQLResponse?> GetByIdAsync(long id, CancellationToken cancellationToken = default)
+    public async Task<FullProductSQLResponse?> GetByIdAsync(long productId,  string? userId = null, CancellationToken cancellationToken = default)
     {
-        return await _dbContext.QueryFirstOrDefaultAsync<FullProductSQLResponse>(ProductQueries.GetProductById, new { Id = id }, cancellationToken);
+        return await _dbContext.QueryFirstOrDefaultAsync<FullProductSQLResponse>(ProductQueries.GetProductById, new { ProductId = productId, UserId = userId }, cancellationToken);
     }
 
-    public async Task<List<FullProductSQLResponse>> GetAllAsync(QueryOptions queryOptions, CancellationToken cancellationToken = default)
+    public async Task<List<FullProductSQLResponse>> GetAllAsync(QueryOptions queryOptions, string? userId = null, CancellationToken cancellationToken = default)
     {
-        var response = await _dbContext.QueryAsync<FullProductSQLResponse>(ProductQueries.GetAllProducts, queryOptions, cancellationToken);
+        var response = await _dbContext.QueryAsync<FullProductSQLResponse>(
+            ProductQueries.GetAllProducts, 
+            new {             
+                UserId = userId,
+                PageSize = queryOptions.PageSize,
+                Offset = queryOptions.Offset,
+                OrderBy = queryOptions.OrderBy  
+            }, 
+            cancellationToken);
         return response.Any() ? response.ToList() : new List<FullProductSQLResponse>();
     }
     
@@ -51,7 +59,7 @@ public class ProductRepository : IProductRepository
         return response.Any() ? response.ToList() : new List<FullProductSQLResponse>();
     }
 
-    public async Task<List<FullProductSQLResponse>> GetLikedProductsAsync(QueryOptions queryOptions, string userId, CancellationToken cancellationToken)
+    public async Task<List<FullProductSQLResponse>> GetLikedProductsAsync(QueryOptions queryOptions, string? userId = null, CancellationToken cancellationToken = default)
     {
         var response = await _dbContext.QueryAsync<FullProductSQLResponse>(
             ProductQueries.GetUserLikedProducts, 
