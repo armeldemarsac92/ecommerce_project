@@ -31,8 +31,8 @@ public static class OrderQueries
    FROM backoffice.vw_orders_summary
    WHERE user_id = @UserId        
    ORDER BY 
-        CASE WHEN @orderBy = 'DESC' THEN id END DESC,
-        CASE WHEN @orderBy = 'ASC' THEN id END ASC
+        CASE WHEN @orderBy = 2 THEN id END DESC,
+        CASE WHEN @orderBy = 1 THEN id END ASC
     LIMIT @pageSize 
     OFFSET @offset;";
 
