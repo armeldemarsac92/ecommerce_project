@@ -4,6 +4,7 @@ using NSubstitute;
 using Refit;
 using System.Net;
 using Tdev702.Api.Services;
+using Tdev702.Contracts.Exceptions;
 using Tdev702.Contracts.OpenFoodFact.Request;
 using Tdev702.Contracts.OpenFoodFact.Response;
 using Tdev702.OpenFoodFact.SDK.Endpoints;
@@ -132,7 +133,7 @@ public class OpenFoodFactServiceTests
         var act = () => _sut.GetProductByBarCodeAsync(barcode);
 
         // Assert
-        await act.Should().ThrowAsync<HttpRequestException>()
-            .WithMessage($"Failed to get product by barcode: {barcode}");
+        await act.Should().ThrowAsync<NotFoundException>()
+            .WithMessage($"Product {barcode} not found");
     }
 }
