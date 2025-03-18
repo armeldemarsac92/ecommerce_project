@@ -52,17 +52,20 @@
 	<s:Int64 x:Key="/Default/Environment/Hierarchy/Build/BuildTool/MsbuildVersion/@EntryValue">4294967294</s:Int64>
 	<s:Boolean x:Key="/Default/Environment/Hierarchy/Build/BuildTool/RecentBuildToolPaths/=_002Fusr_002Flocal_002Fshare_002Fdotnet_002Fsdk_002F8_002E0_002E405_002FMSBuild_002Edll/@EntryIndexedValue">True</s:Boolean>
 	<s:String x:Key="/Default/Environment/Highlighting/HighlightingSourceSnapshotLocation/@EntryValue">/home/armeldemarsac/.cache/JetBrains/Rider2023.3/resharper-host/temp/Rider/vAny/CoverageData/_Tdev702.-1872216363/Snapshot/snapshot.utdcvr</s:String>
-	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=58c56b00_002Df81e_002D48fd_002Da74f_002Dc8e84271fcf4/@EntryIndexedValue">&lt;SessionState ContinuousTestingIsOn="True" ContinuousTestingMode="3" IsActive="True" Name="Continuous Testing" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;
+	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=58c56b00_002Df81e_002D48fd_002Da74f_002Dc8e84271fcf4/@EntryIndexedValue">&lt;SessionState ContinuousTestingIsOn="True" ContinuousTestingMode="3" Name="Continuous Testing" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;
   &lt;Solution /&gt;
 &lt;/SessionState&gt;</s:String>
 	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=dd1ad1b5_002D10e9_002D4f58_002D8fea_002Dc55039d1a7ca/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" IsActive="True" Name="BrandsServiceTests" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;
-  &lt;TestAncestor&gt;
-    &lt;TestId&gt;xUnit::3A2DD031-3FDC-4C92-A5A8-69D3FDF5622A::net8.0::BrandsServiceTests&lt;/TestId&gt;
-    &lt;TestId&gt;xUnit::3A2DD031-3FDC-4C92-A5A8-69D3FDF5622A::net8.0::CustomerServiceTests&lt;/TestId&gt;
-    &lt;TestId&gt;xUnit::3A2DD031-3FDC-4C92-A5A8-69D3FDF5622A::net8.0::CategoriesServiceTests&lt;/TestId&gt;
-    &lt;TestId&gt;xUnit::3A2DD031-3FDC-4C92-A5A8-69D3FDF5622A::net8.0::InventoriesServiceTests&lt;/TestId&gt;
-    &lt;TestId&gt;xUnit::3A2DD031-3FDC-4C92-A5A8-69D3FDF5622A::net8.0::OpenFoodFactServiceTests&lt;/TestId&gt;
-    &lt;TestId&gt;xUnit::3A2DD031-3FDC-4C92-A5A8-69D3FDF5622A::net8.0::OrderServiceTests&lt;/TestId&gt;
-  &lt;/TestAncestor&gt;
+  &lt;Or&gt;
+    &lt;TestAncestor&gt;
+      &lt;TestId&gt;xUnit::3A2DD031-3FDC-4C92-A5A8-69D3FDF5622A::net8.0::BrandsServiceTests&lt;/TestId&gt;
+      &lt;TestId&gt;xUnit::3A2DD031-3FDC-4C92-A5A8-69D3FDF5622A::net8.0::CustomerServiceTests&lt;/TestId&gt;
+      &lt;TestId&gt;xUnit::3A2DD031-3FDC-4C92-A5A8-69D3FDF5622A::net8.0::CategoriesServiceTests&lt;/TestId&gt;
+      &lt;TestId&gt;xUnit::3A2DD031-3FDC-4C92-A5A8-69D3FDF5622A::net8.0::InventoriesServiceTests&lt;/TestId&gt;
+      &lt;TestId&gt;xUnit::3A2DD031-3FDC-4C92-A5A8-69D3FDF5622A::net8.0::OpenFoodFactServiceTests&lt;/TestId&gt;
+      &lt;TestId&gt;xUnit::3A2DD031-3FDC-4C92-A5A8-69D3FDF5622A::net8.0::OrderServiceTests&lt;/TestId&gt;
+    &lt;/TestAncestor&gt;
+    &lt;Project Location="/home/armeldemarsac/Documents/delivery/tdev700/api/Tdev702.Api.Tests.Integration" Presentation="&amp;lt;Tdev702.Api.Tests.Integration&amp;gt;" /&gt;
+  &lt;/Or&gt;
 &lt;/SessionState&gt;</s:String>
 	</wpf:ResourceDictionary>

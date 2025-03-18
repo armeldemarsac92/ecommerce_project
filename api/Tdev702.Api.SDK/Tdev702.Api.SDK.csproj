@@ -8,10 +8,13 @@
 
     <ItemGroup>
       <ProjectReference Include="..\Tdev702.Api\Tdev702.Api.csproj" />
+      <ProjectReference Include="..\Tdev702.Auth.SDK\Tdev702.Auth.SDK.csproj" />
     </ItemGroup>    
     
     <ItemGroup>
         <PackageReference Include="Microsoft.Extensions.Http.Resilience" Version="8.1.0" />
+        <PackageReference Include="Refit" Version="8.0.0" />
+        <PackageReference Include="Refit.HttpClientFactory" Version="8.0.0" />
     </ItemGroup>
 
 </Project>

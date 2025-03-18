@@ -20,10 +20,10 @@ public interface IProductEndpoints
     Task<ApiResponse<ShopProductResponse>> CreateAsync([Body] CreateProductRequest createProductRequest, CancellationToken cancellationToken = default);
     
     [Put(ShopRoutes.Products.Update)]
-    Task<ApiResponse<ShopProductResponse>> UpdateAsync(int productId, [Body] UpdateProductRequest updateProductRequest, CancellationToken cancellationToken = default);
+    Task<ApiResponse<ShopProductResponse>> UpdateAsync(int id, [Body] UpdateProductRequest updateProductRequest, CancellationToken cancellationToken = default);
     
     [Delete(ShopRoutes.Products.Delete)]
-    Task<ApiResponse<ShopProductResponse>> DeleteAsync(int productId, CancellationToken cancellationToken = default);
+    Task<ApiResponse<ShopProductResponse>> DeleteAsync(int id, CancellationToken cancellationToken = default);
     
     [Get(ShopRoutes.Products.Like)]
     Task LikeAsync(int id, CancellationToken cancellationToken = default);

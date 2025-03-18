@@ -20,6 +20,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tdev702.Api.Tests.Integrati
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tdev702.Api.SDK", "Tdev702.Api.SDK\Tdev702.Api.SDK.csproj", "{4AEB0604-C346-4EC4-9B09-E69C99AEC3B6}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tdev702.Auth.SDK", "Tdev702.Auth.SDK\Tdev702.Auth.SDK.csproj", "{22E1A2E0-40FE-4829-BBCB-833A3A34C23C}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -66,5 +68,9 @@ Global
 		{4AEB0604-C346-4EC4-9B09-E69C99AEC3B6}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4AEB0604-C346-4EC4-9B09-E69C99AEC3B6}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4AEB0604-C346-4EC4-9B09-E69C99AEC3B6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{22E1A2E0-40FE-4829-BBCB-833A3A34C23C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{22E1A2E0-40FE-4829-BBCB-833A3A34C23C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{22E1A2E0-40FE-4829-BBCB-833A3A34C23C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{22E1A2E0-40FE-4829-BBCB-833A3A34C23C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

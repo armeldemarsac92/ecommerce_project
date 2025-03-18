@@ -47,7 +47,7 @@ public static class AuthEndpoints
             .WithName("RefreshToken")
             .WithTags(Tags);
 
-        app.MapPost(ApiRoutes.Auth.Resend2FaCode, Send2FaCode)
+        app.MapPost(ApiRoutes.Auth.Send2FaCode, Send2FaCode)
             .Accepts<Get2FaCodeRequest>(ContentType)
             .WithName("ResendConfirmation")
             .WithTags(Tags);

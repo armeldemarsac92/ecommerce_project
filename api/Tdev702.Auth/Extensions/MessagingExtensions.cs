@@ -1,6 +1,7 @@
 using MassTransit;
 using Tdev702.Auth.Consumer;
 using Tdev702.Auth.Endpoints;
+using Tdev702.Auth.SDK.Consumer;
 
 namespace Tdev702.Auth.Extensions;
 
@@ -28,6 +29,15 @@ public static class MessagingExtensions
         {
             services.AddMassTransit<I2FaCodeBus>(x =>
             {
+                x.SetKebabCaseEndpointNameFormatter();
+                x.SetInMemorySagaRepositoryProvider();
+
+                var consumerAssembly = typeof(TwoFactorCodeConsumer).Assembly;
+                x.AddConsumers(consumerAssembly);
+                x.AddSagaStateMachines(consumerAssembly);
+                x.AddSagas(consumerAssembly);
+                x.AddActivities(consumerAssembly);
+
                 x.UsingAmazonSqs((context, cfg) =>
                 {
                     cfg.Host(configuration["AWS:Region"], _ => {});

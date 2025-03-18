@@ -1,4 +1,4 @@
-namespace Tdev702.Auth.Routes;
+namespace Tdev702.Auth.SDK.Routes;
 
 public static partial class ApiRoutes
 {
