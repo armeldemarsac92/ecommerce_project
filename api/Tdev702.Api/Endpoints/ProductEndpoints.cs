@@ -18,14 +18,12 @@ public static class ProductEndpoints
         app.MapGet(ShopRoutes.Products.GetAll, GetAllProducts)
             .WithTags(Tags)
             .WithDescription("Get all products")
-            .RequireAuthorization("Authenticated")
             .Produces<List<ShopProductResponse>>(200)
             .Produces(204);
         
         app.MapGet(ShopRoutes.Products.GetById, GetProduct)
             .WithTags(Tags)
             .WithDescription("Get a product")
-            .RequireAuthorization("Authenticated")
             .Produces<ShopProductResponse>(200)
             .Produces(404);
         

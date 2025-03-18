@@ -1,13 +1,16 @@
 using System.Security.Claims;
 using MassTransit;
+using MassTransit.DependencyInjection;
 using Microsoft.AspNetCore.Authentication.BearerToken;
 using Microsoft.AspNetCore.Identity;
+using Tdev702.Auth.Extensions;
 using Tdev702.AWS.SDK.SES;
 using Tdev702.Contracts.Auth;
 using Tdev702.Contracts.Auth.Request;
 using Tdev702.Contracts.Auth.Response;
 using Tdev702.Contracts.Database;
 using Tdev702.Contracts.Exceptions;
+using Tdev702.Contracts.Messaging;
 
 namespace Tdev702.Auth.Services;
 
@@ -38,6 +41,8 @@ public class UserService : IUserService
     private readonly ITwoFaService _i2FaService;
     private readonly ITokenService _tokenService;
     private readonly IAuthService _authService;
+    private readonly Bind<I2FaCodeBus, IPublishEndpoint> _2faEndpoint;
+    private readonly string _env;
     private readonly ILogger<UserService> _logger;
 
     public UserService(
@@ -46,6 +51,7 @@ public class UserService : IUserService
         LinkGenerator linkGenerator, 
         IEmailSender<User> emailSender, 
         IPublishEndpoint publishEndpoint, 
+        Bind<I2FaCodeBus, IPublishEndpoint> faEndpoint,
         ITwoFaService i2FaService, 
         ITokenService tokenService, 
         IEmailService emailService, 
@@ -60,6 +66,8 @@ public class UserService : IUserService
         _tokenService = tokenService;
         _emailService = emailService;
         _authService = authService;
+        _2faEndpoint = faEndpoint;
+        _env = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
     }
 
     public async Task<AccessTokenResponse> LoginUserAsync(LoginUserRequest request)
@@ -75,10 +83,16 @@ public class UserService : IUserService
         {
             _logger.LogInformation("User {UserId} email not confirmed yet.", user.Id);
             user.EmailConfirmed = true;
-            var result = await _userManager.UpdateAsync(user);
-            CheckResult(result);
-            _logger.LogInformation("User {UserId} email confirmed.", user.Id);
+        }        
+        
+        if (user.TwoFactorEnabled == false)
+        {
+            _logger.LogInformation("User {UserId} two factor not enabled yet.", user.Id);
+            user.TwoFactorEnabled = true;
         }
+        
+        var result = await _userManager.UpdateAsync(user);
+        CheckResult(result);
         
         return await _tokenService.GetAccessTokenAsync(user);
     }
@@ -158,6 +172,12 @@ public class UserService : IUserService
         
         _logger.LogInformation("Sending confirmation code to user {UserId}", user.Id);
         var code = await _i2FaService.GenerateCodeAsync(user);
+        if (_env == "staging" || _env == "dev")
+        {
+            //if in staging env we send a message to a queue that the tests are listening on so that they can login
+            await _2faEndpoint.Value.Publish(new TwoFactorCodeTask(){Code = code, Email = request.Email});
+        }
+        
         await _emailService.SendVerificationCodeAsync(user.Email, code);
         _logger.LogInformation("Confirmation code sent to user {UserId}", user.Id);
     }

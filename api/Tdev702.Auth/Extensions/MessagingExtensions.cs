@@ -6,13 +6,13 @@ namespace Tdev702.Auth.Extensions;
 
 public static class MessagingExtensions  
 {
-    public static IServiceCollection AddMessaging(this IServiceCollection services)
+    public static IServiceCollection AddMessaging(this IServiceCollection services, IConfiguration configuration)
     {
+        var env = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
 
         services.AddMassTransit(x =>
         {
             x.AddConsumer<CreateStripeCustomerConsumer>();
-    
             x.UsingInMemory((context, cfg) =>
             {
                 cfg.ConfigureEndpoints(context);
@@ -23,6 +23,23 @@ public static class MessagingExtensions
                 });
             });
         });
+
+        if (env == "staging" || env == "dev")
+        {
+            services.AddMassTransit<I2FaCodeBus>(x =>
+            {
+                x.UsingAmazonSqs((context, cfg) =>
+                {
+                    cfg.Host(configuration["AWS:Region"], _ => {});
+                    cfg.ConfigureEndpoints(context);
+                });
+            });
+        }
         return services;
     }
+}
+
+public interface I2FaCodeBus :
+    IBus
+{
 }
