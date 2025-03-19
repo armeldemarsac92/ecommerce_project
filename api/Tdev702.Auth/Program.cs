@@ -36,7 +36,7 @@ var services = builder.Services;
 services.AddSEService();
 services.AddDistributedMemoryCache();
 services.AddStripeServices(stripeConfiguration);
-services.AddMessaging(builder.Configuration);
+services.AddMessaging();
 services.AddEndpointsApiExplorer();
 services.AddAuthServices(authConfiguration);
 

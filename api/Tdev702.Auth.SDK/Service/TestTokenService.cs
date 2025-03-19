@@ -1,34 +1,26 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
-using System.Security.Cryptography;
-using System.Text;
 using Microsoft.AspNetCore.Authentication.BearerToken;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
+using Tdev702.Auth.Services;
 using Tdev702.Contracts.Config;
 using Tdev702.Contracts.Database;
 using Tdev702.Contracts.Exceptions;
 
-namespace Tdev702.Auth.Services;
+namespace Tdev702.Auth.SDK.Service;
 
-public interface ITokenService
-{
-    Task<AccessTokenResponse> GetAccessTokenAsync(User user);
-    Task<AccessTokenResponse> RefreshTokenAsync(string refreshToken);
-    ClaimsPrincipal ValidateToken(string token, bool validateLifetime = true);
-}
-
-public class TokenService : ITokenService
+public class TestTokenService : ITokenService
 {
     private readonly AuthConfiguration _configuration;
-    private readonly UserManager<User> _userManager;
     private readonly TokenValidationParameters _tokenValidationParams;
     private readonly IKeyService _keyService;
     private readonly ILogger<TokenService> _logger;
 
-    public TokenService(IConfiguration configuration, UserManager<User> userManager, ILogger<TokenService> logger, IKeyService keyService)
+    public TestTokenService(IConfiguration configuration, UserManager<User> userManager, ILogger<TokenService> logger, IKeyService keyService)
     {
-        _userManager = userManager;
         _logger = logger;
         _keyService = keyService;
         _configuration = configuration.GetSection("auth").Get<AuthConfiguration>() 
@@ -72,12 +64,7 @@ public class TokenService : ITokenService
 
     public async Task<AccessTokenResponse> RefreshTokenAsync(string refreshToken)
     {
-        _logger.LogInformation("Validating refresh token");
-        var claims = ValidateToken(refreshToken);
-        _logger.LogInformation("Valid refresh token, getting user details");
-        var user = await _userManager.GetUserAsync(claims);
-        CheckUser(user);
-        return await GetAccessTokenAsync(user);
+        throw new NotImplementedException();
     }
 
     public ClaimsPrincipal ValidateToken(string token, bool validateLifetime = true)
@@ -92,7 +79,7 @@ public class TokenService : ITokenService
     private async Task<string> GenerateToken(User user, TimeSpan expiration)
     {
         var tokenHandler = new JwtSecurityTokenHandler();
-        var roles = await _userManager.GetRolesAsync(user);
+        var roles = new List<string> {"admin"}; 
 
         var claims = new List<Claim>
         {
@@ -130,4 +117,3 @@ public class TokenService : ITokenService
         _logger.LogInformation("User {UserId} found.", user.Id);
     }
 }
-

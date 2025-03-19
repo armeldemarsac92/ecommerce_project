@@ -11,8 +11,10 @@ using Tdev702.Api.SDK.Endpoints;
 using Tdev702.Auth.SDK.DI;
 using Tdev702.Auth.SDK.Endpoints;
 using Tdev702.Auth.SDK.Service;
+using Tdev702.Auth.Services;
 using Tdev702.Contracts.Auth.Request;
 using Tdev702.Contracts.Config;
+using Tdev702.Contracts.Database;
 
 namespace Tdev702.Api.SDK.DI;
 
@@ -20,9 +22,9 @@ public static class ServiceCollectionExtension
 {
     public static IServiceCollection AddApiServices(this IServiceCollection services)
     {
+        services.AddAuthServices();
         services.AddSingleton<AuthTokenProvider>();
         services.AddTransient<AuthHeaderHandler>();
-        services.AddAuthServices();
         services.AddRefitClientWithAuth<IProductEndpoints>("https://api-staging.epitechproject.fr");
         return services;
     }
@@ -74,65 +76,26 @@ public static class ServiceCollectionExtension
             return await base.SendAsync(request, cancellationToken);
         }
     }
-    
+
     public class AuthTokenProvider
     {
         private readonly ILogger<AuthTokenProvider> _logger;
-        private readonly IAuthEndpoints _authApi;
-        private readonly ICodeStateService _codeStateService;
+        private readonly ITokenService _tokenService;
         private AccessTokenResponse? _cachedTokenResponse;
-        private DateTime _tokenExpirationTime;
 
         public AuthTokenProvider(
-            ILogger<AuthTokenProvider> logger, 
-            IAuthEndpoints authApi, 
-            ICodeStateService codeStateService)
+            ILogger<AuthTokenProvider> logger,
+            ITokenService tokenService)
         {
             _logger = logger;
-            _authApi = authApi;
-            _codeStateService = codeStateService;
+            _tokenService = tokenService;
         }
 
         public async Task<string> GetTokenAsync()
         {
-            if (_cachedTokenResponse is not null)
-            {
-                _tokenExpirationTime = DateTime.UtcNow.AddSeconds(_cachedTokenResponse.ExpiresIn);
-
-                if (DateTime.UtcNow >= _tokenExpirationTime)
-                {
-                    await RefreshTokenAsync();
-                }
-                else
-                {
-                    return _cachedTokenResponse.AccessToken;
-                }
-            };
-            var sendTwoFaCodeRequest = new Get2FaCodeRequest() { Email = "armeldemarsac@gmail.com" };
-            await _authApi.Send2FaCodeAsync(sendTwoFaCodeRequest);
-            var code = await _codeStateService.GetLastGeneratedCode("armeldemarsac@gmail.com");
-            var loginResponse = await _authApi.LoginAsync(new LoginUserRequest() { Email = "armeldemarsac@gmail.com", TwoFactorCode = code });
-            _cachedTokenResponse = loginResponse.Content;
-            return _cachedTokenResponse.AccessToken;
-        }
-
-        private async Task RefreshTokenAsync()
-        {
-            try
-            {
-                var session = await _authApi.RefreshTokenAsync(new RefreshTokenRequest() { RefreshToken = _cachedTokenResponse.RefreshToken });
-                if (session == null || string.IsNullOrEmpty(session.Content.AccessToken))
-                    throw new UnauthorizedAccessException("Failed to authenticate.");
-
-                _cachedTokenResponse = session.Content;
-                _tokenExpirationTime = DateTime.UtcNow.AddSeconds(_cachedTokenResponse.ExpiresIn);
-                _logger.LogInformation("Token refreshed successfully");
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Failed to authenticate with Supabase");
-                throw new UnauthorizedAccessException("Failed to authenticate with Supabase.", ex);
-            }
+            var testUser = new User(){Email = "integrationtesting", UserName = "integration_testing", Id = "af89656d-723c-4a26-b069-f3ba108fc473"};
+            _cachedTokenResponse = await _tokenService.GetAccessTokenAsync(testUser);
+            return _cachedTokenResponse?.AccessToken;
         }
     }
 }

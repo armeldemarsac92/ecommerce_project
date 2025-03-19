@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Authentication.BearerToken;
 using Refit;
-using Tdev702.Auth.SDK.Routes;
+using Tdev702.Auth.Routes;
 using Tdev702.Contracts.Auth.Request;
 
 namespace Tdev702.Auth.SDK.Endpoints;
