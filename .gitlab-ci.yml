@@ -138,7 +138,7 @@ variables:
 validate-variables:
   extends: .validate_variables
 
-frontend-test:
+frontend-test-staging:
   image: node:18-alpine
   script:
     - cd $CI_PROJECT_DIR/web
@@ -154,24 +154,6 @@ frontend-test:
       changes:
         - web/**/*
 
-api-test:
-  image: mcr.microsoft.com/dotnet/sdk:8.0
-  script:
-    - cd $CI_PROJECT_DIR/api
-    - dotnet restore
-    - dotnet build --no-restore
-    - dotnet test --no-build
-  cache:
-    key: ${CI_COMMIT_REF_SLUG}-api
-    paths:
-      - api/**/.nuget/
-      - api/**/obj/
-      - api/**/bin/
-  rules:
-    - if: $CI_COMMIT_BRANCH == "staging"
-      changes:
-        - api/Tdev702.Api/**/*
-
 build-frontend-staging:
   variables:
     IMAGE_TAG_PREFIX: "t-dev-702-web-staging"
@@ -180,7 +162,7 @@ build-frontend-staging:
     AUTH_URL: $STAGING_AUTH_URL
   <<: *build_frontend
   needs:
-    - job: frontend-test
+    - job: frontend-test-staging
       optional: true
   rules:
     - if: $CI_COMMIT_BRANCH == "staging"
@@ -197,13 +179,36 @@ scan-frontend-staging:
       changes:
         - web/**/*
 
+api-test-unit:
+  image: mcr.microsoft.com/dotnet/sdk:8.0
+  script:
+    - cd $CI_PROJECT_DIR/api/Tdev702.Api.Tests.Unit
+    - dotnet restore
+    - dotnet build --no-restore
+    - dotnet test --no-build
+  cache:
+    key: ${CI_COMMIT_REF_SLUG}-api
+    paths:
+      - api/**/.nuget/
+      - api/**/obj/
+      - api/**/bin/
+  rules:
+    - if: $CI_COMMIT_BRANCH == "staging"
+      changes:
+        - api/Tdev702.Api/**/*
+        - api/Tdev702.Contracts/**/*
+        - api/Tdev702.Repository/**/*
+        - api/Tdev702.AWS.SDK/**/*
+        - api/Tdev702.Stripe.SDK/**/*
+        - api/Tdev702.OpenFoodFact.SDK/**/*
+
 build-api-staging:
   variables:
     IMAGE_TAG_PREFIX: "t-dev-702-api-staging"
     ENV_PREFIX: "staging"
   <<: *build_api
   needs:
-    - job: api-test
+    - job: api-test-unit
       optional: true
   rules:
     - if: $CI_COMMIT_BRANCH == "staging"
@@ -296,42 +301,6 @@ trigger-infra-staging:
     reports:
       dotenv: infra_pipeline.env
 
-integration-test-staging:
-  image: cypress/included:latest
-  rules:
-    - if: $CI_PIPELINE_SOURCE == "trigger"
-      when: always
-  script:
-    - mkdir -p integration-tests/test-results
-    - cd $CI_PROJECT_DIR/integration-tests
-    - npm ci
-    - npm run test:ci
-  artifacts:
-    paths:
-      - integration-tests/test-results/
-      - integration-tests/screenshots/
-      - integration-tests/videos/
-    reports:
-      junit: integration-tests/test-results/junit.xml
-    expire_in: 1 week
-    when: always
-  cache:
-    key: ${CI_COMMIT_REF_SLUG}-integration-tests
-    paths:
-      - integration-tests/node_modules/
-
-manual-approval-production:
-  image: alpine:latest
-  needs:
-    - integration-test-staging
-  rules:
-    - if: $CI_PIPELINE_SOURCE == "trigger" && $ENVIRONMENT == "staging"
-      when: on_success
-  script:
-    - echo "Manually approved for production deployment"
-  when: manual
-  allow_failure: false
-
 build-frontend-production:
   variables:
     IMAGE_TAG_PREFIX: "t-dev-702-web-production"
@@ -339,8 +308,6 @@ build-frontend-production:
     API_URL: $PRODUCTION_API_URL
     AUTH_URL: $PRODUCTION_AUTH_URL
   <<: *build_frontend
-  needs:
-    - manual-approval-production
   rules:
     - if: $CI_PIPELINE_SOURCE == "trigger" && $ENVIRONMENT == "staging"
       when: on_success
@@ -362,13 +329,32 @@ scan-frontend-production:
       changes:
         - web/**/*
 
+api-test-integration:
+  image: mcr.microsoft.com/dotnet/sdk:8.0
+  variables: 
+    ASPNETCORE_ENVIRONMENT: "staging"
+  script:
+    - cd $CI_PROJECT_DIR/api/Tdev702.Api.Tests.Integration
+    - dotnet restore
+    - dotnet build --no-restore
+    - dotnet test --no-build
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "trigger" && $ENVIRONMENT == "staging"
+      changes:
+        - api/Tdev702.Api/**/*
+        - api/Tdev702.Contracts/**/*
+        - api/Tdev702.Repository/**/*
+        - api/Tdev702.AWS.SDK/**/*
+        - api/Tdev702.Stripe.SDK/**/*
+        - api/Tdev702.OpenFoodFact.SDK/**/*
+
 build-api-production:
   variables:
     IMAGE_TAG_PREFIX: "t-dev-702-api-production"
     ENV_PREFIX: "production"
   <<: *build_api
   needs:
-    - manual-approval-production
+    - api-test-integration
   rules:
     - if: $CI_PIPELINE_SOURCE == "trigger" && $ENVIRONMENT == "staging"
       when: on_success
@@ -405,8 +391,6 @@ build-auth-production:
     IMAGE_TAG_PREFIX: "t-dev-702-auth-production"
     ENV_PREFIX: "production"
   <<: *build_auth
-  needs:
-    - manual-approval-production
   rules:
     - if: $CI_PIPELINE_SOURCE == "trigger" && $ENVIRONMENT == "staging"
       when: on_success
