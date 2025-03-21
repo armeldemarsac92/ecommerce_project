@@ -39,19 +39,15 @@ public static class OrderQueries
     public static string CreateOrder = @"
    INSERT INTO backoffice.orders (
        user_id, 
-       stripe_invoice_id, 
        updated_at, 
        created_at, 
-       stripe_session_id,
        stripe_payment_status,
        stripe_session_status,
        total_amount)
    VALUES (
        @UserId, 
-       @StripeInvoiceId, 
        CURRENT_TIMESTAMP, 
        CURRENT_TIMESTAMP, 
-       @StripeSessionId, 
        @StripePaymentStatus::backoffice.payment_status,
        @StripeSessionStatus::backoffice.session_status,
        @TotalAmount)

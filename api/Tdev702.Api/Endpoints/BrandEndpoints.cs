@@ -55,10 +55,10 @@ public static class BrandEndpoints
     
     private static async Task<IResult> GetBrand(
         IBrandsService brandsService,
-        long brandId,
+        long id,
         CancellationToken cancellationToken)
     {   
-        var brand = await brandsService.GetByIdAsync(brandId ,cancellationToken);
+        var brand = await brandsService.GetByIdAsync(id ,cancellationToken);
         return Results.Ok(brand);
     }
     private static async Task<IResult> GetAllBrands(
@@ -84,19 +84,19 @@ public static class BrandEndpoints
     }
     private static async Task<IResult> UpdateBrand(
         IBrandsService brandsService,
-        long brandId,
+        long id,
         UpdateBrandRequest brandRequest,
         CancellationToken cancellationToken)
     {
-        var brand = await brandsService.UpdateAsync(brandId, brandRequest, cancellationToken);
+        var brand = await brandsService.UpdateAsync(id, brandRequest, cancellationToken);
         return Results.Ok(brand);
     }
     private static async Task<IResult> DeleteBrand(
         IBrandsService brandsService,
-        long brandId,
+        long id,
         CancellationToken cancellationToken)
     {
-        await brandsService.DeleteAsync(brandId, cancellationToken);
+        await brandsService.DeleteAsync(id, cancellationToken);
         return Results.NoContent();
     }
 

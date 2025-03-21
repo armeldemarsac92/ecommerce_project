@@ -62,6 +62,7 @@ if (app.Environment.IsStaging() || app.Environment.EnvironmentName.Contains("dev
     app.UseSwaggerUI();
 }
 
+app.UseExceptionHandler();
 app.UseHttpsRedirection();
 app.UseCors();
 

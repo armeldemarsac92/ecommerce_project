@@ -12,7 +12,7 @@ SELECT
     END AS is_liked
 FROM shop.vw_full_product p
 LEFT JOIN shop.link_products_users lp ON p.id = lp.product_id AND lp.user_id = @UserId
-WHERE p.id = @Id;";
+WHERE p.id = @ProductId;";
 
     public static string GetAllProducts = @"
 SELECT 
@@ -32,14 +32,8 @@ OFFSET @offset;";
 
     public static string GetProductsByIds = @"
 SELECT 
-    p.*,
-    CASE 
-        WHEN @UserId IS NULL THEN false
-        WHEN lp.product_id IS NOT NULL THEN true 
-        ELSE false 
-    END AS is_liked
+    p.*
 FROM shop.vw_products p
-LEFT JOIN shop.link_products_users lp ON p.id = lp.product_id AND lp.user_id = @UserId
 WHERE p.id = ANY(@ProductIds);";
 
     public static string GetUserLikedProducts = @"

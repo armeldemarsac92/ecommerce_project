@@ -33,13 +33,13 @@ public class OrderSummarySQLResponse
     public DateTime UpdatedAt { get; init; }
 
     [Column("order_items")]
-    public OrderItem[]? OrderItems { get; init; }
+    public required OrderItem[] OrderItems { get; init; }
 }
 
 public class OrderItem
 {
     [JsonPropertyName("product_id")]
-    public int? ProductId { get; init; }
+    public long? ProductId { get; init; }
     
     [JsonPropertyName("title")]
     public string? Title { get; init; }

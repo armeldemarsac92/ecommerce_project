@@ -12,6 +12,9 @@ public static class ServiceCollectionExtension
 {
     public static IServiceCollection AddAuthServices(this IServiceCollection services)
     {
+        var env = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
+        var authUrl = "https://auth-staging.epitechproject.fr";
+        if (env == "dev") authUrl = "https://localhost:7073"; 
         services.AddSingleton<IKeyService, KeyService>();
         services.AddSingleton<ITokenService, TestTokenService>();
         services.AddRefitClient<IAuthEndpoints>()

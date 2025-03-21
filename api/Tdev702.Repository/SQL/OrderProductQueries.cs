@@ -7,6 +7,12 @@ public static class OrderProductQueries
    FROM backoffice.link_orders_products
    WHERE id = @OrderProductId;";
 
+    public static string GetOrderProductByOrderAndProductId = @"
+   SELECT *
+   FROM backoffice.link_orders_products
+   WHERE product_id = @ProductId AND order_id = @OrderId;";
+
+
     public static string GetAllOrderProducts = @"
    SELECT *
    FROM backoffice.link_orders_products;";
@@ -77,4 +83,8 @@ public static class OrderProductQueries
     public static string DeleteOrderProduct = @"
    DELETE FROM backoffice.link_orders_products
    WHERE id = @OrderProductId;";
+    
+    public static string DeleteByOrderAndProductId = @"
+   DELETE FROM backoffice.link_orders_products
+   WHERE product_id = @ProductId AND order_id = @OrderId;";
 }

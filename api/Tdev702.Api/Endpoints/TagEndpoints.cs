@@ -22,7 +22,7 @@ public static class TagEndpoints
             .Produces<List<TagResponse>>(200)
             .Produces(404);
         
-        app.MapGet(ShopRoutes.ProductsTags.GetById, GetTags)
+        app.MapGet(ShopRoutes.ProductsTags.GetById, GetTagById)
             .WithTags(Tags)
             .WithDescription("Get one product tag")
             .RequireAuthorization("Authenticated")
@@ -55,13 +55,13 @@ public static class TagEndpoints
         return app;
     }
     
-    private static async Task<IResult> GetTags(
+    private static async Task<IResult> GetTagById(
         HttpContext context,
         ITagsService tagsService,
-        long productTagId,
+        long id,
         CancellationToken cancellationToken)
     {   
-        var productTag = await tagsService.GetByIdAsync(productTagId ,cancellationToken);
+        var productTag = await tagsService.GetByIdAsync(id ,cancellationToken);
         return Results.Ok(productTag);
     }
     private static async Task<IResult> GetAllTags(
@@ -90,20 +90,20 @@ public static class TagEndpoints
     private static async Task<IResult> UpdateTag(
         HttpContext context,
         ITagsService tagsService,
-        long productTagId,
+        long id,
         UpdateTagRequest tagRequest,
         CancellationToken cancellationToken)
     {
-        var productTag = await tagsService.UpdateAsync(productTagId, tagRequest, cancellationToken);
+        var productTag = await tagsService.UpdateAsync(id, tagRequest, cancellationToken);
         return Results.Ok(productTag);
     }
     private static async Task<IResult> DeleteTag(
         HttpContext context,
         ITagsService tagsService,
-        long productTagId,
+        long id,
         CancellationToken cancellationToken)
     {
-        await tagsService.DeleteAsync(productTagId, cancellationToken);
+        await tagsService.DeleteAsync(id, cancellationToken);
         return Results.NoContent();
     }
 }

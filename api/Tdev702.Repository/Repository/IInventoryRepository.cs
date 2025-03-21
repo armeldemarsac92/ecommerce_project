@@ -12,7 +12,7 @@ public interface IInventoryRepository
     public Task<InventorySQLResponse?> GetByIdAsync(long id, CancellationToken cancellationToken = default);
     public Task<List<InventorySQLResponse>> GetAllAsync(QueryOptions queryOptions, CancellationToken cancellationToken = default);
 
-    public Task<InventorySQLResponse> GetInventoryByProductIdAsync(long productId,
+    public Task<InventorySQLResponse?> GetInventoryByProductIdAsync(long productId,
         CancellationToken cancellationToken = default);
 
     public Task<int> CreateAsync(CreateInventorySQLRequest createInventoryRequest,
@@ -46,7 +46,7 @@ public class InventoryRepository : IInventoryRepository
         return response.Any() ? response.ToList() : new List<InventorySQLResponse>();
     }
 
-    public async Task<InventorySQLResponse> GetInventoryByProductIdAsync(long productId,
+    public async Task<InventorySQLResponse?> GetInventoryByProductIdAsync(long productId,
         CancellationToken cancellationToken = default)
     {
         return await _dbContext.QueryFirstOrDefaultAsync<InventorySQLResponse>(InventoryQueries.GetInventoryByProductId,

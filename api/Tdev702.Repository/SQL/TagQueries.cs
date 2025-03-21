@@ -31,7 +31,7 @@ public class TagQueries
     SET 
     title = COALESCE(@Title, title),
     description = COALESCE(@Description, description)
-    WHERE id = @TagId;";
+    WHERE id = @Id;";
 
     public static string DeleteTag = @"
     DELETE FROM shop.tags

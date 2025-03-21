@@ -57,7 +57,7 @@ public class OrderServiceTests
         // Arrange
         var orderId = 1;
         var userId = new Guid().ToString();
-        var sqlResponse = new OrderSummarySQLResponse { Id = orderId, UserId = userId, TotalAmount = 100, StripePaymentStatus = "unpaid", StripeSessionStatus = "draft"};
+        var sqlResponse = new OrderSummarySQLResponse { Id = orderId, UserId = userId, TotalAmount = 100, StripePaymentStatus = "unpaid", StripeSessionStatus = "draft", OrderItems = new OrderItem[]{}};
         var expectedResponse = sqlResponse.MapToOrderSummary();
 
         _orderRepository.GetByIdAsync(orderId, default)
@@ -96,8 +96,7 @@ public class OrderServiceTests
         
         var createRequest = new CreateOrderRequest 
         { 
-            UserId = userId,
-            Products = new List<CreateOrderProductRequest> 
+            Products = new List<OrderProduct> 
             { 
                 new() { ProductId = 1, Quantity = 2 }, 
                 new() { ProductId = 2, Quantity = 2 } 
@@ -186,7 +185,7 @@ public class OrderServiceTests
             .Returns(orderResponse);
 
         // Act
-        var result = await _sut.CreateAsync(createRequest);
+        var result = await _sut.CreateAsync(userId, createRequest);
 
         // Assert
         result.Should().BeEquivalentTo(orderResponse.MapToOrderSummary());

@@ -2,6 +2,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Tdev702.Api.SDK.DI;
+using Tdev702.Auth.SDK.DI;
 using Tdev702.AWS.SDK.SecretsManager;
 
 namespace Tdev702.Api.Tests.Integration.Fixture;
@@ -12,6 +13,8 @@ public class TestFixture : IDisposable
 
     public TestFixture()
     {
+        var env = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
+        if (string.IsNullOrEmpty(env)) Environment.SetEnvironmentVariable("ASPNETCORE_ENVIRONMENT", "dev");
         var hostBuilder = Host.CreateDefaultBuilder()
             .ConfigureAppConfiguration((context, configBuilder) =>
             {
@@ -23,6 +26,7 @@ public class TestFixture : IDisposable
         hostBuilder.ConfigureServices((context, services) =>
         {
             // Add your API services
+            services.AddAuthServices();
             services.AddApiServices();
         });
         

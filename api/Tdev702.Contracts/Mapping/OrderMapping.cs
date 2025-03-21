@@ -70,7 +70,6 @@ public static class OrderMapping
     {
         return new CreateOrderSQLRequest
         {
-            UserId = createOrderRequest.UserId,
             TotalAmount = totalAmount,
         };
     }

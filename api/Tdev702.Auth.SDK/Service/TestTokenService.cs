@@ -19,7 +19,7 @@ public class TestTokenService : ITokenService
     private readonly IKeyService _keyService;
     private readonly ILogger<TokenService> _logger;
 
-    public TestTokenService(IConfiguration configuration, UserManager<User> userManager, ILogger<TokenService> logger, IKeyService keyService)
+    public TestTokenService(IConfiguration configuration, ILogger<TokenService> logger, IKeyService keyService)
     {
         _logger = logger;
         _keyService = keyService;
@@ -79,7 +79,7 @@ public class TestTokenService : ITokenService
     private async Task<string> GenerateToken(User user, TimeSpan expiration)
     {
         var tokenHandler = new JwtSecurityTokenHandler();
-        var roles = new List<string> {"admin"}; 
+        var roles = new string[]{"Admin"}; 
 
         var claims = new List<Claim>
         {

@@ -22,10 +22,19 @@ public static class ServiceCollectionExtension
 {
     public static IServiceCollection AddApiServices(this IServiceCollection services)
     {
-        services.AddAuthServices();
+        var env = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
+        var apiUrl = "https://api-staging.epitechproject.fr";
+        if (env == "dev") apiUrl = "https://localhost:7143"; 
         services.AddSingleton<AuthTokenProvider>();
         services.AddTransient<AuthHeaderHandler>();
-        services.AddRefitClientWithAuth<IProductEndpoints>("https://api-staging.epitechproject.fr");
+        services.AddRefitClientWithAuth<IProductEndpoints>(apiUrl);
+        services.AddRefitClientWithAuth<ICategoryEndpoints>(apiUrl);
+        services.AddRefitClientWithAuth<IBrandEndpoints>(apiUrl);
+        services.AddRefitClientWithAuth<IInventoryEndpoints>(apiUrl);
+        services.AddRefitClientWithAuth<IOrderEndpoints>(apiUrl);
+        services.AddRefitClientWithAuth<ICustomerEndpoints>(apiUrl);
+        services.AddRefitClientWithAuth<IOpenFoodFactEndpoints>(apiUrl);
+        services.AddRefitClientWithAuth<ITagEndpoints>(apiUrl);
         return services;
     }
     
@@ -33,24 +42,24 @@ public static class ServiceCollectionExtension
         this IServiceCollection services,
         string baseUrl) where T : class
         {
-        
-        services.AddRefitClient<T>()
-            .ConfigureHttpClient(client => client.BaseAddress = new Uri(baseUrl))
-            .AddHttpMessageHandler<AuthHeaderHandler>()
-            .AddStandardResilienceHandler(options =>
-            {
-                options.AttemptTimeout = new HttpTimeoutStrategyOptions()
-                {
-                    Timeout = TimeSpan.FromSeconds(10)
-                };
-                options.TotalRequestTimeout = new HttpTimeoutStrategyOptions()
-                {
-                    Timeout = TimeSpan.FromSeconds(60)
-                };
-                options.CircuitBreaker.SamplingDuration = TimeSpan.FromSeconds(60);
-                options.Retry.MaxRetryAttempts = 3;
-                options.Retry.BackoffType = DelayBackoffType.Exponential;
-            });;
+
+            services.AddRefitClient<T>()
+                .ConfigureHttpClient(client => client.BaseAddress = new Uri(baseUrl))
+                .AddHttpMessageHandler<AuthHeaderHandler>();
+            // .AddStandardResilienceHandler(options =>
+            // {
+            //     options.AttemptTimeout = new HttpTimeoutStrategyOptions()
+            //     {
+            //         Timeout = TimeSpan.FromSeconds(10)
+            //     };
+            //     options.TotalRequestTimeout = new HttpTimeoutStrategyOptions()
+            //     {
+            //         Timeout = TimeSpan.FromSeconds(60)
+            //     };
+            //     options.CircuitBreaker.SamplingDuration = TimeSpan.FromSeconds(60);
+            //     options.Retry.MaxRetryAttempts = 3;
+            //     options.Retry.BackoffType = DelayBackoffType.Exponential;
+            // });;
 
         return services;
     }
@@ -93,9 +102,10 @@ public static class ServiceCollectionExtension
 
         public async Task<string> GetTokenAsync()
         {
-            var testUser = new User(){Email = "integrationtesting", UserName = "integration_testing", Id = "af89656d-723c-4a26-b069-f3ba108fc473"};
+            if (_cachedTokenResponse != null) return _cachedTokenResponse.AccessToken;
+            var testUser = new User(){Email = "armeldemarsac@gmail.com", UserName = "armeldemarsac@gmail.com", Id = "d1eb3b9f-e1a3-40f2-a7e4-3d73cb050605", EmailConfirmed = true};
             _cachedTokenResponse = await _tokenService.GetAccessTokenAsync(testUser);
-            return _cachedTokenResponse?.AccessToken;
+            return _cachedTokenResponse.AccessToken;
         }
     }
 }

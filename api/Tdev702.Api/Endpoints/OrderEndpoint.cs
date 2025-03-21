@@ -23,21 +23,21 @@ public static class OrderEndpoints
            .WithTags(Tags)
            .WithDescription("Get one Order")
            .RequireAuthorization("Admin")
-           .Produces<OrderResponse>(200)
+           .Produces<OrderSummaryResponse>(200)
            .Produces(404);
 
        app.MapGet(ShopRoutes.Orders.GetUserOrders, GetUserOrders)
            .WithTags(Tags)
            .WithDescription("Get all Orders for a User")
            .RequireAuthorization("Authenticated")
-           .Produces<List<OrderResponse>>(200)
+           .Produces<List<OrderSummaryResponse>>(200)
            .Produces(404);
        
        app.MapGet(ShopRoutes.Orders.GetAll, GetAllOrders)
            .WithTags(Tags)
            .WithDescription("Get all Orders by Status")
            .RequireAuthorization("Admin")
-           .Produces<List<OrderResponse>>(200)
+           .Produces<List<OrderSummaryResponse>>(200)
            .Produces(204);
 
        app.MapPost(ShopRoutes.Orders.Create, CreateOrder)
@@ -45,7 +45,7 @@ public static class OrderEndpoints
            .WithDescription("Create one Order")
            .RequireAuthorization("Authenticated")
            .Accepts<CreateOrderRequest>(ContentType)
-           .Produces<OrderResponse>(201)
+           .Produces<OrderSummaryResponse>(201)
            .Produces(404);
 
        app.MapPut(ShopRoutes.Orders.Update, UpdateOrder)
@@ -53,7 +53,7 @@ public static class OrderEndpoints
            .WithDescription("Update one Order")
            .RequireAuthorization("Authenticated")
            .Accepts<UpdateOrderRequest>(ContentType)
-           .Produces<OrderResponse>(200)
+           .Produces<OrderSummaryResponse>(200)
            .Produces(404);
 
        return app;
@@ -62,10 +62,10 @@ public static class OrderEndpoints
    private static async Task<IResult> GetOrder(
        HttpContext context,
        IOrderService orderService,
-       long id,
+       long orderId,
        CancellationToken cancellationToken)
    {
-       var order = await orderService.GetByIdAsync(id, cancellationToken);
+       var order = await orderService.GetByIdAsync(orderId, cancellationToken);
        return Results.Ok(order);
    }
 
@@ -108,7 +108,8 @@ public static class OrderEndpoints
        CreateOrderRequest orderRequest,
        CancellationToken cancellationToken)
    {
-       var order = await orderService.CreateAsync(orderRequest, cancellationToken);
+       var userId = context.GetUserIdFromClaims();
+       var order = await orderService.CreateAsync(userId, orderRequest, cancellationToken);
        return Results.Created($"/api/orders/{order.Id}", order);
    }
 

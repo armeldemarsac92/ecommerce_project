@@ -37,7 +37,7 @@ public static class ProductEndpoints
         app.MapPost(ShopRoutes.Products.Create, CreateProduct)
             .WithTags(Tags)
             .WithDescription("Create a product")
-            .RequireAuthorization("Authenticated")
+            .RequireAuthorization("Admin")
             .Accepts<CreateProductRequest>(ContentType)
             .Produces<ShopProductResponse>(200)
             .Produces(404);
@@ -45,7 +45,7 @@ public static class ProductEndpoints
         app.MapPut(ShopRoutes.Products.Update, UpdateProduct)
             .WithTags(Tags)
             .WithDescription("Update a product")
-            .RequireAuthorization("Authenticated")
+            .RequireAuthorization("Admin")
             .Accepts<UpdateProductRequest>(ContentType)
             .Produces<ShopProductResponse>(200)
             .Produces(404);
@@ -53,7 +53,7 @@ public static class ProductEndpoints
         app.MapDelete(ShopRoutes.Products.Delete, DeleteProduct)
             .WithTags(Tags)
             .WithDescription("Delete a product")
-            .RequireAuthorization("Authenticated")
+            .RequireAuthorization("Admin")
             .Produces<ShopProductResponse>(200)
             .Produces(404);
         
@@ -153,11 +153,11 @@ public static class ProductEndpoints
     private static async Task<IResult> UpdateProduct(
         HttpContext context,
         IProductsService productsService,
-        long productId,
+        long id,
         UpdateProductRequest productRequest,
         CancellationToken cancellationToken)
     {
-        var product = await productsService.UpdateAsync(productId, productRequest, cancellationToken);
+        var product = await productsService.UpdateAsync(id, productRequest, cancellationToken);
         return Results.Ok(product);
     }
     private static async Task<IResult> DeleteProduct(

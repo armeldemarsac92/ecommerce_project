@@ -5,5 +5,5 @@ namespace Tdev702.Contracts.API.Request.Order;
 public class UpdateOrderRequest
 {
     [JsonPropertyName("products" )]
-    public List<UpdateOrderProductRequest> Products { get; set; }
+    public required List<OrderProduct> Products { get; set; }
 }

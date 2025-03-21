@@ -22,7 +22,7 @@ public interface IOrderService
     Task<OrderSummaryResponse> GetOrderByPaymentIntentIdAsync(string stripePaymentIntentId, CancellationToken cancellationToken = default);
     Task<List<OrderSummaryResponse>> GetAllAsync(QueryOptions queryOptions, CancellationToken cancellationToken = default);
     Task<List<OrderSummaryResponse>> GetAllByUserIdAsync(string userId, QueryOptions queryOptions, CancellationToken cancellationToken = default);
-    Task<OrderSummaryResponse> CreateAsync(CreateOrderRequest createOrderRequest, CancellationToken cancellationToken = default);
+    Task<OrderSummaryResponse> CreateAsync(string userId, CreateOrderRequest createOrderRequest, CancellationToken cancellationToken = default);
     Task UpdateOrderPaymentStatus(UpdateOrderSQLRequest updateOrderRequest,
         CancellationToken cancellationToken = default);
     Task<OrderSummaryResponse> UpdateAsync(long orderId, UpdateOrderRequest updateOrderRequest, CancellationToken cancellationToken = default);
@@ -100,7 +100,7 @@ public class OrderService : IOrderService
         return orders.MapToOrderSummaries();
     }
 
-    public async Task<OrderSummaryResponse> CreateAsync(CreateOrderRequest createOrderRequest,
+    public async Task<OrderSummaryResponse> CreateAsync(string userId, CreateOrderRequest createOrderRequest,
         CancellationToken cancellationToken = default)
     {
         _logger.LogInformation("Creating order");
@@ -116,7 +116,8 @@ public class OrderService : IOrderService
         //we prepare the order data for insertion into the SQL database
         var createOrderSqlRequest = createOrderRequest.MapToCreateOrderRequest(totalAmount);
         createOrderSqlRequest.StripePaymentStatus = "no_payment_required";
-        createOrderSqlRequest.StripeSessionsStatus = "draft";
+        createOrderSqlRequest.StripeSessionStatus = "draft";
+        createOrderSqlRequest.UserId = userId;
 
         await _unitOfWork.BeginTransactionAsync(cancellationToken);
         try
@@ -156,7 +157,7 @@ public class OrderService : IOrderService
             {
                 var order = await _orderRepository.GetByIdAsync(updateOrderRequest.Id, cancellationToken);
                 if (order is null) throw new NotFoundException($"Order {updateOrderRequest.Id} not found.");
-                await RemoveProducts(order, new List<FullProductSQLResponse>(), cancellationToken);
+                await RemoveProductsFromOrder(order.Id, order.OrderItems?.ToList(), cancellationToken);
                 await DeleteAsync(order.Id, cancellationToken); 
             }
             await _unitOfWork.CommitAsync(cancellationToken);
@@ -181,28 +182,44 @@ public class OrderService : IOrderService
         if (order.StripeSessionStatus is "complete") throw new BadRequestException("Cannot update an order with a completed session.");
         
         //then we retrieve the products linked to the order request to ensure the prices are up to date
-        var newProducts =
-            await _productRepository.GetByIdsAsync(updateOrderRequest.Products.Select(p => p.ProductId).ToList(),
-                cancellationToken);
-        
-        //we calculate the new total amount based on the updated products prices and quantities
-        var totalAmount = newProducts.Sum(p =>
-            p.Price * updateOrderRequest.Products.First(op => op.ProductId == p.Id).Quantity);
+        var orderProducts = new List<FullProductSQLResponse>();
+            
+        if (updateOrderRequest.Products.Any()) orderProducts = await _productRepository.GetByIdsAsync(updateOrderRequest.Products.Select(p => p.ProductId).ToList(),
+            cancellationToken);
 
+        var productsToCreate = updateOrderRequest.Products.Where(p => (bool)order.OrderItems?.Any(op => op.ProductId != p.ProductId)).ToList();
+        var productsToUpdate = updateOrderRequest.Products.Where(p => (bool)order.OrderItems?.Any(op => op.ProductId == p.ProductId)).ToList();
+        var productsToRemove = order.OrderItems.Where(orderItem => !updateOrderRequest.Products.Any(requestProduct => requestProduct.ProductId == orderItem.ProductId)).ToList();
+        
         await _unitOfWork.BeginTransactionAsync(cancellationToken);
         try
         {
-            //we update the order payment intent with the new total amount
-            await UpdateOrderPaymentIntent(cancellationToken, totalAmount, order);
-
             //we remove any products that have been removed from the order request from the SQL database
-            await RemoveProducts(order, newProducts, cancellationToken);
+            if (productsToRemove.Any()) await RemoveProductsFromOrder(orderId, productsToRemove, cancellationToken);
 
-            //we update the link between the order and the products with the new prices and quantities
-            var updateOrderProductsSqlRequest =
-                updateOrderRequest.Products.MapToUpdateOrderProductRequests(newProducts, orderId);
-            await _orderProductRepository.UpdateManyAsync(updateOrderProductsSqlRequest,
-                cancellationToken);
+            if (productsToUpdate.Any())
+            {
+                //we update the link between the order and the products with the new prices and quantities
+                var updateOrderProductsSqlRequest =productsToUpdate.MapToUpdateOrderProductRequests(orderProducts, orderId);
+                await _orderProductRepository.UpdateManyAsync(updateOrderProductsSqlRequest, cancellationToken);
+            }
+            
+            //we create any new products that have been added to the order request from the SQL database
+            if (productsToCreate.Any())
+            {
+                var createOrderProductsSqlRequest = productsToCreate.MapToCreateOrderProductRequests(orderProducts, orderId);
+                await _orderProductRepository.CreateManyAsync(createOrderProductsSqlRequest, cancellationToken);
+            }
+            
+            //we calculate the new total amount based on the updated products prices and quantities
+            var totalAmount = 0.0;
+            var newAmount = orderProducts.Sum(orderProduct =>
+                orderProduct.Price * updateOrderRequest.Products?.First(op => op.ProductId == orderProduct.Id).Quantity);
+        
+            if(newAmount != null) totalAmount = (double)newAmount;
+            
+            //we update the order payment intent with the new total amount
+            if(order.StripeSessionId != null) await UpdateOrderPaymentIntent(cancellationToken, totalAmount, order);
 
             //then we update the order itself with the new total amount that we calculated earlier
             var updateOrderSqlRequest = updateOrderRequest.MapToUpdateOrderRequest(orderId, totalAmount);
@@ -378,26 +395,13 @@ public class OrderService : IOrderService
 
 
 
-    private async Task RemoveProducts(OrderSummarySQLResponse order, List<FullProductSQLResponse> newProducts, CancellationToken cancellationToken = default)
+    private async Task RemoveProductsFromOrder(long orderId, List<OrderItem> productsToRemove, CancellationToken cancellationToken = default)
     {
-        //then we retrieve the old products linked to the order to see if some products have been removed
-        var oldProductOrderList = await _orderProductRepository.GetAllByOrderIdAsync(order.Id, cancellationToken);
-        var oldProducts =
-            await _productRepository.GetByIdsAsync(oldProductOrderList.Select(op => op.ProductId).ToList(),
-                cancellationToken);
-        
-        var productsToRemove = oldProducts.Where(op => newProducts.All(np => np.Id != op.Id)).ToList();
-        var productsLinksToRemove = oldProductOrderList.Where(op => productsToRemove.Any(np => np.Id == op.ProductId)).ToList();
-
-        foreach (var productLink in productsLinksToRemove)
+        foreach (var product in productsToRemove.Where(product => product.ProductId != null))
         {
+            var productLink = await _orderProductRepository.GetByProductAndOrderIdAsync((long)product.ProductId, orderId, cancellationToken);
             await _orderProductRepository.DeleteAsync(productLink.Id, cancellationToken);
-            await IncreamentAsync(productLink.Quantity, productLink.Id, cancellationToken);
-        }
-
-        foreach (var product in productsToRemove)
-        {
-            await _orderRepository.DeleteAsync(product.Id, cancellationToken);
+            await IncreamentAsync(productLink.Quantity, productLink.ProductId, cancellationToken);
         }
     }
 
@@ -434,7 +438,6 @@ public class OrderService : IOrderService
 
         var affectedRows = await _inventoryRepository.UpdateAsync(sqlRequest, cancellationToken);
         if (affectedRows == 0) throw new NotFoundException($"Inventory for the following product: {productId} not found");
-        var updatedRow = await _inventoryRepository.GetByIdAsync(inventory.Id, cancellationToken);
         _logger.LogInformation("Inventory quantity decreased by {substractedQuantity} for product id: {productId} successfully.", substractedQuantity, productId);
     }
     
@@ -452,8 +455,6 @@ public class OrderService : IOrderService
         
         var affectedRows = await _inventoryRepository.UpdateAsync(sqlRequest, cancellationToken);
         if (affectedRows == 0) throw new NotFoundException($"Inventory for the following product: {productId} not found");
-        var updatedRow = await _inventoryRepository.GetByIdAsync(inventory.Id, cancellationToken);
-        await _unitOfWork.CommitAsync(cancellationToken);
         _logger.LogInformation("Inventory quantity increased by {addedQuantity} for product id: {productId} successfully.", addedQuantity, productId);
     }
 }

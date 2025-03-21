@@ -9,6 +9,7 @@ namespace Tdev702.Repository.Repository;
 public interface IOrderProductRepository
 {
     public Task<OrderProductSQLResponse?> GetByIdAsync(long id, CancellationToken cancellationToken = default);
+    public Task<OrderProductSQLResponse?> GetByProductAndOrderIdAsync(long productId, long orderId, CancellationToken cancellationToken = default);
     public Task<List<OrderProductSQLResponse>> GetAllByOrderIdAsync(long orderId, CancellationToken cancellationToken = default);
     public Task<List<OrderProductSQLResponse>> GetAllAsync(CancellationToken cancellationToken = default);
     public Task<OrderProductSQLResponse> CreateAsync(CreateOrderProductSQLRequest createOrderProductSqlRequest, CancellationToken cancellationToken = default);
@@ -19,6 +20,7 @@ public interface IOrderProductRepository
         CancellationToken cancellationToken = default);
     public Task<int> UpdateAsync(UpdateOrderProductSQLRequest updateOrderProductSqlRequest, CancellationToken cancellationToken = default);
     public Task DeleteAsync(long id, CancellationToken cancellationToken = default);
+    public Task DeleteByOrderAndProductIdAsync(long orderId, long productId, CancellationToken cancellationToken = default);
 }
 
 public class OrderProductRepository : IOrderProductRepository
@@ -35,9 +37,14 @@ public class OrderProductRepository : IOrderProductRepository
        return await _dbContext.QueryFirstOrDefaultAsync<OrderProductSQLResponse>(OrderProductQueries.GetOrderProductById, new { OrderProductId = id }, cancellationToken);
    }
 
+   public async Task<OrderProductSQLResponse?> GetByProductAndOrderIdAsync(long productId, long orderId, CancellationToken cancellationToken = default)
+   {
+       return await _dbContext.QueryFirstOrDefaultAsync<OrderProductSQLResponse>(OrderProductQueries.GetOrderProductByOrderAndProductId, new { ProductId = productId, OrderId = orderId }, cancellationToken);
+   }
+
    public async Task<List<OrderProductSQLResponse>> GetAllByOrderIdAsync(long orderId, CancellationToken cancellationToken = default)
    {
-       var response = await _dbContext.QueryAsync<OrderProductSQLResponse>(OrderProductQueries.GetAllOrderProductsByOrderId, orderId, cancellationToken);
+       var response = await _dbContext.QueryAsync<OrderProductSQLResponse>(OrderProductQueries.GetAllOrderProductsByOrderId, new { OrderId = orderId }, cancellationToken);
        return response.Any() ? response.ToList() : new List<OrderProductSQLResponse>();
    }
 
@@ -96,5 +103,10 @@ public class OrderProductRepository : IOrderProductRepository
    public async Task DeleteAsync(long id, CancellationToken cancellationToken = default)
    {
        await _dbContext.ExecuteAsync(OrderProductQueries.DeleteOrderProduct, new { OrderProductId = id }, cancellationToken);
+   }
+
+   public async Task DeleteByOrderAndProductIdAsync(long orderId, long productId, CancellationToken cancellationToken = default)
+   {
+       await _dbContext.ExecuteAsync(OrderProductQueries.DeleteByOrderAndProductId, new { OrderId = orderId, ProductId = productId }, cancellationToken);
    }
 }

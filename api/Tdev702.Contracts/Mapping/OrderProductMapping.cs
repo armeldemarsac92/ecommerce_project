@@ -9,20 +9,20 @@ namespace Tdev702.Contracts.Mapping;
 public static class OrderProductMapping
 {
     public static CreateOrderProductSQLRequest MapToCreateOrderProductRequest(
-        this CreateOrderProductRequest createOrderProductRequest, long orderId, double unitPrice, double subtotal)
+        this OrderProduct orderProduct, long orderId, double unitPrice, double subtotal)
     {
         return new CreateOrderProductSQLRequest
         {
             OrderId = orderId,
-            ProductId = createOrderProductRequest.ProductId,
-            Quantity = createOrderProductRequest.Quantity,
+            ProductId = orderProduct.ProductId,
+            Quantity = orderProduct.Quantity,
             UnitPrice = unitPrice,
             Subtotal = subtotal
         };
     }
 
     public static UpdateOrderProductSQLRequest MapToUpdateOrderProductRequest(
-        this UpdateOrderProductRequest updateOrderProductRequest, double subtotal, long orderId)
+        this OrderProduct updateOrderProductRequest, double subtotal, long orderId)
     {
         return new UpdateOrderProductSQLRequest
         {
@@ -34,7 +34,7 @@ public static class OrderProductMapping
     }
     
     public static List<CreateOrderProductSQLRequest> MapToCreateOrderProductRequests(
-        this List<CreateOrderProductRequest> createOrderProductRequests,
+        this List<OrderProduct> createOrderProductRequests,
         List<FullProductSQLResponse> productSqlResponse, 
         long orderId)
     {
@@ -54,12 +54,11 @@ public static class OrderProductMapping
     }
     
     public static List<UpdateOrderProductSQLRequest> MapToUpdateOrderProductRequests(
-        this List<UpdateOrderProductRequest> updateOrderProductRequests,
+        this List<OrderProduct> updateOrderProductRequests,
         List<FullProductSQLResponse> productSqlResponse, 
         long orderId)
     {
         return updateOrderProductRequests
-            .Where(orderProduct => productSqlResponse.Any(p => p.Id == orderProduct.ProductId))
             .Select(orderProduct =>
             {
                 var product = productSqlResponse.First(p => p.Id == orderProduct.ProductId);
