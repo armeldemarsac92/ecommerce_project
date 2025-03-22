@@ -165,7 +165,7 @@ build-frontend-staging:
     - job: frontend-test-staging
       optional: true
   rules:
-    - if: $CI_COMMIT_BRANCH == "staging"
+    - if: $CI_COMMIT_BRANCH == "staging" 
       changes:
         - web/**/*
 
@@ -340,13 +340,6 @@ api-test-integration:
     - dotnet test --no-build
   rules:
     - if: $CI_PIPELINE_SOURCE == "trigger" && $ENVIRONMENT == "staging"
-      changes:
-        - api/Tdev702.Api/**/*
-        - api/Tdev702.Contracts/**/*
-        - api/Tdev702.Repository/**/*
-        - api/Tdev702.AWS.SDK/**/*
-        - api/Tdev702.Stripe.SDK/**/*
-        - api/Tdev702.OpenFoodFact.SDK/**/*
 
 build-api-production:
   variables:
