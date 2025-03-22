@@ -17,14 +17,12 @@ public static class CategoryEndpoints
         app.MapGet(ShopRoutes.Categories.GetAll, GetAllCategories)
             .WithTags(Tags)
             .WithDescription("Get all Categories")
-            .RequireAuthorization("Authenticated")
             .Produces<List<CategoryResponse>>(200)
             .Produces(404);
         
         app.MapGet(ShopRoutes.Categories.GetById, GetCategory)
             .WithTags(Tags)
             .WithDescription("Get one Category")
-            .RequireAuthorization("Authenticated")
             .Produces<CategoryResponse>(200)
             .Produces(404);
         

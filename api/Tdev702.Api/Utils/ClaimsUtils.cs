@@ -4,11 +4,11 @@ namespace Tdev702.Api.Utils;
 
 public static class ClaimsUtils
 {
-    public static string GetUserIdFromClaims(this HttpContext context)
+    public static string? GetUserIdFromClaims(this HttpContext context)
     {
         var userId = context.User.FindFirst(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
         if (string.IsNullOrEmpty(userId))
-            throw new InvalidOperationException("User ID not found in claims");
+            return null;
         return userId;
     }
     
