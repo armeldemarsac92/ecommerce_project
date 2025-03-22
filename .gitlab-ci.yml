@@ -309,7 +309,7 @@ build-frontend-production:
     AUTH_URL: $PRODUCTION_AUTH_URL
   <<: *build_frontend
   rules:
-    - if: $CI_PIPELINE_SOURCE == "trigger" && $ENVIRONMENT == "staging"
+    - if: $CI_PIPELINE_SOURCE == "trigger" && $ENVIRONMENT == "production"
       when: on_success
       changes:
         - web/**/*
@@ -324,7 +324,7 @@ scan-frontend-production:
     - job: build-frontend-production
       optional: true
   rules:
-    - if: $CI_PIPELINE_SOURCE == "trigger" && $ENVIRONMENT == "staging"
+    - if: $CI_PIPELINE_SOURCE == "trigger" && $ENVIRONMENT == "production"
       when: on_success
       changes:
         - web/**/*
@@ -339,7 +339,7 @@ api-test-integration:
     - dotnet build --no-restore
     - dotnet test --no-build
   rules:
-    - if: $CI_PIPELINE_SOURCE == "trigger" && $ENVIRONMENT == "staging"
+    - if: $CI_PIPELINE_SOURCE == "trigger" && $ENVIRONMENT == "production"
 
 build-api-production:
   variables:
@@ -349,7 +349,7 @@ build-api-production:
   needs:
     - api-test-integration
   rules:
-    - if: $CI_PIPELINE_SOURCE == "trigger" && $ENVIRONMENT == "staging"
+    - if: $CI_PIPELINE_SOURCE == "trigger" && $ENVIRONMENT == "production"
       when: on_success
       changes:
         - api/Tdev702.Api/**/*
@@ -369,7 +369,7 @@ scan-api-production:
     - job: build-api-production
       optional: true
   rules:
-    - if: $CI_PIPELINE_SOURCE == "trigger" && $ENVIRONMENT == "staging"
+    - if: $CI_PIPELINE_SOURCE == "trigger" && $ENVIRONMENT == "production"
       when: on_success
       changes:
         - api/Tdev702.Api/**/*
@@ -385,7 +385,7 @@ build-auth-production:
     ENV_PREFIX: "production"
   <<: *build_auth
   rules:
-    - if: $CI_PIPELINE_SOURCE == "trigger" && $ENVIRONMENT == "staging"
+    - if: $CI_PIPELINE_SOURCE == "trigger" && $ENVIRONMENT == "production"
       when: on_success
       changes:
         - api/Tdev702.Auth/**/*
@@ -404,7 +404,7 @@ scan-auth-production:
     - job: build-auth-production
       optional: true
   rules:
-    - if: $CI_PIPELINE_SOURCE == "trigger" && $ENVIRONMENT == "staging"
+    - if: $CI_PIPELINE_SOURCE == "trigger" && $ENVIRONMENT == "production"
       when: on_success
       changes:
         - api/Tdev702.Auth/**/*
