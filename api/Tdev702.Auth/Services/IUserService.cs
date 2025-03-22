@@ -41,7 +41,6 @@ public class UserService : IUserService
     private readonly ITwoFaService _i2FaService;
     private readonly ITokenService _tokenService;
     private readonly IAuthService _authService;
-    private readonly Bind<I2FaCodeBus, IPublishEndpoint> _2faEndpoint;
     private readonly string _env;
     private readonly ILogger<UserService> _logger;
 
@@ -51,7 +50,6 @@ public class UserService : IUserService
         LinkGenerator linkGenerator, 
         IEmailSender<User> emailSender, 
         IPublishEndpoint publishEndpoint, 
-        Bind<I2FaCodeBus, IPublishEndpoint> faEndpoint,
         ITwoFaService i2FaService, 
         ITokenService tokenService, 
         IEmailService emailService, 
@@ -66,7 +64,6 @@ public class UserService : IUserService
         _tokenService = tokenService;
         _emailService = emailService;
         _authService = authService;
-        _2faEndpoint = faEndpoint;
         _env = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
     }
 
@@ -172,11 +169,6 @@ public class UserService : IUserService
         
         _logger.LogInformation("Sending confirmation code to user {UserId}", user.Id);
         var code = await _i2FaService.GenerateCodeAsync(user);
-        if (_env == "staging" || _env == "dev")
-        {
-            //if in staging env we send a message to a queue that the tests are listening on so that they can login
-            await _2faEndpoint.Value.Publish(new TwoFactorCodeTask(){Code = code, Email = request.Email});
-        }
         
         await _emailService.SendVerificationCodeAsync(user.Email, code);
         _logger.LogInformation("Confirmation code sent to user {UserId}", user.Id);

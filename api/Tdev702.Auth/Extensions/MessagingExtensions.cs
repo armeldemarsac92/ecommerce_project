@@ -25,8 +25,3 @@ public static class MessagingExtensions
         return services;
     }
 }
-
-public interface I2FaCodeBus :
-    IBus
-{
-}
